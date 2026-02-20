@@ -1,5 +1,5 @@
 function App() {
-  return <>Deploy Test</>;
+  return <>Deploy Test 2</>;
 }
 
 export default App;
