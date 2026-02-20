@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# 🚗 Car Auction Management Panel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web-based platform for managing vehicle auctions, including listings, bidding, user management, and auction analytics.
 
-Currently, two official plugins are available:
+The project is split into two independent applications:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🖥 **Frontend** — user interface for buyers, sellers, and admins  
+- ⚙️ **Backend** — API, business logic, authentication, and auction engine  
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+### 🔹 Core Functionality
+- Vehicle listing management
+- Real-time bidding system
+- Auction scheduling & timers
+- User roles (Admin, Seller, Buyer)
+- Secure authentication & authorization
+- Auction history & analytics
+- Image uploads for vehicles
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔹 Admin Capabilities
+- Manage users and roles
+- Approve/reject listings
+- Monitor live auctions
+- View financial reports
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🏗 Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+# 🖥 Frontend
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+## 📌 Overview
+The frontend provides a responsive interface for browsing auctions, placing bids, and managing vehicle listings.
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+## 🛠 Tech Stack (example)
+- React
+- TypeScript
+- Tailwind CSS / Material UI
+- Axios / Fetch API
+
+## 🚀 Setup
+
+🔑 Environment Variables
+
+Create .env: </br>
+VITE_API_URL=http://localhost:8000/api
+
+```bash
+cd frontend
+npm install
+npm run dev
