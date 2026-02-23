@@ -11,8 +11,9 @@ export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+  console.log(role);
   //if (user?.role !== role) {
   //  return <Navigate to="/forbidden" replace />;
- // }
+  // }
   return children;
 };
