@@ -1,8 +1,8 @@
 import { Navigate } from "react-router";
-import type { JSX } from "react/jsx-runtime";
+import type { ReactNode } from "react";
 
 interface ProtectedRouteProps {
-  children: JSX.Element;
+  children: ReactNode;
   role: string;
 }
 export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
@@ -11,8 +11,8 @@ export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  if (user.role !== role) {
-    return <Navigate to="/forbidden" replace />;
-  }
+  //if (user?.role !== role) {
+  //  return <Navigate to="/forbidden" replace />;
+ // }
   return children;
 };
