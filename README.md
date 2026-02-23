@@ -4,14 +4,15 @@ A modern web-based platform for managing vehicle auctions, including listings, b
 
 The project is split into two independent applications:
 
-- 🖥 **Frontend** — user interface for buyers, sellers, and admins  
-- ⚙️ **Backend** — API, business logic, authentication, and auction engine  
+- 🖥 **Frontend** — user interface for buyers, sellers, and admins
+- ⚙️ **Backend** — API, business logic, authentication, and auction engine
 
 ---
 
 ## ✨ Features
 
 ### 🔹 Core Functionality
+
 - Vehicle listing management
 - Real-time bidding system
 - Auction scheduling & timers
@@ -21,6 +22,7 @@ The project is split into two independent applications:
 - Image uploads for vehicles
 
 ### 🔹 Admin Capabilities
+
 - Manage users and roles
 - Approve/reject listings
 - Monitor live auctions
@@ -35,9 +37,11 @@ The project is split into two independent applications:
 # 🖥 Frontend
 
 ## 📌 Overview
+
 The frontend provides a responsive interface for browsing auctions, placing bids, and managing vehicle listings.
 
 ## 🛠 Tech Stack (example)
+
 - React
 - TypeScript
 - Tailwind CSS / Material UI
@@ -54,3 +58,4 @@ VITE_API_URL=http://localhost:8000/api
 cd frontend
 npm install
 npm run dev
+```
