@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -6,31 +5,23 @@ import {
   TextField,
   Button,
   Typography,
-  Box,
   Paper,
   Alert,
 } from "@mui/material";
 import axios from "axios";
+import { loginSchema, type LoginInput } from "../shemas/schemas";
 
-// 1. Ваша схема (firstname та lastname обов'язкові!)
-const formDataSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
-});
-
-type User = z.infer<typeof formDataSchema>;
-
-export default function RegistrationForm() {
+export default function LoginForm() {
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<User>({
-    resolver: zodResolver(formDataSchema),
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<User> = async (data) => {
+  const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
       const responce = await axios.post(
         "http://155.117.43.95:8000/users/",
@@ -38,6 +29,7 @@ export default function RegistrationForm() {
       );
       console.log("Success:", responce);
     } catch (error) {
+      console.error("Error:", error);
       setError("root", {
         message: "Server error. Please try again later.",
       });
