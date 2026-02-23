@@ -2,7 +2,7 @@ name: Auto Deploy auctions-panel-fe
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
