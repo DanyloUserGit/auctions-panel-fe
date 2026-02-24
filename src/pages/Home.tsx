@@ -1,21 +1,14 @@
-import axios from "axios";
+import { Box } from "@mui/material";
+import Sidebar from "../components/Sidebar";
+import { Outlet } from "react-router";
 
 export default function Home() {
-    const  handleClick = async () => {
-        try{
-
-            const data=await axios.get("http://155.117.43.95:8000/auth/me",{
-                withCredentials:true
-            });
-            console.log( data);
-        }
-        catch(error){
-            console.error("Error fetching user data:", error);
-        }
-    };
-    return (
-    <div>Home
-        <button onClick={handleClick}>Click me</button>
-    </div>
-    )
+  return (
+    <Box sx={{ display: "flex" }}>
+      <Sidebar />
+      <Box component="main" sx={{ flexGrow: 1, p: 3, minHeight: "100vh" }}>
+        <Outlet />
+      </Box>
+    </Box>
+  );
 }

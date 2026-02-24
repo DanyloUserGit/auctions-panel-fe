@@ -21,17 +21,21 @@ export default function LoginForm() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
-      const response = await axios.post("http://155.117.43.95:8000/auth/login", data,{
-        withCredentials:true
-      });
+      const response = await axios.post(
+        "http://155.117.43.95:8000/auth/login",
+        data,
+        {
+          withCredentials: true,
+        },
+      );
       console.log("Успішний вхід:", response);
       navigate("/home");
     } catch (error: unknown) {
-      if(axios.isAxiosError(error)) {
+      if (axios.isAxiosError(error)) {
         console.error("Axios Error:", error.message);
         setError("root", {
           type: "server",

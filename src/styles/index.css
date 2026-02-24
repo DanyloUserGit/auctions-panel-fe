@@ -129,7 +129,10 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
-@theme {
-  --color-primary: #12182e;
+:root {
+  --color-primary: #1e40af;
+  --color-primary-light: #dbeafe;
   --color-accent: #3b82f6;
+  --color-muted: #64748b;
+  --color-sidebar-hover: #f1f5f9;
 }
