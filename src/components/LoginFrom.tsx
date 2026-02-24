@@ -8,8 +8,9 @@ import {
   Paper,
   Alert,
 } from "@mui/material";
-import axios from "axios";
 import { loginSchema, type LoginInput } from "../shemas/schemas";
+import axios from "axios";
+import { useNavigate } from "react-router";
 
 export default function LoginForm() {
   const {
@@ -20,24 +21,27 @@ export default function LoginForm() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
+  const navigate=useNavigate();
 
   const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
-      const responce = await axios.post(
-        "http://155.117.43.95:8000/users/",
-        data,
-      );
-      console.log("Success:", responce);
-    } catch (error) {
-      console.error("Error:", error);
-      setError("root", {
-        message: "Server error. Please try again later.",
+      const response = await axios.post("http://155.117.43.95:8000/auth/login", data,{
+        withCredentials:true
       });
+      console.log("Успішний вхід:", response);
+      navigate("/home");
+    } catch (error: unknown) {
+      if(axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.message);
+        setError("root", {
+          type: "server",
+          message: "Користувача не знайдено",
+        });
+      }
     }
   };
 
   return (
-    // Використовуємо sx для надійності відступів, або !mt-10 у className
     <Container maxWidth="sm" sx={{ mt: 10 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography
@@ -46,7 +50,7 @@ export default function LoginForm() {
           gutterBottom
           sx={{ color: "var(--color-primary)", fontWeight: "bold" }}
         >
-          Login
+          Вхід
         </Typography>
 
         <form
@@ -56,7 +60,7 @@ export default function LoginForm() {
         >
           <TextField
             fullWidth
-            label="Email"
+            label="Пошта"
             type="email"
             variant="outlined"
             {...register("email")}
@@ -66,7 +70,7 @@ export default function LoginForm() {
 
           <TextField
             fullWidth
-            label="Password"
+            label="Пароль"
             type="password"
             variant="outlined"
             {...register("password")}
@@ -92,7 +96,7 @@ export default function LoginForm() {
               py: 1.5,
             }}
           >
-            {isSubmitting ? "Processing..." : "Register"}
+            {isSubmitting ? "Обробка..." : "Увійти"}
           </Button>
         </form>
       </Paper>
