@@ -17,6 +17,9 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /var/www/auctions/auctions-panel-fe
+            git config --global --add safe.directory /var/www/auctions/auctions-panel-fe
+            git reset --hard
+            git clean -fd
             git pull origin main
             npm ci
             npm run build
