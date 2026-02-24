@@ -8,9 +8,10 @@ import {
   Paper,
   Alert,
 } from "@mui/material";
-import { loginSchema, type LoginInput } from "../shemas/schemas";
+import { loginSchema, type LoginInput } from "../../shemas/schemas";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { api } from "../../http";
 
 export default function LoginForm() {
   const {
@@ -25,15 +26,15 @@ export default function LoginForm() {
 
   const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
-      const response = await axios.post(
-        "http://155.117.43.95:8000/auth/login",
+      const response = await api.post(
+        "/auth/login",
         data,
         {
           withCredentials: true,
         },
       );
       console.log("Успішний вхід:", response);
-      navigate("/home");
+      navigate("/auctions");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error("Axios Error:", error.message);
