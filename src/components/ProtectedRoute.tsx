@@ -1,17 +1,19 @@
-import { Navigate } from "react-router";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  role: string;
+  roles: string[];
 }
-export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
   // const {user}=useAuth();
+  const navigate = useNavigate();
   const user = null;
+
   if (!user) {
-    return <Navigate to="/login" replace />;
+    navigate("/login");
   }
-  console.log(role);
+  console.log(roles);
   //if (user?.role !== role) {
   //  return <Navigate to="/forbidden" replace />;
   // }
