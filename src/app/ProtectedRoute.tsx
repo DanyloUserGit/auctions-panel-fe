@@ -1,21 +1,17 @@
-import type { ReactNode } from "react";
-import { useNavigate } from "react-router";
+import type { FC, PropsWithChildren } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { Navigate, Outlet } from 'react-router';
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-  roles: string[];
-}
-export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
-  // const {user}=useAuth();
-  const navigate = useNavigate();
-  const user = null;
+export const ProtectedRoute: FC<PropsWithChildren> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!user) {
-    navigate("/login");
+    return <Navigate to={'/login'} replace />;
   }
-  console.log(roles);
-  //if (user?.role !== role) {
-  //  return <Navigate to="/forbidden" replace />;
-  // }
-  return children;
+
+  return children ? <>{children}</> : <Outlet />;
 };

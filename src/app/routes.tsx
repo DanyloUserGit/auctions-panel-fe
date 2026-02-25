@@ -6,26 +6,39 @@ import Home from '../pages/Home';
 import Inventory from '../pages/Inventory';
 import Orders from '../pages/Orders';
 import Purchases from '../pages/Purchases';
+import { ProtectedRoute } from './ProtectedRoute';
+
 
 
 const router = createBrowserRouter([
     {
-        path: '/login',
-        element: <LoginFrom />,
-    },
-    {
+        path: "/login",
+        element: (
+          <ProtectedRoute>
+            <LoginFrom />
+          </ProtectedRoute>
+        ),
+      },
+  {
+    children: [
+      {
         path: '/',
-        element: <Home />,
+        element: <Home />, // Layout із Sidebar та Outlet
         children: [
-            { index: true, element: <Navigate to="/auctions" replace /> },
-            { path: 'auctions', element: <Auctions /> },
-            { path: 'favorites', element: <Favorite /> },
-            { path: 'orders', element: <Orders /> },
-            { path: 'purchases', element: <Purchases /> },
-            { path: 'inventory', element: <Inventory /> },
+          { index: true, element: <Navigate to="/auctions" replace /> },
+          { path: 'auctions', element: <Auctions /> },
+          { path: 'favorites', element: <Favorite /> },
+          { path: 'orders', element: <Orders /> },
+          { path: 'purchases', element: <Purchases /> },
+          { path: 'inventory', element: <Inventory /> },
         ],
-    },
+      },
+    ],
+  },
 ]);
+
+
+
 
 export default function AppRouter() {
     return <RouterProvider router={router} />;
