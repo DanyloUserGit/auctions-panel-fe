@@ -1,8 +1,7 @@
 import axios from "axios";
 import type { User } from "../shemas/schemas";
 
-// export const baseUrl = `https://auctions-be.duckdns.org/api`
-export const baseUrl = `http://localhost:8000/api`
+export const baseUrl = `https://auctions-be.duckdns.org/api`
 
 export const api = axios.create({
     baseURL: baseUrl,
