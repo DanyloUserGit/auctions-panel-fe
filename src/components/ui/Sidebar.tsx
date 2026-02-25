@@ -31,6 +31,7 @@ import {
 } from "@mui/icons-material";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { useAuth } from "../../hooks/useAuth";
 
 const drawerWidth = 280;
 const closedDrawerWidth = 72; // Оптимально для іконок
@@ -94,6 +95,7 @@ export default function Sidebar() {
   };
   const location = useLocation();
   const navigation = useNavigate();
+  const {user} = useAuth()
   return (
     <Drawer
       variant="permanent"
@@ -145,10 +147,10 @@ export default function Sidebar() {
                 noWrap
                 sx={{ fontWeight: "bold" }}
               >
-                Імя Прізвище
+                {user?.firstName} {user?.lastName}
               </Typography>
               <Typography variant="caption" noWrap color="text.secondary">
-                Роль
+                {user?.role}
               </Typography>
             </Box>
           )}
