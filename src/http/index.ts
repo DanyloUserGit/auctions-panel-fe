@@ -20,6 +20,6 @@ export const fetchAuctions=async()=>{
     return responce.data
 }
 export const fetchGroups=async()=>{
-    const responce=await api.get("/auctions/groups")
+    const responce=await api.get("/auction-groups")
     return responce.data
 }
