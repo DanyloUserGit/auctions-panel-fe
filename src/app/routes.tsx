@@ -1,29 +1,23 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
-import LoginFrom from '../components/ui/LoginFrom';
+import LoginForm from '../components/ui/LoginFrom';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
 import Inventory from '../pages/Inventory';
 import Orders from '../pages/Orders';
 import Purchases from '../pages/Purchases';
+import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
 
 
 
 const router = createBrowserRouter([
-    {
-        path: "/login",
-        element: (
-          <ProtectedRoute>
-            <LoginFrom />
-          </ProtectedRoute>
-        ),
-      },
   {
+    path: '/',
+    element: <Home />,
     children: [
       {
-        path: '/',
-        element: <Home />, // Layout із Sidebar та Outlet
+        element: <ProtectedRoute />,
         children: [
           { index: true, element: <Navigate to="/auctions" replace /> },
           { path: 'auctions', element: <Auctions /> },
@@ -34,6 +28,15 @@ const router = createBrowserRouter([
         ],
       },
     ],
+
+  },
+  {
+    path: "/login",
+    element: (
+      <GuestRoute>
+        <LoginForm />
+      </GuestRoute>
+    ),
   },
 ]);
 
@@ -41,5 +44,5 @@ const router = createBrowserRouter([
 
 
 export default function AppRouter() {
-    return <RouterProvider router={router} />;
+  return <RouterProvider router={router} />;
 }
