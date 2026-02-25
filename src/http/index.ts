@@ -15,3 +15,11 @@ export const fetchCurrentUser = async (): Promise<User> => {
 export const apiLogout = async (): Promise<void> => {
     await api.post("/auth/logout");
 }
+export const fetchAuctions=async()=>{
+    const responce=await api.get("/auctions")
+    return responce.data
+}
+export const fetchGroups=async()=>{
+    const responce=await api.get("/auctions/groups")
+    return responce.data
+}
