@@ -1,17 +1,18 @@
-import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Paper,
   Alert,
+  Button,
+  Container,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { loginSchema, type LoginInput } from "../../shemas/schemas";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { authKeys } from "../../hooks/useAuth";
 import { api } from "../../http";
+import { loginSchema, type LoginInput } from "../../shemas/schemas";
 
 export default function LoginForm() {
   const {
@@ -22,7 +23,7 @@ export default function LoginForm() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
@@ -34,7 +35,7 @@ export default function LoginForm() {
         },
       );
       console.log("Успішний вхід:", response);
-      navigate("/auctions");
+      await queryClient.invalidateQueries({ queryKey: authKeys.me });
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error("Axios Error:", error.message);
