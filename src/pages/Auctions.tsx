@@ -12,9 +12,11 @@ import { useGroups } from "../hooks/useGroups";
 
 export default function AuctionsPage() {
   const { items: auctions, isLoading:IsLoadingAuctions } = useAuctionsData();
-  const { items: groups, isLoading:IsLoadingGroups } = useGroups();
+  const { items: groups, 
+    // isLoading:IsLoadingGroups 
+  } = useGroups();
   const [activeGroupId, setActiveGroupId] = useState(groups[0]?.id || "");
-  const filteredAuctions = auctions.filter(item => item.groupId === activeGroupId);
+  // const filteredAuctions = auctions.filter(item => item.groupId === activeGroupId);
 
   useEffect(() => {
     console.log("Завантаження аукціонів:", groups);
