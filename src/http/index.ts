@@ -1,7 +1,8 @@
 import axios from "axios";
 import type { User } from "../shemas/schemas";
 
-export const baseUrl = `https://auctions-be.duckdns.org/api`
+// export const baseUrl = `https://auctions-be.duckdns.org/api`
+export const baseUrl = `http://localhost:8000/api`
 
 export const api = axios.create({
     baseURL: baseUrl,
@@ -20,6 +21,6 @@ export const fetchAuctions=async()=>{
     return responce.data
 }
 export const fetchGroups=async()=>{
-    const responce=await api.get("/auctions/groups")
+    const responce=await api.get("/auction-groups")
     return responce.data
 }
