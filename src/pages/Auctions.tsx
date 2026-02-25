@@ -1,16 +1,16 @@
-import { useAuth } from "../hooks/useAuth";
+import {  Box, Typography } from "@mui/material";
+import AuctionsList from "../components/ui/AuctionsList";
 import { api } from "../http";
 
 export default function Auctions() {
-  const {logout} = useAuth()
-  const me = async() => {
-    const res = await api.get("/auth/me");
+  const fn=async ()=>{
+    const res = await api.get('/auctions')
     console.log(res.data)
   }
-  const logoutfn = async() => {
-    await logout()
-  }
-  return <div><button onClick={me}>Me</button>
-  <button onClick={logoutfn}>Logout</button>
-  </div>;
+  
+  return <Box sx={{bgcolor:"var(--color-bg)"}}>
+          <Typography variant="h3">Аукціони</Typography>
+          <button onClick={fn}>Get auctions</button>
+          <AuctionsList/>
+        </Box>;
 }
