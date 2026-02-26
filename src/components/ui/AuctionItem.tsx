@@ -4,7 +4,7 @@ import { Avatar, Box, Card, CardActionArea, Grid, Typography } from "@mui/materi
 
 export default function AuctionItem({ title, url }: { title: string, url: string }) {
   return (
-    <Grid sx={{flex:1}} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+    <Grid width="100%" size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
       <Card
         sx={{
           borderRadius: "12px",
