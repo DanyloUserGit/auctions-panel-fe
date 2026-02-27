@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { User } from "../shemas/schemas";
-import { fetchCurrentUser, apiLogout, api } from "../http";
+import { fetchCurrentUser, apiLogout, refreshUser } from "../http/api-user";
 import { AxiosError } from "axios";
 
 export const authKeys = {
@@ -68,8 +68,7 @@ export const initAuth = async (): Promise<boolean> => {
 
   refreshPromise = (async () => {
     try {
-      const response = await api.post("/auth/refresh");
-      return response.status === 200 || response.status === 204;
+      refreshUser()
     } catch {
       return false;
     } finally {

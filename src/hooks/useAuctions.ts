@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAuctions } from '../http';
+import { fetchAuctions } from '../http/api-auctions';
 export const auctionsKeys = {
-  key: ["auctions"] as const,
+  all: ["auctions"] as const,
+  byGroup: (groupId: string) => [...auctionsKeys.all, groupId] as const,
 };
 
-
-export function useAuctionsData() {
+export function useAuctionsData(groupId: string) {
 
   const {
     data = [],
@@ -13,9 +13,10 @@ export function useAuctionsData() {
     isError,
     error,
   } = useQuery({
-    queryKey: auctionsKeys.key,
-    queryFn: fetchAuctions,
+    queryKey: auctionsKeys.byGroup(groupId),
+    queryFn: () => fetchAuctions(groupId),
     staleTime: 5 * 60 * 1000,
+    enabled: !!groupId
   });
 
 
