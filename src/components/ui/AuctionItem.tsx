@@ -2,7 +2,7 @@ import { Gavel } from "@mui/icons-material";
 import { Avatar, Box, Card, CardActionArea, Grid, Typography } from "@mui/material";
 
 
-export default function AuctionItem({ title, url }: { title: string, url: string }) {
+export default function AuctionItem({ title, url,onClick }: { title: string, url: string,onClick:(auction:any)=>void }) {
   return (
     <Grid width="100%" size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
       <Card
@@ -17,7 +17,7 @@ export default function AuctionItem({ title, url }: { title: string, url: string
           }
         }}
       >
-        <CardActionArea sx={{ p: 2 }}>
+        <CardActionArea sx={{ p: 2 }} onClick={onClick}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Avatar
               sx={{
