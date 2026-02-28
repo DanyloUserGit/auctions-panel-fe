@@ -3,28 +3,19 @@ import { DeleteOutline, DirectionsCar, Edit } from "@mui/icons-material";
 import DropDownMenu from "./DropDownMenu";
 import { useMobile } from "../../hooks/useMobile";
 
-const MOCK_GROUPS = [
-  { id: "1", name: "Автомобільні", icon: <DirectionsCar fontSize="small" /> },
-  { id: "2", name: "Спецтехніка", icon: <DirectionsCar fontSize="small" /> },
-  { id: "3", name: "Нерухомість", icon: <DirectionsCar fontSize="small" /> },
-  { id: "4", name: "Інші", icon: <DirectionsCar fontSize="small" /> },
-  { id: "5", name: "Автомобільні", icon: <DirectionsCar fontSize="small" /> },
-  { id: "6", name: "Спецтехніка", icon: <DirectionsCar fontSize="small" /> },
-  { id: "7", name: "Нерухомість", icon: <DirectionsCar fontSize="small" /> },
-  { id: "8", name: "Інші", icon: <DirectionsCar fontSize="small" /> },
-  { id: "9", name: "Автомобільні", icon: <DirectionsCar fontSize="small" /> },
-  { id: "10", name: "Спецтехніка", icon: <DirectionsCar fontSize="small" /> },
-  { id: "11", name: "Нерухомість", icon: <DirectionsCar fontSize="small" /> },
-  { id: "12", name: "Інші", icon: <DirectionsCar fontSize="small" /> },
-];
+interface Group{ 
+  id: string; 
+  title: string;
+}
 
 interface Props {
   activeGroupId: string;
   setActiveGroupId: (id: string) => void;
-  onEditGroup?: (groupId: string) => void; // Пропс для виклику модалки
+  onEditGroup?: (groupId: string) => void; 
+  groups:Group[]
 }
 
-export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditGroup }: Props) {
+export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditGroup,groups }: Props) {
   const isMobile = useMobile()
   return (
     <Paper
@@ -58,12 +49,12 @@ export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditG
             "& .MuiTabs-indicator": { backgroundColor: "var(--color-primary)" },
           }}
         >
-          {MOCK_GROUPS.map((group) => (
+          {groups.map((group) => (
             <Tab
               key={group.id}
-              icon={group.icon}
+              icon={ <DirectionsCar fontSize="small" />}
               iconPosition="start"
-              label={group.name}
+              label={group.title}
               value={group.id}
             />
           ))}

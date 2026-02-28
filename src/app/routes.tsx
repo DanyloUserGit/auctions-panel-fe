@@ -7,6 +7,7 @@ import Inventory from '../pages/Inventory';
 import Orders from '../pages/Orders';
 import Purchases from '../pages/Purchases';
 import { GuestRoute } from './GuestRoute';
+import { ProtectedRoute } from './ProtectedRoute';
 
 
 
@@ -16,7 +17,7 @@ const router = createBrowserRouter([
     element: <Home />,
     children: [
       {
-        // element: <ProtectedRoute />,
+        element: <ProtectedRoute />,
         children: [
           { index: true, element: <Navigate to="/auctions" replace /> },
           { path: 'auctions', element: <Auctions /> },
