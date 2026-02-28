@@ -1,21 +1,21 @@
 import { Paper, Tab, Tabs, Box, IconButton, Tooltip } from "@mui/material";
 import { DeleteOutline, DirectionsCar, Edit } from "@mui/icons-material";
-import DropDownMenu from "./DropDownMenu";
-import { useMobile } from "../../hooks/useMobile";
+import { useMobile } from "../../../shared/hooks/useMobile";
+import DropDownMenu from "../../groups/ui/DropDownMenu";
 
-interface Group{ 
-  id: string; 
+interface Group {
+  id: string;
   title: string;
 }
 
 interface Props {
   activeGroupId: string;
   setActiveGroupId: (id: string) => void;
-  onEditGroup?: (groupId: string) => void; 
-  groups:Group[]
+  onEditGroup?: (groupId: string) => void;
+  groups: Group[]
 }
 
-export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditGroup,groups }: Props) {
+export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditGroup, groups }: Props) {
   const isMobile = useMobile()
   return (
     <Paper
@@ -52,7 +52,7 @@ export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditG
           {groups.map((group) => (
             <Tab
               key={group.id}
-              icon={ <DirectionsCar fontSize="small" />}
+              icon={<DirectionsCar fontSize="small" />}
               iconPosition="start"
               label={group.title}
               value={group.id}
@@ -62,11 +62,11 @@ export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditG
       </Box>
 
       {isMobile ?
-        <DropDownMenu 
-          onEdit={() => console.log('Edit')} 
-          onDelete={() => console.log('Delete')} 
+        <DropDownMenu
+          onEdit={() => console.log('Edit')}
+          onDelete={() => console.log('Delete')}
         />
-         : (<>
+        : (<>
           <Box sx={{ pl: 2, pr: 1, borderLeft: "1px solid", borderColor: "divider", my: 1 }}>
             <Tooltip title="Редагувати поточну групу">
               <IconButton

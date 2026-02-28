@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { User } from "../shemas/schemas";
-import { fetchCurrentUser, apiLogout, refreshUser } from "../http/api-user";
 import { AxiosError } from "axios";
+import { apiLogout, fetchCurrentUser, refreshUser } from "./api-user";
+import type { User } from "./user-schema";
 
 export const authKeys = {
   me: ["auth", "me"] as const,
@@ -30,13 +30,13 @@ export const useAuth = () => {
             return await fetchCurrentUser();
           }
         }
-        
+
         return null;
       }
     },
     retry: false,
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: true, 
+    refetchOnWindowFocus: true,
   });
 
   const logout = async () => {
@@ -46,7 +46,7 @@ export const useAuth = () => {
       console.error("Logout failed:", err);
     } finally {
       queryClient.setQueryData(authKeys.me, null);
-      queryClient.clear(); 
+      queryClient.clear();
     }
   };
 
@@ -68,8 +68,10 @@ export const initAuth = async (): Promise<boolean> => {
 
   refreshPromise = (async () => {
     try {
-      refreshUser()
-    } catch {
+      await refreshUser()
+      return true
+    } catch (e) {
+      console.error(e)
       return false;
     } finally {
       refreshPromise = null;
