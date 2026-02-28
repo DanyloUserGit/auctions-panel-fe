@@ -1,8 +1,8 @@
 import { Autocomplete, Box, Button, CircularProgress, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useGroups } from '../../hooks/useGroups';
-import { fetchAuctionsByQuery } from '../../http/api-auctions';
-import BaseModal from './Modal';
+import BaseModal from '../../../shared/ui/Modal';
+import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
+import { useGroups } from '../model/useGroups';
 
 interface Auction {
   id: string;

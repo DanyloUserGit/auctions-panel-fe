@@ -1,5 +1,5 @@
-import { api } from ".";
-import type {  User } from "../shemas/schemas";
+import { api } from "../../../shared/http";
+import type { User } from "./user-schema";
 
 export const fetchCurrentUser = async (): Promise<User> => {
     const responce = await api.get("/auth/me");
@@ -8,7 +8,7 @@ export const fetchCurrentUser = async (): Promise<User> => {
 export const apiLogout = async (): Promise<void> => {
     await api.post("/auth/logout");
 }
-export const refreshUser=async ():Promise<boolean>=>{
+export const refreshUser = async (): Promise<boolean> => {
     const response = await api.post("/auth/refresh");
     return response.status === 200 || response.status === 204;
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createGroup, editGroup, fetchGroupByid, fetchGroups } from '../http/api-groups';
-import type { GroupCreate, GroupEdit } from '../shemas/schemas';
+import { createGroup, editGroup, fetchGroupByid, fetchGroups } from './api-groups';
+import type { GroupCreate, GroupEdit } from './group-schemas';
 export const groupsKeys = {
   key: ["groups"] as const,
   detail: (id: string) => [...groupsKeys.key, id] as const,

@@ -1,6 +1,6 @@
 import { AccountCircle } from "@mui/icons-material";
 import { Badge, List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
-import BaseModal from "../ui/Modal";
+import BaseModal from "../../../shared/ui/Modal";
 
 // Шаблонні дані акаунтів (згідно з ТЗ, вони тягнуться з бази [cite: 42, 43])
 const MOCK_ACCOUNTS = [
@@ -36,25 +36,25 @@ export default function AccountSelectModal({ open, onClose, auctionTitle }: Prop
               console.log("Запуск сесії для", account.login);
               onClose();
             }}
-            sx={{ 
-              borderRadius: 2, 
-              mb: 1, 
+            sx={{
+              borderRadius: 2,
+              mb: 1,
               border: "1px solid #eee",
               "&:hover": { borderColor: "var(--color-primary)" }
             }}
           >
             <ListItemIcon>
-              <Badge 
-                variant="dot" 
+              <Badge
+                variant="dot"
                 color={account.hasActiveSession ? "success" : "default"}
                 invisible={!account.hasActiveSession}
               >
                 <AccountCircle color="primary" />
               </Badge>
             </ListItemIcon>
-            <ListItemText 
-              primary={account.login} 
-              secondary={account.hasActiveSession ? "Є активна сесія (приєднатися)" : "Нова сесія"} 
+            <ListItemText
+              primary={account.login}
+              secondary={account.hasActiveSession ? "Є активна сесія (приєднатися)" : "Нова сесія"}
             />
           </ListItemButton>
         ))}

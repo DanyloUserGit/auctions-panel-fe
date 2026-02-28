@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAuctions } from '../http/api-auctions';
+import { fetchAuctions } from './api-auctions';
 export const auctionsKeys = {
   all: ["auctions"] as const,
   byGroup: (groupId: string) => [...auctionsKeys.all, groupId] as const,

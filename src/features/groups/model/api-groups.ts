@@ -1,5 +1,5 @@
-import { api } from "."
-import type { GroupCreate, GroupEdit } from "../shemas/schemas"
+import { api } from "../../../shared/http"
+import type { GroupCreate, GroupEdit } from "./group-schemas"
 
 export const fetchGroups = async () => {
     const responce = await api.get("/auction-groups")
