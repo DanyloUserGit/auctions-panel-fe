@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
-import LoginForm from '../components/ui/LoginFrom';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
@@ -8,6 +7,7 @@ import Orders from '../pages/Orders';
 import Purchases from '../pages/Purchases';
 import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
+import LoginForm from '../features/auth/ui/LoginFrom';
 
 
 

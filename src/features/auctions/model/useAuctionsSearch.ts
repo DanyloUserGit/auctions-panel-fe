@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAuctionsByQuery } from '../http/api-auctions';
+import { fetchAuctionsByQuery } from './api-auctions';
 export const auctionsKeys = {
     key: ["search"] as const,
 };

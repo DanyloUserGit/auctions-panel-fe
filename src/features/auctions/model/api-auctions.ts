@@ -1,4 +1,4 @@
-import { api } from "."
+import { api } from "../../../shared/http"
 
 export const fetchAuctions = async (groupId: string) => {
     if (!groupId) return []

@@ -10,9 +10,9 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { authKeys } from "../../hooks/useAuth";
-import { api } from "../../http";
-import { loginSchema, type LoginInput } from "../../shemas/schemas";
+import { api } from "../../../shared/http";
+import { authKeys } from "../model/useAuth";
+import { loginSchema, type LoginInput } from "../model/login-schema";
 
 export default function LoginForm() {
   const {
