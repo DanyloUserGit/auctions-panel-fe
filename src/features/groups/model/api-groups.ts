@@ -22,3 +22,9 @@ export const editGroup = async (groupId: string, editedGroup: GroupEdit) => {
     return data
 
 }
+
+export const deleteGroup = async (groupId: string) => {
+    const data = await api.delete(`auction-groups/${groupId}`);
+    return data
+
+}

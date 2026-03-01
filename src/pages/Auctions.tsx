@@ -9,11 +9,12 @@ import AuctionsList from "../features/auctions/ui/AuctionsList";
 import { ButtonUI } from "../shared/ui/Button";
 import EditGroupModal from "../features/groups/ui/EditGroupModal";
 import { useAuctionsData } from "../features/auctions/model/useAuctions";
-import AuctionsGroup from "../features/auctions/ui/AuctionsGroup";
+import AuctionsGroup from "../features/groups/ui/AuctionsGroup";
 import AccountSelectModal from "../features/auctions/ui/AuctionSelectModal";
 import { useGroups } from "../features/groups/model/useGroups";
 import type { Group } from "../features/groups/model/group-schemas";
-import type { Auction } from "../features/auctions/model/auction-schema";
+import type { Auction } from "../features/auctions/model/types";
+// import type { Auction } from "../features/auctions/model/auction-schema";
 
 
 
@@ -94,7 +95,7 @@ export default function AuctionsPage() {
         </Typography>
       ) : (
         <>
-          <AuctionsList filteredAuctions={auctions} onAuctionClick={handleAuctionClick} />
+          <AuctionsList currentGroupId={activeGroupId} filteredAuctions={auctions} onAuctionClick={handleAuctionClick} />
           <AccountSelectModal
             open={isAccountModalOpen}
             onClose={() => setIsAccountModalOpen(false)}
