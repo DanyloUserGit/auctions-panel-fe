@@ -3,3 +3,9 @@ export interface Auction {
     title: string;
     url: string
 }
+export interface AuctionCreate {
+    title: string;
+    url: string;
+    auctionGroupId: string;
+    users?: string[]
+}

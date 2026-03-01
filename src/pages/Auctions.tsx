@@ -7,13 +7,13 @@ import { useState } from "react";
 import type { Auction } from "../features/auctions/model/types";
 import { useAuctionsData } from "../features/auctions/model/useAuctions";
 import AccountSelectModal from "../features/auctions/ui/AuctionSelectModal";
-import AuctionsGroup from "../features/auctions/ui/AuctionsGroup";
 import AuctionsList from "../features/auctions/ui/AuctionsList";
 import type { Group } from "../features/groups/model/group-schemas";
 import { useGroups } from "../features/groups/model/useGroups";
 import AddGroupModal from "../features/groups/ui/AddGroupModal";
 import EditGroupModal from "../features/groups/ui/EditGroupModal";
 import { ButtonUI } from "../shared/ui/Button";
+import AuctionsGroup from "../features/groups/ui/AuctionsGroup";
 
 
 
@@ -94,7 +94,7 @@ export default function AuctionsPage() {
         </Typography>
       ) : (
         <>
-          <AuctionsList filteredAuctions={auctions} onAuctionClick={handleAuctionClick} />
+          <AuctionsList currentGroupId={activeGroupId} filteredAuctions={auctions} onAuctionClick={handleAuctionClick} />
           <AccountSelectModal
             open={isAccountModalOpen}
             onClose={() => setIsAccountModalOpen(false)}
