@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import type { Auction } from "../model/types";
 import AuctionDeleteModal from "./AuctionDeleteModal";
+import AuctionEditModal from "./AuctionEditModal";
 
 interface AuctionItemProps {
   auction: Auction,
@@ -21,6 +22,7 @@ export default function AuctionItem({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation(); // Запобігаємо спрацьовуванню кліку по всій картці
@@ -36,13 +38,13 @@ export default function AuctionItem({
   const handleOpenDeleteAuctionModal = () => setDeleteModalOpen(true);
   const handleCloseDeleteAuctionModal = () => setDeleteModalOpen(false);
 
-  const handleEdit = () => {
-    console.log("editing")
-  }
+  const handleOpenEditAuctionModal = () => setEditModalOpen(true);
+  const handleCloseEditAuctionModal = () => setEditModalOpen(false);
+
 
 
   return (
-    <Grid item xs={12} sm={6} md={4} lg={3}>
+    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
       <Card
         sx={{
           borderRadius: "12px",
@@ -76,7 +78,7 @@ export default function AuctionItem({
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
-            <MenuItem onClick={handleEdit}>
+            <MenuItem onClick={handleOpenEditAuctionModal}>
               <ListItemIcon>
                 <Edit fontSize="small" />
               </ListItemIcon>
@@ -91,10 +93,11 @@ export default function AuctionItem({
           </Menu>
         </Box>
 
-        {isDeleteModalOpen && <AuctionDeleteModal isModalOpen={isDeleteModalOpen} handleClose={handleCloseDeleteAuctionModal} currentAuction={auction} />}
+        <AuctionDeleteModal isModalOpen={isDeleteModalOpen} handleClose={handleCloseDeleteAuctionModal} currentAuction={auction} />
+        <AuctionEditModal isModalOpen={isEditModalOpen} handleClose={handleCloseEditAuctionModal} currentAuction={auction} />
 
 
-        <CardActionArea sx={{ p: 2 }} onClick={onClick}>
+        <CardActionArea sx={{ p: 2 }} onClick={() => onClick(auction)}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Avatar
               sx={{

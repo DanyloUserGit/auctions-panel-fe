@@ -1,7 +1,7 @@
 import { Button, CircularProgress, Typography } from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
 import { useGroups } from '../model/useGroups';
-import type { Group } from '../model/group-schemas';
+import type { Group } from '../model/types';
 
 interface DeleteGroupModalProps {
     isModalOpen: boolean;
