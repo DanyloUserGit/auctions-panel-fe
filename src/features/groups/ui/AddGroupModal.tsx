@@ -38,6 +38,7 @@ export default function AddGroupModal({ isModalOpen, handleClose, modal_title }:
 
         setIsLoading(true);
         fetchAuctionsByQuery(inputValue).then((results) => {
+            console.log(results)
             if (active) {
                 // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
                 setOptions(results || []);
