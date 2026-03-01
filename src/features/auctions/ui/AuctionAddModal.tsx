@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchUserByQuery } from '../../auth/model/api-user';
 import { useCreateAuction } from '../model/useAuctions';
+import type { User } from '../../auth/model/user-schema';
 
-interface Auction {
-    id: string;
-    title: string;
-    url: string;
-}
+// interface Auction {
+//     id: string;
+//     title: string;
+//     url: string;
+// }
 
 interface AddGroupModalProps {
     isModalOpen: boolean;
@@ -21,9 +22,9 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
     const { mutate, isPending } = useCreateAuction()
     const [title, setTitle] = useState<string>("");
     const [url, setUrl] = useState<string>("")
-    const [addedAuctions, setAddedAuctions] = useState<Auction[]>([]);
+    const [addedAcounts, setAddedAcounts] = useState<User[]>([]);
 
-    const [options, setOptions] = useState<Auction[]>([]);
+    const [options, setOptions] = useState<User[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -32,7 +33,7 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
         let active = true;
 
         if (inputValue === '') {
-            setOptions(addedAuctions); // Показуємо вже вибрані, якщо пошук порожній
+            setOptions(addedAcounts); // Показуємо вже вибрані, якщо пошук порожній
             return undefined;
         }
 
@@ -40,13 +41,13 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
         fetchUserByQuery(inputValue).then((results) => {
             if (active) {
                 // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
-                setOptions(results || []);
+                setOptions(results.data || []);
                 setIsLoading(false);
             }
         });
 
         return () => { active = false; };
-    }, [inputValue, addedAuctions]);
+    }, [inputValue, addedAcounts]);
 
     const handleSubmit = () => {
         if (!title.trim()) return;
@@ -54,11 +55,13 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
         mutate({
             title,
             url,
-            auctionGroupId: currentGroupId
+            auctionGroupId: currentGroupId,
+            users: addedAcounts.map(a => String(a.id))
         }, {
             onSuccess: () => {
                 setTitle("");
-                setAddedAuctions([]);
+                setUrl('')
+                setAddedAcounts([]);
                 handleClose();
             }
         });
@@ -100,21 +103,21 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
                     multiple
                     id="async-auctions-select"
                     filterSelectedOptions
-                    value={addedAuctions}
+                    value={addedAcounts}
                     options={options}
                     loading={isLoading}
                     onInputChange={(_, newInputValue) => {
                         setInputValue(newInputValue);
                     }}
                     onChange={(_, newValue) => {
-                        setAddedAuctions(newValue);
+                        setAddedAcounts(newValue);
                     }}
-                    getOptionLabel={(option) => option.title}
+                    getOptionLabel={(option) => option.email}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
                         <TextField
                             {...params}
-                            label="Пошук аукціонів"
+                            label="Пошук акаунтів"
                             placeholder="Введіть назву..."
                             InputProps={{
                                 ...params.InputProps,

@@ -2,13 +2,12 @@ import { DeleteOutline, DirectionsCar, Edit } from "@mui/icons-material";
 import { Box, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
 import { useMobile } from "../../../shared/hooks/useMobile";
+import { Can } from "../../auth/ui/Can";
+import type { Group } from "../model/types";
 import ConfirmDeleteGroupModal from "./ConfirmDeleteGroupModal";
 import DropDownMenu from "./DropDownMenu";
 
-interface Group {
-  id: string;
-  title: string;
-}
+
 
 interface Props {
   activeGroupId: string;
@@ -70,43 +69,45 @@ export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditG
               ))}
             </Tabs>
           </Box>
+          <Can roles={['GroupAdmin', 'SuperAdmin', "Admin"]}>
 
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {isMobile ? (
-              <DropDownMenu
-                onEdit={() => onEditGroup?.(activeGroupId)}
-                onDelete={handleOpenDeleteGroupModal}
-              />
-            ) : (
-              <>
-                <Box sx={{ pl: 2, pr: 1, borderLeft: "1px solid", borderColor: "divider", my: 1 }}>
-                  <Tooltip title="Редагувати поточну групу">
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {isMobile ? (
+                <DropDownMenu
+                  onEdit={() => onEditGroup?.(activeGroupId)}
+                  onDelete={handleOpenDeleteGroupModal}
+                />
+              ) : (
+                <>
+                  <Box sx={{ pl: 2, pr: 1, borderLeft: "1px solid", borderColor: "divider", my: 1 }}>
+                    <Tooltip title="Редагувати поточну групу">
+                      <IconButton
+                        onClick={() => onEditGroup?.(activeGroupId)}
+                        sx={{
+                          color: "text.secondary",
+                          "&:hover": { color: "var(--color-primary)", bgcolor: "rgba(0,0,0,0.04)" },
+                        }}
+                      >
+                        <Edit fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <Tooltip title="Видалити групу">
                     <IconButton
-                      onClick={() => onEditGroup?.(activeGroupId)}
+                      size="small"
+                      onClick={handleOpenDeleteGroupModal}
                       sx={{
                         color: "text.secondary",
-                        "&:hover": { color: "var(--color-primary)", bgcolor: "rgba(0,0,0,0.04)" },
+                        "&:hover": { color: "error.main", bgcolor: "error.lighter" },
                       }}
                     >
-                      <Edit fontSize="small" />
+                      <DeleteOutline fontSize="small" />
                     </IconButton>
                   </Tooltip>
-                </Box>
-                <Tooltip title="Видалити групу">
-                  <IconButton
-                    size="small"
-                    onClick={handleOpenDeleteGroupModal}
-                    sx={{
-                      color: "text.secondary",
-                      "&:hover": { color: "error.main", bgcolor: "error.lighter" },
-                    }}
-                  >
-                    <DeleteOutline fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-          </Box>
+                </>
+              )}
+            </Box>
+          </Can>
         </>
       ) : (
         <Box sx={{ flexGrow: 1, py: 1.5, px: 2 }}>
@@ -116,11 +117,14 @@ export default function AuctionsGroup({ activeGroupId, setActiveGroupId, onEditG
         </Box>
       )}
 
-      <ConfirmDeleteGroupModal
-        isModalOpen={isDeleteGroupModalOpen}
-        handleClose={handleCloseDeleteGroupModal}
-        currentGroup={currentGroupExist}
-      />
+      {currentGroupExist &&
+        <ConfirmDeleteGroupModal
+          isModalOpen={isDeleteGroupModalOpen}
+          handleClose={handleCloseDeleteGroupModal}
+          currentGroup={currentGroupExist}
+        />
+      }
+
     </Paper>
   );
 }
