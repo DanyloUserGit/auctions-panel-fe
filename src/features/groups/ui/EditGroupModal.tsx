@@ -3,12 +3,7 @@ import { useEffect, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
 import { useGroups } from '../model/useGroups';
-
-interface Auction {
-  id: string;
-  title: string;
-  url: string;
-}
+import type { Auction } from '../../auctions/model/types';
 
 interface AddGroupModalProps {
   isModalOpen: boolean;

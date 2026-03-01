@@ -4,16 +4,16 @@ import {
   Typography
 } from "@mui/material";
 import { useState } from "react";
-import AddGroupModal from "../features/groups/ui/AddGroupModal";
-import AuctionsList from "../features/auctions/ui/AuctionsList";
-import { ButtonUI } from "../shared/ui/Button";
-import EditGroupModal from "../features/groups/ui/EditGroupModal";
+import type { Auction } from "../features/auctions/model/types";
 import { useAuctionsData } from "../features/auctions/model/useAuctions";
-import AuctionsGroup from "../features/auctions/ui/AuctionsGroup";
 import AccountSelectModal from "../features/auctions/ui/AuctionSelectModal";
-import { useGroups } from "../features/groups/model/useGroups";
+import AuctionsGroup from "../features/auctions/ui/AuctionsGroup";
+import AuctionsList from "../features/auctions/ui/AuctionsList";
 import type { Group } from "../features/groups/model/group-schemas";
-import type { Auction } from "../features/auctions/model/auction-schema";
+import { useGroups } from "../features/groups/model/useGroups";
+import AddGroupModal from "../features/groups/ui/AddGroupModal";
+import EditGroupModal from "../features/groups/ui/EditGroupModal";
+import { ButtonUI } from "../shared/ui/Button";
 
 
 
