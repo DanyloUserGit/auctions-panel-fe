@@ -40,8 +40,9 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
         fetchUserByQuery(inputValue).then((results) => {
             if (active) {
                 // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
-                setOptions(results || []);
+                setOptions(results.data || []);
                 setIsLoading(false);
+                console.log(results.data )
             }
         });
 

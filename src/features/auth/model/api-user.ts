@@ -13,6 +13,11 @@ export const refreshUser = async (): Promise<boolean> => {
     return response.status === 200 || response.status === 204;
 }
 export const fetchUserByQuery = async (q: string) => {
-    const responce = await api.get(`users/search/${q}`)
+    if (!q) return []
+    const responce = await api.get(`/users/search`, {
+        params: {
+            query: q
+        }
+    })
     return responce.data
 }
