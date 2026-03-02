@@ -3,12 +3,8 @@ import { useEffect, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
 import { useGroups } from '../model/useGroups';
+import type { Auction } from '../../auctions/model/types';
 
-interface Auction {
-    id: string;
-    title: string;
-    url: string;
-}
 
 interface AddGroupModalProps {
     isModalOpen: boolean;
@@ -38,6 +34,7 @@ export default function AddGroupModal({ isModalOpen, handleClose, modal_title }:
 
         setIsLoading(true);
         fetchAuctionsByQuery(inputValue).then((results) => {
+            console.log(results)
             if (active) {
                 // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
                 setOptions(results || []);

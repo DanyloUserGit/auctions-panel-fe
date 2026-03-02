@@ -3,12 +3,7 @@ import { useEffect, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
 import { useGroups } from '../model/useGroups';
-
-interface Auction {
-  id: string;
-  title: string;
-  url: string;
-}
+import type { Auction } from '../../auctions/model/types';
 
 interface AddGroupModalProps {
   isModalOpen: boolean;
@@ -22,7 +17,7 @@ interface AddGroupModalProps {
 }
 
 export default function AddGroupModal({ current_group, isModalOpen, handleClose, modal_title }: AddGroupModalProps) {
-  const { EditGroup } = useGroups();
+  const { EditGroupMutation } = useGroups();
 
   const [title, setTitle] = useState<string>(current_group?.title ?? '');
 
@@ -68,7 +63,7 @@ export default function AddGroupModal({ current_group, isModalOpen, handleClose,
   const handleSubmit = () => {
     if (!title.trim()) return;
 
-    EditGroup.mutate({
+    EditGroupMutation.mutate({
       id: current_group.id,
       data: {
         title,
@@ -95,9 +90,9 @@ export default function AddGroupModal({ current_group, isModalOpen, handleClose,
           <Button
             onClick={handleSubmit}
             variant="contained"
-            disabled={!title.trim() || EditGroup.isPending}
+            disabled={!title.trim() || EditGroupMutation.isPending}
           >
-            {EditGroup.isPending ? <CircularProgress size={24} /> : "Редагувати"}
+            {EditGroupMutation.isPending ? <CircularProgress size={24} /> : "Редагувати"}
           </Button>
         </>
       }

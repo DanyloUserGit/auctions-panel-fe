@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createGroup, editGroup, fetchGroupByid, fetchGroups } from './api-groups';
-import type { GroupCreate, GroupEdit } from './group-schemas';
+import { createGroup, deleteGroup, editGroup, fetchGroupByid, fetchGroups } from './api-groups';
+import type { GroupCreate, GroupEdit } from './types';
 export const groupsKeys = {
   key: ["groups"] as const,
   detail: (id: string) => [...groupsKeys.key, id] as const,
@@ -30,19 +30,34 @@ export function useGroups(groupId?: string) {
   const GroupCreation = useMutation({
     mutationFn: (newGroup: GroupCreate) => createGroup(newGroup),
     onSuccess: () => {
-      // Оновлюємо кеш, щоб список груп перевантажився автоматично
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
     },
   })
 
-  const EditGroup = useMutation({
-    // Тепер приймаємо об'єкт з id та data всередині mutate
+
+
+
+  const EditGroupMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: GroupEdit }) => editGroup(id, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // 1. Оновлюємо список груп
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
+
+      // 2. ВАЖЛИВО: Оновлюємо список аукціонів саме для цієї групи
+      // Це змусить useAuctionsData(groupId) перечитати дані
+      queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
     },
   });
 
+  const DeleteGroupMutation = useMutation({
+    mutationFn: (id: string) => deleteGroup(id),
+    onSuccess: (_, deletedId) => {
+      queryClient.removeQueries({ queryKey: groupsKeys.detail(deletedId) });
+      // Оновлюємо список
+      queryClient.invalidateQueries({ queryKey: groupsKeys.key });
+    }
+  })
 
-  return { items: data, isLoading, isError, error: error ?? null, groupDetail: groupDetailQuery.data, isLoadingDetail: groupDetailQuery.isLoading, GroupCreation, EditGroup };
+
+  return { items: data, isLoading, isError, error: error ?? null, groupDetail: groupDetailQuery.data, isLoadingDetail: groupDetailQuery.isLoading, GroupCreation, EditGroupMutation, DeleteGroupMutation };
 }

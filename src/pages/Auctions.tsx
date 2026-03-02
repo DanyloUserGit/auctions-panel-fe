@@ -1,55 +1,56 @@
-import { Add } from "@mui/icons-material";
-import {
-  Box,
-  Typography
-} from "@mui/material";
+import { Add, ArrowBack } from "@mui/icons-material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import { useState } from "react";
-import AddGroupModal from "../features/groups/ui/AddGroupModal";
-import AuctionsList from "../features/auctions/ui/AuctionsList";
-import { ButtonUI } from "../shared/ui/Button";
-import EditGroupModal from "../features/groups/ui/EditGroupModal";
+import AccountList from "../features/acounts/ui/AccountList";
+import type { Auction } from "../features/auctions/model/types";
 import { useAuctionsData } from "../features/auctions/model/useAuctions";
-import AuctionsGroup from "../features/auctions/ui/AuctionsGroup";
-import AccountSelectModal from "../features/auctions/ui/AuctionSelectModal";
+import AuctionsList from "../features/auctions/ui/AuctionsList";
+import { Can } from "../features/auth/ui/Can";
+import type { Group } from "../features/groups/model/types";
 import { useGroups } from "../features/groups/model/useGroups";
-import type { Group } from "../features/groups/model/group-schemas";
-import type { Auction } from "../features/auctions/model/auction-schema";
-
+import AddGroupModal from "../features/groups/ui/AddGroupModal";
+import AuctionsGroup from "../features/groups/ui/AuctionsGroup";
+import EditGroupModal from "../features/groups/ui/EditGroupModal";
+import { useSession } from "../features/sessions/model/store";
+import { useSessionsData } from "../features/sessions/model/useSessionData";
+import { ButtonUI } from "../shared/ui/Button";
+import SessionList from "../features/sessions/ui/SessionList";
 
 
 export default function AuctionsPage() {
-  const { items: groups,
-  } = useGroups();
-
+  const { items: groups } = useGroups();
+  const sessionConnect = useSession();
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-
-  // Поточний ID — це або той, що вибрав користувач, або ID першої групи
   const activeGroupId = selectedGroupId || (groups.length > 0 ? groups[0].id : "");
 
-  // Тепер використовуємо activeGroupId для запиту аукціонів
   const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId);
+  const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(sessionConnect.auctionAuthId);
+
+  const [view, setView] = useState<'auctions' | 'accounts' | 'sessions'>('auctions');
+  const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
 
   const handleGroupChange = (id: string) => {
     setSelectedGroupId(id);
+    setView('auctions');
   };
 
   const [isModalOpen, setModalOpen] = useState(false);
-  const handleOpen = () => setModalOpen(true);
-  const handleClose = () => setModalOpen(false);
-
-
   const [isModalEditGroupOpen, setModalEditGroupOpen] = useState(false);
-  const handleOpenEditGroup = () => setModalEditGroupOpen(true)
-  const handleCloseEditGroup = () => setModalEditGroupOpen(false)
-
-
-  const [selectedAuction, setSelectedAuction] = useState<Auction>();
-  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 
   const handleAuctionClick = (auction: Auction) => {
+    sessionConnect.setAuctionId(auction.id)
     setSelectedAuction(auction);
-    setIsAccountModalOpen(true);
+    setView('accounts');
   };
+
+  const handleBackToAuctions = () => {
+    setView('auctions');
+    setSelectedAuction(null);
+  };
+
+  const handleAuctionAuthClick = () => {
+    setView("sessions");
+  }
 
   return (
     <Box>
@@ -57,53 +58,77 @@ export default function AuctionsPage() {
         display: "flex",
         flexDirection: { xs: "column", sm: "row" },
         justifyContent: "space-between",
-        alignItems: { xs: "flex-start", sm: "center" }, // Вирівнювання по центру на ПК
+        alignItems: { xs: "flex-start", sm: "center" },
         gap: 2,
         mb: 3
       }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, color: "#1a1a1a" }}>
-          Аукціони
-        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'baseline' }}>
+          {(view === 'accounts' || view === "sessions") && (
+            <Button onClick={handleBackToAuctions} startIcon={<ArrowBack />} sx={{ color: 'text.secondary' }}>
+              Назад
+            </Button>
+          )}
+          <Typography variant="h4" sx={{ fontWeight: 800, color: "#1a1a1a" }}>
+            {view === 'auctions' ? "Аукціони" : view === 'accounts' ? `Акаунти: ${selectedAuction?.title}` : "Сесії"}
+          </Typography>
+        </Box>
 
-        {/* КНОПКА ВІДКРИТТЯ МОДАЛКИ */}
-        <ButtonUI
-          onClick={handleOpen}
-          styles={{ width: { xs: "100%", sm: "auto" } }}
-        >
-          <Add />
-          Створити групу
-        </ButtonUI>
-
-        {/* МОДАЛЬНЕ ВІКНО */}
-        <AddGroupModal handleClose={handleClose} isModalOpen={isModalOpen} modal_title="Створити групу" />
+        {view === 'auctions' && (
+          <Can roles={['GroupAdmin', 'SuperAdmin', "Admin"]}>
+            <ButtonUI onClick={() => setModalOpen(true)} styles={{ width: { xs: "100%", sm: "auto" } }}>
+              <Add /> Створити групу
+            </ButtonUI>
+          </Can>
+        )}
       </Box>
 
-      <AuctionsGroup
-        groups={groups}
-        activeGroupId={activeGroupId}
-        setActiveGroupId={handleGroupChange}
-        onEditGroup={() => {
-          handleOpenEditGroup();
-        }}
-      />
-      <EditGroupModal current_group={groups.find((group: Group) => group.id === activeGroupId)} isModalOpen={isModalEditGroupOpen} handleClose={handleCloseEditGroup} modal_title="Редагувати групу" />
-
-      {IsLoadingAuctions ? (
-        <Typography variant="body1" color="text.secondary">
-          Завантаження аукціонів...
-        </Typography>
-      ) : (
+      {view === 'auctions' && (
         <>
-          <AuctionsList filteredAuctions={auctions} onAuctionClick={handleAuctionClick} />
-          <AccountSelectModal
-            open={isAccountModalOpen}
-            onClose={() => setIsAccountModalOpen(false)}
-            auctionTitle={selectedAuction?.title || ""}
-            auctionId={selectedAuction?.id || ""}
+          <AuctionsGroup
+            groups={groups}
+            activeGroupId={activeGroupId}
+            setActiveGroupId={handleGroupChange}
+            onEditGroup={() => setModalEditGroupOpen(true)}
+          />
+          <EditGroupModal
+            current_group={groups.find((group: Group) => group.id === activeGroupId)}
+            isModalOpen={isModalEditGroupOpen}
+            handleClose={() => setModalEditGroupOpen(false)}
+            modal_title="Редагувати групу"
           />
         </>
-
       )}
+
+      {IsLoadingAuctions ? (
+        <Typography variant="body1" color="text.secondary">Завантаження...</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {view === 'auctions' ? (
+            <AuctionsList
+              currentGroupId={activeGroupId}
+              filteredAuctions={auctions}
+              onAuctionClick={handleAuctionClick}
+            />
+          ) : (
+            (selectedAuction && view!=='sessions') && <AccountList changeView={handleAuctionAuthClick} currentAuction={selectedAuction} />
+          )}
+        </Grid>
+      )}
+
+      {isLoadingSessions ? (
+        <Typography variant="body1" color="text.secondary">Завантаження...</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {view === 'sessions' ? (
+            <SessionList
+              sessions={sessions}
+            />
+          ) : (
+            <></>
+          )}
+        </Grid>
+      )}
+      <AddGroupModal handleClose={() => setModalOpen(false)} isModalOpen={isModalOpen} modal_title="Створити групу" />
     </Box>
   );
 }
