@@ -5,13 +5,19 @@ export const emitJoinAuction = (sessionConnectData: SessionConnectData) => {
     socket.emit('join_auction', sessionConnectData);
 };
 
-export const sendWebRTCOffer = (sessionId: string, offer: RTCSessionDescriptionInit) => {
+export const sendWebRTCOffer = (
+    sessionId: string, 
+    offer: RTCSessionDescriptionInit, 
+    width: number,  
+    height: number 
+) => {
     socket.emit('webrtc_signal', {
         sessionId: sessionId,
-        signalData: { type: 'offer', sdp: offer.sdp }
+        signalData: { type: 'offer', sdp: offer.sdp },
+        width: width,   
+        height: height  
     });
 };
-
 export const subscribeToAuctionEvents = (events: AuctionSocketEvents) => {
     socket.on('connect', events.onConnect);
     socket.on('session_ready', events.onSessionReady);

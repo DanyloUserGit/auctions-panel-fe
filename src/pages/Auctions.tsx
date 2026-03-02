@@ -11,30 +11,34 @@ import { useGroups } from "../features/groups/model/useGroups";
 import AddGroupModal from "../features/groups/ui/AddGroupModal";
 import AuctionsGroup from "../features/groups/ui/AuctionsGroup";
 import EditGroupModal from "../features/groups/ui/EditGroupModal";
+import { useSession } from "../features/sessions/model/store";
+import { useSessionsData } from "../features/sessions/model/useSessionData";
 import { ButtonUI } from "../shared/ui/Button";
+import SessionList from "../features/sessions/ui/SessionList";
 
 
 export default function AuctionsPage() {
   const { items: groups } = useGroups();
+  const sessionConnect = useSession();
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const activeGroupId = selectedGroupId || (groups.length > 0 ? groups[0].id : "");
 
   const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId);
+  const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(sessionConnect.auctionAuthId);
 
-  // Стан для "заглиблення" в акаунти
-  const [view, setView] = useState<'auctions' | 'accounts'>('auctions');
+  const [view, setView] = useState<'auctions' | 'accounts' | 'sessions'>('auctions');
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
 
   const handleGroupChange = (id: string) => {
     setSelectedGroupId(id);
-    setView('auctions'); // При зміні групи повертаємось до списку аукціонів
+    setView('auctions');
   };
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [isModalEditGroupOpen, setModalEditGroupOpen] = useState(false);
 
-  // Обробка кліку по аукціону
   const handleAuctionClick = (auction: Auction) => {
+    sessionConnect.setAuctionId(auction.id)
     setSelectedAuction(auction);
     setView('accounts');
   };
@@ -44,6 +48,9 @@ export default function AuctionsPage() {
     setSelectedAuction(null);
   };
 
+  const handleAuctionAuthClick = () => {
+    setView("sessions");
+  }
 
   return (
     <Box>
@@ -55,14 +62,14 @@ export default function AuctionsPage() {
         gap: 2,
         mb: 3
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {view === 'accounts' && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'baseline' }}>
+          {(view === 'accounts' || view === "sessions") && (
             <Button onClick={handleBackToAuctions} startIcon={<ArrowBack />} sx={{ color: 'text.secondary' }}>
               Назад
             </Button>
           )}
           <Typography variant="h4" sx={{ fontWeight: 800, color: "#1a1a1a" }}>
-            {view === 'auctions' ? "Аукціони" : `Акаунти: ${selectedAuction?.title}`}
+            {view === 'auctions' ? "Аукціони" : view === 'accounts' ? `Акаунти: ${selectedAuction?.title}` : "Сесії"}
           </Typography>
         </Box>
 
@@ -75,7 +82,6 @@ export default function AuctionsPage() {
         )}
       </Box>
 
-      {/* Ховаємо таби груп, коли ми всередині акаунтів, щоб не плутати юзера */}
       {view === 'auctions' && (
         <>
           <AuctionsGroup
@@ -104,11 +110,24 @@ export default function AuctionsPage() {
               onAuctionClick={handleAuctionClick}
             />
           ) : (
-            selectedAuction && <AccountList currentAuction={selectedAuction} />
+            (selectedAuction && view!=='sessions') && <AccountList changeView={handleAuctionAuthClick} currentAuction={selectedAuction} />
           )}
         </Grid>
       )}
 
+      {isLoadingSessions ? (
+        <Typography variant="body1" color="text.secondary">Завантаження...</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {view === 'sessions' ? (
+            <SessionList
+              sessions={sessions}
+            />
+          ) : (
+            <></>
+          )}
+        </Grid>
+      )}
       <AddGroupModal handleClose={() => setModalOpen(false)} isModalOpen={isModalOpen} modal_title="Створити групу" />
     </Box>
   );
