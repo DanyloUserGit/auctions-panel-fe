@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react';
+import { useEffect } from 'react';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import LoginForm from '../features/auth/ui/LoginFrom';
 import { useSession } from '../features/sessions/model/store';
