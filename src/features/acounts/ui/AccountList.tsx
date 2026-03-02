@@ -7,20 +7,26 @@ import type { Account } from "../model/types";
 import AddItemButton from "../../../shared/ui/AddItemButton";
 import AccountAddModal from "./AccountAddModal";
 import { Can } from "../../auth/ui/Can";
+import { useSession } from "../../sessions/model/store";
 
-export default function AccountList({ currentAuction }: { currentAuction: Auction }) {
-    // Використовуємо items напряму з хука, без зайвих useEffect
+export default function AccountList({ currentAuction, changeView }: { currentAuction: Auction, changeView: () => void }) {
+    const sessionConnect = useSession();
     const { items: accounts, isLoading } = useAcounts(currentAuction.id);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleSelectAccount = (accountId: string) => {
+        sessionConnect.setAuctionAuthId(accountId);
+        changeView();
+    }
 
     if (isLoading) return <div>Завантаження акаунтів...</div>;
 
     return (
         <Grid container spacing={3}>
             {accounts.map((account: Account) => (
-                <AccountItem key={account.id} account={account} />
+                <AccountItem handleSelectAccount={handleSelectAccount} key={account.id} account={account} />
             ))}
-            <Can roles={['GroupAdmin', 'SuperAdmin', "Admin"]} fallback=<div>Акаунтів ще немає</div>  >
+            <Can roles={['GroupAdmin', 'SuperAdmin', "Admin"]} fallback={<div>Акаунтів ще немає</div>}  >
                 <AddItemButton
                     isEmpty={accounts.length === 0}
                     onClick={() => setIsModalOpen(true)}

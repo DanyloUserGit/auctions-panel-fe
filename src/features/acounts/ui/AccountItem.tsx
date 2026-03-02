@@ -14,10 +14,11 @@ import ConfirmDeleteAccountModal from "./ConfirmDeleteAccountModal";
 
 interface AccountItemProps {
     account: Account;
+    handleSelectAccount: (accountId: string) => void;
     onDelete?: (account: Account) => void;
 }
 
-export default function AccountItem({ account }: AccountItemProps) {
+export default function AccountItem({ account, handleSelectAccount }: AccountItemProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [isOpen, setIsOpen] = useState(false)
     const open = Boolean(anchorEl);
@@ -73,7 +74,7 @@ export default function AccountItem({ account }: AccountItemProps) {
 
                 <ConfirmDeleteAccountModal handleClose={handleClose} currentAccount={account} isModalOpen={isOpen} />
 
-                <CardActionArea sx={{ p: 2 }}>
+                <CardActionArea onClick={() => handleSelectAccount(account.id)} sx={{ p: 2 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         <Avatar
                             sx={{
@@ -97,9 +98,9 @@ export default function AccountItem({ account }: AccountItemProps) {
                                     textOverflow: 'ellipsis'
                                 }}
                             >
-                                {account.firstName || account.lastName
-                                    ? `${account.firstName} ${account.lastName}`
-                                    : "Без імені"}
+                                {account.email
+                                    ? `${account.email}`
+                                    : ""}
                             </Typography>
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>

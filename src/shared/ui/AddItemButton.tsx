@@ -4,13 +4,13 @@ import { Box, CardActionArea, Typography, Card, Grid } from '@mui/material'
 interface Props {
     isEmpty: boolean;
     onClick: () => void;
-    type: 'auction' | 'account';
+    type: 'auction' | 'account' | 'session';
 }
 
 export default function AddItemButton({ isEmpty, onClick, type }: Props) {
     const label = type === 'auction'
         ? (isEmpty ? "Додайте перший аукціон" : "Додати аукціон")
-        : (isEmpty ? "Додайте перший акаунт" : "Додати акаунт");
+        : type === 'session' ? ("Приєднатися до нової") : (isEmpty ? "Додайте перший акаунт" : "Додати акаунт")
 
     return (
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
@@ -25,7 +25,6 @@ export default function AddItemButton({ isEmpty, onClick, type }: Props) {
                     borderColor: "divider",
                     bgcolor: "transparent",
                     transition: "0.2s",
-                    // Додаємо, щоб картка не була занадто вузькою для тексту
                     minWidth: "fit-content",
                     "&:hover": {
                         borderColor: "primary.main",
@@ -38,7 +37,7 @@ export default function AddItemButton({ isEmpty, onClick, type }: Props) {
                     sx={{
                         display: "flex",
                         justifyContent: "center",
-                        px: 3, // Збільшуємо горизонтальні відступи для "дихання" тексту
+                        px: 3,
                         py: 2,
                         height: "100%"
                     }}
@@ -48,12 +47,12 @@ export default function AddItemButton({ isEmpty, onClick, type }: Props) {
                         alignItems: "center",
                         gap: 1.5,
                         color: "primary.main",
-                        whiteSpace: "nowrap" // Забороняємо перенос рядка
+                        whiteSpace: "nowrap"
                     }}>
                         <AddCircleOutline sx={{ fontSize: 24 }} />
                         <Typography sx={{
                             fontWeight: 600,
-                            fontSize: '1rem', // Повертаємо нормальний розмір шрифту
+                            fontSize: '1rem',
                         }}>
                             {label}
                         </Typography>

@@ -43,6 +43,7 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
                 // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
                 setOptions(results.data || []);
                 setIsLoading(false);
+                console.log(results.data )
             }
         });
 

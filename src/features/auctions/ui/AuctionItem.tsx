@@ -25,7 +25,7 @@ export default function AuctionItem({
   const [isEditModalOpen, setEditModalOpen] = useState(false);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation(); // Запобігаємо спрацьовуванню кліку по всій картці
+    event.stopPropagation(); 
     setAnchorEl(event.currentTarget);
   };
 
@@ -51,14 +51,13 @@ export default function AuctionItem({
           border: "1px solid #e0e0e0",
           boxShadow: "none",
           transition: "0.2s",
-          position: "relative", // Для позиціювання меню
+          position: "relative", 
           "&:hover": {
             borderColor: "var(--color-primary)",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
           }
         }}
       >
-        {/* Кнопка "Три крапки" */}
         <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}>
           <IconButton
             size="small"
