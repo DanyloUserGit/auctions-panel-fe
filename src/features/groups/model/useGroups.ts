@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createGroup, deleteGroup, editGroup, fetchGroupByid, fetchGroups } from './api-groups';
+import { createGroup, deleteGroup, editGroup, fetchGroupByid, fetchGroupByQuery, fetchGroups } from './api-groups';
 import type { GroupCreate, GroupEdit } from './types';
 export const groupsKeys = {
   key: ["groups"] as const,
@@ -60,4 +60,20 @@ export function useGroups(groupId?: string) {
 
 
   return { items: data, isLoading, isError, error: error ?? null, groupDetail: groupDetailQuery.data, isLoadingDetail: groupDetailQuery.isLoading, GroupCreation, EditGroupMutation, DeleteGroupMutation };
+}
+export function useGroupByQuery(searchTerm: string = "") {
+  const {
+    data = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [...groupsKeys.key, { search: searchTerm }],
+    queryFn: () => fetchGroupByQuery(searchTerm),
+    staleTime: 5 * 60 * 1000,
+    enabled: searchTerm.length >= 2 || searchTerm.length === 0,
+
+  });
+
+  return { data, isLoading, isError, error };
 }

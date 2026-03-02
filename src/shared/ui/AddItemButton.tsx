@@ -18,14 +18,14 @@ export default function AddItemButton({ isEmpty, onClick, type }: Props) {
                 variant="outlined"
                 sx={{
                     height: "100%",
-                    minHeight: 88,
+                    minHeight: { xs: 70, sm: 88 }, // Менша висота на мобільних
                     display: "flex",
                     borderRadius: "12px",
                     border: "2px dashed",
                     borderColor: "divider",
                     bgcolor: "transparent",
                     transition: "0.2s",
-                    minWidth: "fit-content",
+                    width: "100%", // Картка займає всю доступну ширину колонки
                     "&:hover": {
                         borderColor: "primary.main",
                         bgcolor: "rgba(25, 118, 210, 0.04)",
@@ -37,22 +37,25 @@ export default function AddItemButton({ isEmpty, onClick, type }: Props) {
                     sx={{
                         display: "flex",
                         justifyContent: "center",
-                        px: 3,
+                        px: { xs: 1.5, sm: 3 }, // Менші падінги на мобільних
                         py: 2,
                         height: "100%"
                     }}
                 >
                     <Box sx={{
                         display: "flex",
+                        flexDirection: { xs: "column", xsm: "row" }, // Опційно: іконка над текстом на ДУЖЕ малих екранах
                         alignItems: "center",
-                        gap: 1.5,
+                        textAlign: "center",
+                        gap: { xs: 0.5, sm: 1.5 },
                         color: "primary.main",
-                        whiteSpace: "nowrap"
+                        // whiteSpace: "nowrap"  <-- ПРИБРАНО для адаптивності
                     }}>
-                        <AddCircleOutline sx={{ fontSize: 24 }} />
+                        <AddCircleOutline sx={{ fontSize: { xs: 20, sm: 24 } }} />
                         <Typography sx={{
                             fontWeight: 600,
-                            fontSize: '1rem',
+                            fontSize: { xs: '0.875rem', sm: '1rem' }, // Менший шрифт на мобільних
+                            lineHeight: 1.2,
                         }}>
                             {label}
                         </Typography>

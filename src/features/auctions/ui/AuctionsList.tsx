@@ -20,7 +20,18 @@ export default function AuctionsList({ filteredAuctions, onAuctionClick, current
   const isEmpty = filteredAuctions.length === 0;
 
   return (
-    <Grid container spacing={3}>
+    <Grid
+      container
+      spacing={3}
+      sx={{
+        width: '100%',
+        margin: 0, // Скидаємо марджини, які створює spacing
+        '& > .MuiGrid-item': {
+          paddingTop: 3, // Повертаємо відступи вручну, якщо вони зникли
+          paddingLeft: 3
+        }
+      }}
+    >
       {/* 1. Рендеримо аукціони, якщо вони є */}
       {filteredAuctions.map((auction) => (
         <AuctionItem
