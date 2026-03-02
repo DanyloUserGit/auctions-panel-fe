@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FC, type KeyboardEvent, type MouseEvent } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { socket } from '../../../shared/http';
 import { useAuth } from '../../auth/model/useAuth';
 import { emitJoinAuction, sendWebRTCIceCandidate, sendWebRTCOffer, subscribeToAuctionEvents } from '../model/sockets';
@@ -15,6 +15,7 @@ export const SessionContainer: FC = () => {
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+    const iceCandidatesQueue = useRef<RTCIceCandidateInit[]>([]);
     const dataChannelRef = useRef<RTCDataChannel | null>(null);
 
     const [status, setStatus] = useState<string>("Ініціалізація");
@@ -28,7 +29,6 @@ export const SessionContainer: FC = () => {
             return;
         }
 
-        // Встановлюємо початковий статус
         setStatus(sessionId ? "Підключення до сесії..." : "Створення нової сесії...");
 
         const payload = sessionId
@@ -42,7 +42,6 @@ export const SessionContainer: FC = () => {
             }
         };
 
-        // 1. СПОЧАТКУ ПІДПИСУЄМОСЬ НА ПОДІЇ (щоб не пропустити швидку відповідь сервера)
         const unsubscribeSockets = subscribeToAuctionEvents({
             onConnect: () => {
                 safeJoinAuction(payload);
@@ -51,9 +50,7 @@ export const SessionContainer: FC = () => {
             onSessionReady: async (data) => {
                 setStatus('Налаштування відеозв\'язку...');
 
-                // 2. ФІКС МАРШРУТИЗАЦІЇ: Змінюємо URL непомітно для React
                 if (!sessionId && data.sessionId) {
-                    // window.history.replaceState не викликає ререндер, але змінює рядок в браузері
                     window.history.replaceState(null, '', `/session/${data.sessionId}`);
                 }
 
@@ -61,13 +58,16 @@ export const SessionContainer: FC = () => {
                     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
                 });
                 peerConnectionRef.current = pc;
-                pc.onconnectionstatechange = () => console.log("🚀 Стан WebRTC:", pc.connectionState);
+
+                pc.oniceconnectionstatechange = () => {
+                    console.log("📍 ICE стан:", pc.iceConnectionState);
+                    if (pc.iceConnectionState === 'failed') setStatus("Помилка мережі (ICE Failed)");
+                };
+
+                pc.addTransceiver('video', { direction: 'recvonly' });
 
                 const dataChannel = pc.createDataChannel('interact');
                 dataChannelRef.current = dataChannel;
-
-                dataChannel.onopen = () => console.log('DataChannel відкрито для передачі подій');
-                dataChannel.onclose = () => console.log('DataChannel закрито');
 
                 pc.onicecandidate = (event) => {
                     if (event.candidate) {
@@ -76,23 +76,21 @@ export const SessionContainer: FC = () => {
                 };
 
                 pc.ontrack = (event) => {
-                    console.log('Отримано відеопотік', event.track);
-                    if (videoRef.current) {
-                        const stream = event.streams && event.streams.length > 0
-                            ? event.streams[0]
-                            : new MediaStream([event.track]);
+                    const track = event.track;
+                    console.log('✅ Отримано трек:', track.kind);
 
-                        videoRef.current.srcObject = stream;
-
-                        videoRef.current.play().catch(e => console.error("Не вдалося запустити відео:", e));
-
+                    track.onunmute = () => {
+                        console.log('🎉 Дані відео почали надходити!');
                         setStatus('Активна сесія 🟢');
+                    };
+
+                    if (videoRef.current && event.streams[0]) {
+                        videoRef.current.srcObject = event.streams[0];
                     }
                 };
 
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
-
                 sendWebRTCOffer(data.sessionId, offer, sessionConnect.width, sessionConnect.height);
             },
 
@@ -100,15 +98,45 @@ export const SessionContainer: FC = () => {
                 const pc = peerConnectionRef.current;
                 if (!pc) return;
 
-                if (signalData.type === 'answer' || signalData.type === 'offer') {
-                    await pc.setRemoteDescription(new RTCSessionDescription(signalData as RTCSessionDescriptionInit));
-                    console.log('Відеозв\'язок встановлено (Answer отримано)');
-                } else if (signalData.type === 'candidate' && signalData.candidate) {
-                    try {
-                        await pc.addIceCandidate(new RTCIceCandidate(signalData.candidate));
-                    } catch (e) {
-                        console.error('Помилка додавання ICE кандидата', e);
+                // ДИНАМІЧНЕ ВИЗНАЧЕННЯ IP (Локально чи VPS)
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                
+                // Вставте сюди публічний IP вашого Ubuntu сервера замість 198.51.100.25 !!!
+                // Або використовуйте .env змінну, якщо вона налаштована (наприклад VITE_VPS_IP)
+                // @ts-ignore
+                const fallbackVpsIp = '155.117.43.95';
+                
+                const TARGET_IP = isLocalhost ? '127.0.0.1' : fallbackVpsIp;
+
+                try {
+                    if (signalData.type === 'answer') {
+                        let sdp = (signalData as RTCSessionDescriptionInit).sdp;
+                        if (sdp) {
+                            sdp = sdp.replace(/(172|192|10)\.\d+\.\d+\.\d+/g, TARGET_IP);
+                        }
+                        const patchedAnswer = { type: 'answer' as RTCSdpType, sdp };
+
+                        await pc.setRemoteDescription(new RTCSessionDescription(patchedAnswer));
+                        console.log(`✅ Remote Description встановлено (Підключення до: ${TARGET_IP})`);
+
+                        while (iceCandidatesQueue.current.length > 0) {
+                            const candidate = iceCandidatesQueue.current.shift();
+                            if (candidate) await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                        }
+                    } else if (signalData.type === 'candidate' && 'candidate' in signalData) {
+                        let candidateInit = { ...signalData.candidate };
+                        if (candidateInit.candidate) {
+                            candidateInit.candidate = candidateInit.candidate.replace(/(172|192|10)\.\d+\.\d+\.\d+/g, TARGET_IP);
+                        }
+
+                        if (pc.remoteDescription) {
+                            await pc.addIceCandidate(new RTCIceCandidate(candidateInit));
+                        } else {
+                            iceCandidatesQueue.current.push(candidateInit);
+                        }
                     }
+                } catch (e) {
+                    console.error('❌ Помилка WebRTC сигналу:', e);
                 }
             },
 
@@ -117,7 +145,6 @@ export const SessionContainer: FC = () => {
             }
         });
 
-        // 3. ВІДПРАВЛЯЄМО ЗАПИТ ТІЛЬКИ ПІСЛЯ ПІДПИСКИ
         if (socket.connected) {
             safeJoinAuction(payload);
         }
@@ -165,6 +192,7 @@ export const SessionContainer: FC = () => {
                 autoPlay
                 playsInline
                 muted
+                controls={false}
                 onClick={handleMouseClick}
                 className="w-full h-full object-contain cursor-crosshair"
             />
