@@ -139,7 +139,7 @@ export default function AuctionsPage() {
         </Tooltip>
 
         {view === 'auctions' && (
-          <Can roles={['GroupAdmin', 'SuperAdmin', "Admin"]}>
+          <Can roles={['GroupAdmin', 'SuperAdmin',]}>
             <ButtonUI onClick={() => setModalOpen(true)} styles={{ width: { xs: "100%", sm: "auto" } }}>
               <Add /> Створити групу
             </ButtonUI>
