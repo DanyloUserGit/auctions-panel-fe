@@ -1,5 +1,5 @@
 import { api } from "../../../shared/http";
-import type { UpdateUser, User } from "./user-schema";
+import type { ChangeRole, UpdateUser, User } from "./user-schema";
 
 export const fetchCurrentUser = async (): Promise<User> => {
     const responce = await api.get("/auth/me");
@@ -17,8 +17,23 @@ export const fetchUserByQuery = async (q: string) => {
     console.log(responce.data)
     return responce.data
 }
-export const updateUser = async (id: string, data: UpdateUser) => {
-    const responce = await api.post(`/users/${id}`, data)
+export const updateProfile = async (data: UpdateUser) => {
+    const responce = await api.patch(`/profile/edit`, data)
+    console.log(responce.data)
+    return responce.data
+}
+export const updateRole = async (data: ChangeRole) => {
+    const responce = await api.patch('profile/change-role', data);
+    console.log(responce.data)
+    return responce.data
+}
+export const sendResetLink = async () => {
+    const responce = await api.post('profile/send-reset-link');
+    console.log(responce.data)
+    return responce.data
+}
+export const changePassword = async (data: { token: string, password: string }) => {
+    const responce = await api.patch(`profile/change-password/${data.token}`, { password: data.password });
     console.log(responce.data)
     return responce.data
 }

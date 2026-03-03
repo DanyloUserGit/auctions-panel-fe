@@ -59,7 +59,7 @@ const router = createBrowserRouter([
         <ResetPassword />
       </ProtectedRoute>
     )
-  }
+  },
 ]);
 
 

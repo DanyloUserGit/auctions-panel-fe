@@ -1,5 +1,5 @@
-import { AccountCircle, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Avatar, Box, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { AccountCircle, ChevronLeft, ChevronRight, Logout } from '@mui/icons-material';
+import { Avatar, Box, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Typography } from '@mui/material';
 import { useAuth } from '../../features/auth/model/useAuth';
 import { useNavigate } from 'react-router';
 
@@ -18,8 +18,9 @@ interface Props {
     }[];
 }
 export default function DrawerContent({ isOpen, isMobile, toggleDrawer, handleNavigation, menuItems }: Props) {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate()
+
 
     return (
         <Box sx={{
@@ -110,9 +111,16 @@ export default function DrawerContent({ isOpen, isMobile, toggleDrawer, handleNa
                                     </ListItem>
                                 );
                             })}
+
                         </List>
                     </Box>
                 ))}
+                <MenuItem onClick={logout} sx={{ color: 'error.main', fontWeight: 600 }}>
+                    <ListItemIcon>
+                        <Logout fontSize="small" color="error" />
+                    </ListItemIcon>
+                    Вийти з акаунта
+                </MenuItem>
             </Box>
         </Box>
     );
