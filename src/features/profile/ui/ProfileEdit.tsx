@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AdminPanelSettings, ArrowBack, Badge, Security } from "@mui/icons-material";
 import {
     Box,
@@ -12,13 +11,14 @@ import {
     Paper,
     Select,
     TextField,
-    Typography
+    Typography,
+    type SelectChangeEvent
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { sendResetLink } from "../../auth/model/api-user";
 import { useAuth } from "../../auth/model/useAuth";
-import { RIGHTS, ROLES, updateUserSchema, type UpdateUser } from "../../auth/model/user-schema";
+import { RIGHTS, ROLES, type UpdateUser, type UserRights, type UserRole } from "../../auth/model/user-schema";
 import { Can } from "../../auth/ui/Can";
 import { useChangeRole, useUpdateProfile } from "../model/useProfile";
 
@@ -29,53 +29,42 @@ export default function ProfileEdit() {
     const { mutate: updateUserMutation, isPending: isPendingProfile } = useUpdateProfile()
     const { mutate: changeRoleMutation, isPending: isPendingRole } = useChangeRole()
     // Додай це всередині ProfileEdit
-    const {
-        register,
-        reset,
-        handleSubmit,
-        control,
-        setError,
-        formState: { errors, isSubmitting },
-    } = useForm<UpdateUser>({
-        resolver: zodResolver(updateUserSchema),
-        defaultValues: {
-            id: user?.id,
-            email: user?.email,
-            firstName: user?.firstName,
-            lastName: user?.lastName,
-            role: user?.role,
-            rights: user?.rights
-        }
+
+
+    const [formData, setFormData] = useState<UpdateUser>({
+        id: user?.id || 0,
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+        email: user?.email || "",
+        role: user?.role || "User",
+        rights: (Array.isArray(user?.rights) ? user.rights[0] : user?.rights) as UserRights
     });
 
 
-
     const isAdmin = user?.role === "SuperAdmin"
-
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleChangePassword = async () => {
         await sendResetLink();
 
     }
-
-    const onSubmit = async (data: UpdateUser) => {
-        try {
-            console.log("Валідовані дані форми:", data);
-
-            // Емуляція виклику API (поки без реального виконання)
-            /* await updateUserMutation(data);
-            if (isAdmin) {
-                await changeRoleMutation({
-                    id: String(data.id),
-                    role: data.role as UserRole,
-                    rights: data.rights as UserRights
-                });
-            }
-            navigate("/"); 
-            */
-        } catch (e) {
-            console.error(e);
-        }
+    const handleRoleChange = (e: SelectChangeEvent<string>) => {
+        setFormData((prev) => ({ ...prev, role: e.target.value as UserRole }));
+    };
+    const handleRightChange = (e: SelectChangeEvent<string>) => {
+        setFormData((prev) => ({ ...prev, rights: e.target.value as UserRights }));
+    };
+    const handleSave = async () => {
+        await updateUserMutation(formData)
+        if (isAdmin) await changeRoleMutation({
+            id: String(formData.id),
+            role: formData.role as UserRole,
+            rights: formData.rights as UserRights
+        })
+        navigate("/")
     };
 
     return (
@@ -90,8 +79,6 @@ export default function ProfileEdit() {
             </Box>
 
             <Paper
-                component="form"
-                onSubmit={handleSubmit(onSubmit)}
                 variant="outlined"
                 sx={{
                     p: { xs: 3, sm: 5 },
@@ -117,58 +104,42 @@ export default function ProfileEdit() {
                         <TextField
                             fullWidth
                             label="Ім'я"
-                            {...register("firstName")}
+                            name="firstName"
                             disabled={isPendingProfile || isPendingRole}
-                            error={!!errors.firstName}
-                            helperText={errors.firstName?.message}
+                            value={formData.firstName}
+                            onChange={handleChange}
                             slotProps={{ inputLabel: { shrink: true } }}
                         />
-                        {/* Вивід помилки валідації від Zod */}
-                        {errors.firstName && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                                {errors.firstName.message}
-                            </Typography>
-                        )}
                     </Grid>
 
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                             fullWidth
                             label="Прізвище"
-                            error={!!errors.lastName}
-                            helperText={errors.lastName?.message}
+                            name="lastName"
                             disabled={isPendingProfile || isPendingRole}
-                            {...register("lastName")}
+
+                            value={formData.lastName}
+                            onChange={handleChange}
                             slotProps={{ inputLabel: { shrink: true } }}
                         />
-                        {/* Вивід помилки валідації від Zod */}
-                        {errors.lastName && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                                {errors.lastName.message}
-                            </Typography>
-                        )}
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Email"
-                            {...register("email")}
-                            error={!!errors.email}
-                            helperText={errors.email?.message}
+                            name="email"
+                            value={formData.email}
                         />
-                        {/* Вивід помилки валідації від Zod */}
-                        {errors.email && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                                {errors.email.message}
-                            </Typography>
-                        )}
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
                         <Button
+                            type="submit"
                             variant="outlined"
                             size="medium"
+                            onClick={handleChangePassword}
                             sx={{
                                 mt: 2,
                                 mb: 3,
@@ -195,75 +166,44 @@ export default function ProfileEdit() {
                             <Divider />
                         </Grid>
 
-
                         <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl fullWidth error={!!errors.role}>
-                                <InputLabel id="role-select-label">Роль в системі</InputLabel>
-                                <Controller
-                                    name="role"
-                                    control={control}
-                                    // Значення за замовчуванням, якщо в user.role порожньо
-                                    defaultValue={user?.role || "User"}
-                                    render={({ field }) => (
-                                        <Select
-                                            {...field}
-                                            labelId="role-select-label"
-                                            label="Роль в системі"
-                                            // Переконуємось, що значення не undefined для MUI
-                                            value={field.value ?? ""}
-                                            startAdornment={
-                                                <AdminPanelSettings sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />
-                                            }
-                                        >
-                                            {ROLES.map((role) => (
-                                                <MenuItem key={role} value={role}>
-                                                    {role}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                                {/* Вивід помилки валідації від Zod */}
-                                {errors.role && (
-                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                                        {errors.role.message}
-                                    </Typography>
-                                )}
+                            <FormControl fullWidth>
+                                <InputLabel id="role-label">Роль в системі</InputLabel>
+                                <Select
+                                    labelId="role-label"
+                                    value={formData.role || ""}
+                                    label="Роль в системі"
+                                    disabled={isPendingProfile || isPendingRole}
+
+                                    onChange={handleRoleChange}
+                                    startAdornment={<AdminPanelSettings sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />}
+                                >
+                                    {ROLES.map((role) => (
+                                        <MenuItem key={role} value={role}>
+                                            {role}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
                             </FormControl>
                         </Grid>
 
                         <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl fullWidth error={!!errors.rights}>
-                                <InputLabel id="rights-label">Доступні права</InputLabel>
-
-                                <Controller
-                                    name="rights"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            {...field}
-                                            labelId="rights-label"
-                                            label="Доступні права"
-                                            value={field.value ?? ""}
-                                            startAdornment={
-                                                <Security sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />
-                                            }
-                                        >
-                                            {RIGHTS.map((right) => (
-                                                <MenuItem key={right} value={right}>
-                                                    {right}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-
-                                {/* Повідомлення про помилку від Zod */}
-                                {errors.rights && (
-                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                                        {errors.rights.message}
-                                    </Typography>
-                                )}
+                            <FormControl fullWidth>
+                                <InputLabel id="rights-label">Додаткові права</InputLabel>
+                                <Select
+                                    label="Роль в системі"
+                                    labelId="rights-label"
+                                    value={formData.rights}
+                                    disabled={isPendingProfile || isPendingRole}
+                                    onChange={handleRightChange}
+                                    startAdornment={<AdminPanelSettings sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />}
+                                >
+                                    {RIGHTS.map((role) => (
+                                        <MenuItem key={role} value={role}>
+                                            {role}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
                             </FormControl>
                         </Grid>
 
@@ -274,6 +214,7 @@ export default function ProfileEdit() {
 
                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 6 }}>
                     <Button
+                        type="submit"
                         variant="outlined"
                         size="medium"
                         onClick={() => navigate(-1)}
@@ -294,6 +235,7 @@ export default function ProfileEdit() {
                         type="submit"
                         variant="contained"
                         size="medium"
+                        onClick={handleSave}
                         sx={{
                             mt: 2,
                             mb: 3,

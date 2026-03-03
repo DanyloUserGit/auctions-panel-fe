@@ -16,7 +16,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useChangePassword } from "../features/profile/model/useProfile";
 
@@ -48,7 +48,6 @@ export default function ResetPassword() {
             setIsSuccess(true);
         }
     };
-    useEffect(() => { console.log(formData) }, [formData])
 
 
     if (isSuccess) {
