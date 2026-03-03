@@ -22,9 +22,36 @@ export default function AuctionsPage() {
   const { items: groups } = useGroups();
   const sessionConnect = useSession();
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const activeGroupId = selectedGroupId || (groups.length > 0 ? groups[0].id : "");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isAlphabetical, setisAlphabetical] = useState(false)
 
-  const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId);
+  const filteredGroups = useMemo<Group[]>(() => {
+    let result = groups;
+    if (debouncedSearch.trim()) {
+      const searchLower = debouncedSearch.toLowerCase();
+      result = groups.filter((group: Group) =>
+        group.title.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (isAlphabetical) {
+      return [...result].sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return result;
+  }, [groups, debouncedSearch, isAlphabetical]);
+
+
+
+  const activeGroupId = useMemo(() => {
+    if (filteredGroups.length === 0) return ''
+    else if (filteredGroups.some(g => g.id === selectedGroupId)) return selectedGroupId
+    return filteredGroups.at(0)?.id
+  }, [filteredGroups, selectedGroupId])
+
+
+  const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId || '');
   const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(sessionConnect.auctionAuthId);
 
   const [view, setView] = useState<'auctions' | 'accounts' | 'sessions'>('auctions');
@@ -53,9 +80,7 @@ export default function AuctionsPage() {
     setView("sessions");
   }
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [isAlphabetical, setisAlphabetical] = useState(false)
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -67,34 +92,9 @@ export default function AuctionsPage() {
 
 
 
-  const filteredGroups = useMemo(() => {
-    // 1. Фільтрація
-    let result = groups;
-    if (debouncedSearch.trim()) {
-      const searchLower = debouncedSearch.toLowerCase();
-      result = groups.filter((group: Group) =>
-        group.title.toLowerCase().includes(searchLower)
-      );
-    }
 
-    // 2. Сортування (якщо активовано)
-    if (isAlphabetical) {
-      // Створюємо копію [...result], бо sort змінює оригінальний масив
-      return [...result].sort((a, b) => a.title.localeCompare(b.title));
-    }
 
-    return result;
-  }, [groups, debouncedSearch, isAlphabetical]);
-  // 2. Логіка для автоматичного вибору активної групи
-  // Якщо після пошуку активна група зникла з результатів, обираємо першу зі знайдених
-  useEffect(() => {
-    if (filteredGroups.length > 0) {
-      const isActiveVisible = filteredGroups.some(g => g.id === activeGroupId);
-      if (!isActiveVisible) {
-        setSelectedGroupId(filteredGroups[0].id);
-      }
-    }
-  }, [filteredGroups, activeGroupId]);
+
 
   return (
     <Box>
@@ -152,7 +152,7 @@ export default function AuctionsPage() {
 
           <AuctionsGroup
             groups={filteredGroups}
-            activeGroupId={activeGroupId}
+            activeGroupId={activeGroupId || ''}
             setActiveGroupId={handleGroupChange}
             onEditGroup={() => setModalEditGroupOpen(true)}
           />
@@ -179,7 +179,7 @@ export default function AuctionsPage() {
         <Grid container spacing={3}>
           {view === 'auctions' ? (
             <AuctionsList
-              currentGroupId={activeGroupId}
+              currentGroupId={activeGroupId || ''}
               filteredAuctions={auctions}
               onAuctionClick={handleAuctionClick}
             />

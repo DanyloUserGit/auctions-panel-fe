@@ -18,8 +18,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../features/auth/model/useAuth";
-import { RIGHTS, ROLES, type UpdateUser } from "../features/auth/model/user-schema";
+import { useAuth } from "../auth/model/useAuth";
+import { RIGHTS, ROLES, type UpdateUser, type UserRights, type UserRole } from "../auth/model/user-schema";
 
 export default function ProfileEdit() {
     const navigate = useNavigate();
@@ -43,16 +43,17 @@ export default function ProfileEdit() {
 
     // Обробник для Select (Role)
     const handleRoleChange = (e: SelectChangeEvent<string>) => {
-        setFormData((prev) => ({ ...prev, role: e.target.value as any }));
+        setFormData((prev) => ({ ...prev, role: e.target.value as UserRole }));
     };
 
     // Обробник для Multi-Select (Rights)
-    const handleRightsChange = (e: SelectChangeEvent<string[]>) => {
+    const handleRightsChange = (e: SelectChangeEvent<UserRights[]>) => {
         const { value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            // MUI multiple повертає масив, але ми страхуємося від дивної поведінки мобільних браузерів
-            rights: typeof value === "string" ? (value.split(",") as any) : value,
+            rights: typeof value === "string"
+                ? (value.split(",") as UserRights[])
+                : value,
         }));
     };
 
@@ -132,7 +133,7 @@ export default function ProfileEdit() {
                             type="submit"
                             variant="outlined"
                             size="medium"
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate("/reset-password")}
                             sx={{
                                 mt: 2,
                                 mb: 3,
