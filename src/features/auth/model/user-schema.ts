@@ -4,6 +4,7 @@ export const ROLES = ['GroupAdmin', 'User', 'SuperAdmin', "Admin"] as const;
 export type UserRole = (typeof ROLES)[number];
 
 export const RIGHTS = ["Read", "Write", "Admin"] as const;
+export type UserRights = (typeof RIGHTS)[number]
 
 export const userSchema = z.object({
     id: z.number(),
