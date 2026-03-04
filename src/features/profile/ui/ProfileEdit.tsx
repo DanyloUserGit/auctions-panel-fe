@@ -49,6 +49,7 @@ export default function ProfileEdit() {
 
     const handleChangePassword = async () => {
         await sendResetLink();
+        console.log("Лист було надіслано")
 
     }
     const handleRoleChange = (e: SelectChangeEvent<string>) => {

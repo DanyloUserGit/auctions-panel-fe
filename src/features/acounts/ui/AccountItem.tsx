@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import type { Account } from "../model/types";
 import ConfirmDeleteAccountModal from "./ConfirmDeleteAccountModal";
+import { useModal } from "../../../shared/hooks/useModal";
 
 
 
@@ -20,11 +21,8 @@ interface AccountItemProps {
 
 export default function AccountItem({ account, handleSelectAccount }: AccountItemProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [isOpen, setIsOpen] = useState(false)
     const open = Boolean(anchorEl);
-
-    const handleOpen = () => setIsOpen(true);
-    const handleClose = () => setIsOpen(false);
+    const { isOpen, open: handleOpen, close: handleClose } = useModal(false)
 
     const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();

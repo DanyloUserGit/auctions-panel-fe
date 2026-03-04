@@ -3,6 +3,7 @@ import type { GroupCreate, GroupEdit } from "./types"
 
 export const fetchGroups = async () => {
     const responce = await api.get("/auction-groups")
+    console.log(responce.data)
     return responce.data
 }
 export const fetchGroupByQuery = async (query: string) => {

@@ -1,12 +1,12 @@
 import React from 'react';
-import { 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  IconButton, 
-  Typography, 
-  Box 
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Typography,
+  Box
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
@@ -19,19 +19,19 @@ interface BaseModalProps {
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export default function BaseModal({ 
-  open, 
-  onClose, 
-  title, 
-  children, 
-  actions, 
-  maxWidth = 'sm' 
+export default function BaseModal({
+  open,
+  onClose,
+  title,
+  children,
+  actions,
+  maxWidth = 'sm'
 }: BaseModalProps) {
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
       maxWidth={maxWidth}
       sx={{ '& .MuiPaper-root': { borderRadius: '16px' } }}
     >
@@ -49,14 +49,12 @@ export default function BaseModal({
         </IconButton>
       </DialogTitle>
 
-      {/* Контент */}
       <DialogContent dividers sx={{ p: 3, borderTop: '1px solid #f0f0f0' }}>
         <Box sx={{ mt: 1 }}>
           {children}
         </Box>
       </DialogContent>
 
-      {/* Кнопки дій (якщо передані) */}
       {actions && (
         <DialogActions sx={{ p: 2, px: 3 }}>
           {actions}

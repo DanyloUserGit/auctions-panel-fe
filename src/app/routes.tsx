@@ -14,6 +14,7 @@ import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
 import ResetPassword from '../pages/ResetPassword';
 import Profile from '../pages/Profile';
+import Workers from '../pages/Workers';
 
 
 const router = createBrowserRouter([
@@ -30,7 +31,8 @@ const router = createBrowserRouter([
           { path: 'orders', element: <Orders /> },
           { path: 'purchases', element: <Purchases /> },
           { path: 'inventory', element: <Inventory /> },
-          { path: 'me', element: <Profile /> }
+          { path: 'me', element: <Profile /> },
+          { path: 'workers', element: <Workers /> }
         ],
       },
     ],
