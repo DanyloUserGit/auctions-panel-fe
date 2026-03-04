@@ -13,7 +13,15 @@ export const userSchema = z.object({
     lastName: z.string(),
     role: z.enum(ROLES),
     rights: z.enum(RIGHTS),
+    phone: z.string(),
+    city: z.string(),
+    auctionGroupId: z.uuid(),
+    sessionLimit: z.number(),
+    sessionRights: z.enum(RIGHTS),
+    isActive: z.boolean(),
+    isBlocked: z.boolean(),
 });
+
 export type User = z.infer<typeof userSchema>;
 
 export const updateUserSchema = z.object({
@@ -23,9 +31,26 @@ export const updateUserSchema = z.object({
     lastName: z.string().optional(),
     role: z.enum(ROLES).optional(),
     rights: z.enum(RIGHTS).optional(),
+    phone: z.string().optional(),
+    city: z.string().optional(),
+    auctionGroupId: z.uuid().optional(),
+    sessionLimit: z.number().optional()
 })
 export type UpdateUser = z.infer<typeof updateUserSchema>;
 
+export const createUserSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    role: z.enum(ROLES),
+    rights: z.enum(RIGHTS),
+    phone: z.string().optional(),
+    city: z.string().optional(),
+    auctionGroupId: z.uuid().optional(),
+    sessionLimit: z.number().optional()
+});
+export type CreateUser = z.infer<typeof createUserSchema>;
 
 export const ChangeRoleSchema = z.object({
     id: z.uuid({ message: "Id має бути типом uuid" }),

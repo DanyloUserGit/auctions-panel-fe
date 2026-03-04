@@ -1,10 +1,12 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { apiLogout, fetchCurrentUser, refreshUser } from "./api-user";
-import type { User } from "./user-schema";
+import { apiLogout, createUser, fetchControlCard, fetchCurrentUser, fetchUsers, handleBlockUser, refreshUser } from "./api-user";
+import type { CreateUser, User } from "./user-schema";
 
 export const authKeys = {
   me: ["auth", "me"] as const,
+  users: ["users"] as const,
+  controlCard: (id: string) => ["auth", "users", "control-card", id] as const,
 };
 
 export const useAuth = () => {
@@ -80,3 +82,48 @@ export const initAuth = async (): Promise<boolean> => {
 
   return refreshPromise;
 };
+export const useUsers = () => {
+  const { data, isLoading, isPending, error, isError } = useQuery({
+    queryKey: authKeys.users,
+    queryFn: fetchUsers
+  })
+  return { users: data, isLoading, isPending, error, isError }
+}
+
+export const useControlCard = (id: string) => {
+  const { data, isLoading, isPending, error, isError } = useQuery({
+    queryKey: authKeys.controlCard(id),
+    queryFn: () => fetchControlCard(id),
+    enabled: !!id
+  })
+  return { userData: data, isLoading, isPending, error, isError }
+}
+
+export const useCreateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateUser) => createUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: authKeys.users,
+      });
+    },
+    onError: (error) => {
+      console.error("Помилка при створенні користувача:", error);
+    }
+  });
+};
+export const useBlockUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: User) => handleBlockUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: authKeys.users,
+      });
+    },
+    onError: (error) => {
+      console.error("Помилка при створенні користувача:", error);
+    }
+  });
+}

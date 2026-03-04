@@ -82,7 +82,7 @@ export default function Sidebar() {
       group: "Адміністрування",
       items: [
         { text: "Налаштування", icon: <Settings />, path: "/settings" },
-        { text: "Працівники", icon: <Group />, path: "/staff" },
+        { text: "Працівники", icon: <Group />, path: "/workers" },
         { text: "Всі дії", icon: <History />, path: "/logs" },
       ],
     },

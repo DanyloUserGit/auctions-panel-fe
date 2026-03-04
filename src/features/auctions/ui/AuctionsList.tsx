@@ -1,10 +1,10 @@
 import { Grid } from "@mui/material";
-import AuctionItem from "./AuctionItem";
-import { useState } from "react";
-import AuctionAddModal from "./AuctionAddModal";
-import type { Auction } from "../model/types";
 import AddItemButton from "../../../shared/ui/AddItemButton";
 import { Can } from "../../auth/ui/Can";
+import type { Auction } from "../model/types";
+import AuctionAddModal from "./AuctionAddModal";
+import AuctionItem from "./AuctionItem";
+import { useModal } from "../../../shared/hooks/useModal";
 
 interface Props {
   filteredAuctions: Auction[];
@@ -13,9 +13,8 @@ interface Props {
 }
 
 export default function AuctionsList({ filteredAuctions, onAuctionClick, currentGroupId }: Props) {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const handleOpen = () => setModalOpen(true);
-  const handleClose = () => setModalOpen(false);
+  const { isOpen, open, close } = useModal(false)
+
 
   const isEmpty = filteredAuctions.length === 0;
 
@@ -41,18 +40,18 @@ export default function AuctionsList({ filteredAuctions, onAuctionClick, current
         />
       ))}
 
-      <Can roles={['GroupAdmin', 'SuperAdmin', "Admin"]}>
+      <Can roles={['GroupAdmin', 'SuperAdmin']}>
         <AddItemButton
           type="auction"
           isEmpty={isEmpty}
-          onClick={handleOpen}
+          onClick={open}
         />
 
         {/* Модалка */}
         <AuctionAddModal
           currentGroupId={currentGroupId}
-          isModalOpen={isModalOpen}
-          handleClose={handleClose}
+          isModalOpen={isOpen}
+          handleClose={close}
           modal_title="Створити Аукціон"
         />
       </Can>

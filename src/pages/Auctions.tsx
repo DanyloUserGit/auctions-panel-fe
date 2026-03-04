@@ -16,6 +16,7 @@ import { useSessionsData } from "../features/sessions/model/useSessionData";
 import { ButtonUI } from "../shared/ui/Button";
 import SessionList from "../features/sessions/ui/SessionList";
 import GroupSearch from "../features/groups/ui/GroupSearch";
+import { useModal } from "../shared/hooks/useModal";
 
 
 export default function AuctionsPage() {
@@ -62,9 +63,6 @@ export default function AuctionsPage() {
     setView('auctions');
   };
 
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [isModalEditGroupOpen, setModalEditGroupOpen] = useState(false);
-
   const handleAuctionClick = (auction: Auction) => {
     sessionConnect.setAuctionId(auction.id)
     setSelectedAuction(auction);
@@ -91,6 +89,9 @@ export default function AuctionsPage() {
   }, [search]);
 
 
+
+  const { isOpen: isEditGroupOpen, open: handleOpenEditGroup, close: handleModalEditGroup } = useModal(false)
+  const { isOpen: isCreateGroupOpen, open: handleOpenCreateGroup, close: handleCloseCreateGroup } = useModal(false)
 
 
 
@@ -140,7 +141,7 @@ export default function AuctionsPage() {
 
         {view === 'auctions' && (
           <Can roles={['GroupAdmin', 'SuperAdmin',]}>
-            <ButtonUI onClick={() => setModalOpen(true)} styles={{ width: { xs: "100%", sm: "auto" } }}>
+            <ButtonUI onClick={handleOpenCreateGroup} styles={{ width: { xs: "100%", sm: "auto" } }}>
               <Add /> Створити групу
             </ButtonUI>
           </Can>
@@ -154,7 +155,7 @@ export default function AuctionsPage() {
             groups={filteredGroups}
             activeGroupId={activeGroupId || ''}
             setActiveGroupId={handleGroupChange}
-            onEditGroup={() => setModalEditGroupOpen(true)}
+            onEditGroup={handleOpenEditGroup}
           />
           {/* Повідомлення, якщо пошук порожній */}
           {filteredGroups.length === 0 && debouncedSearch && (
@@ -166,8 +167,8 @@ export default function AuctionsPage() {
           )}
           <EditGroupModal
             current_group={groups.find((group: Group) => group.id === activeGroupId)}
-            isModalOpen={isModalEditGroupOpen}
-            handleClose={() => setModalEditGroupOpen(false)}
+            isModalOpen={isEditGroupOpen}
+            handleClose={handleModalEditGroup}
             modal_title="Редагувати групу"
           />
         </>
@@ -202,7 +203,7 @@ export default function AuctionsPage() {
           )}
         </Grid>
       )}
-      <AddGroupModal handleClose={() => setModalOpen(false)} isModalOpen={isModalOpen} modal_title="Створити групу" />
+      <AddGroupModal handleClose={handleCloseCreateGroup} isModalOpen={isCreateGroupOpen} modal_title="Створити групу" />
     </Box>
   );
 }
