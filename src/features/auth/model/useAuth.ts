@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { apiLogout, createUser, fetchControlCard, fetchCurrentUser, fetchUsers, handleBlockUser, refreshUser } from "./api-user";
-import type { CreateUser, User } from "./user-schema";
+import { apiLogout, createUser, fetchControlCard, fetchCurrentUser, fetchUserById, fetchUsers, handleBlockUser, refreshUser, updateUser } from "./api-user";
+import type { CreateUser, UpdateUser, User } from "./user-schema";
 
 export const authKeys = {
   me: ["auth", "me"] as const,
@@ -117,6 +117,34 @@ export const useBlockUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: User) => handleBlockUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: authKeys.users,
+      });
+    },
+    onError: (error) => {
+      console.error("Помилка при створенні користувача:", error);
+    }
+  });
+}
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string, data: UpdateUser }) => updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: authKeys.users,
+      });
+    },
+    onError: (error) => {
+      console.error("Помилка при створенні користувача:", error);
+    }
+  });
+}
+export const useUserById = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => fetchUserById(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,

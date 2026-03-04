@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useUsers } from '../features/auth/model/useAuth';
-import type { UserRole } from '../features/auth/model/user-schema';
+import { ROLES, type UserRole } from '../features/auth/model/user-schema';
 import { UserActionsMenu } from '../features/Workers/ui/UserActionsMenu';
 import { WorkerControlModal } from '../features/Workers/ui/WorkerControlModal';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
@@ -47,9 +47,11 @@ export default function EmployeesSection() {
         setSelectedWorkerId(id)
         OpenControlCard()
     }
+    const currentUser = users?.find(u => u.id === effectiveId)
 
     const { isOpen: isControlCardOpen, open: OpenControlCard, close: CloseControlCard } = useModal(false)
     const { isOpen: isAddUserOpen, open: OpenAddUser, close: CloseAddUser } = useModal(false)
+    const { isOpen: isEditUserOpen, open: OpenEditUser, close: CloseEditUser } = useModal(false)
 
     return (
         <Box sx={{ p: 3 }}>
@@ -89,9 +91,9 @@ export default function EmployeesSection() {
                         label="Роль"
                         onChange={(e) => setRoleFilter(e.target.value)}
                     >
-                        <MenuItem value="All">Всі ролі</MenuItem>
-                        <MenuItem value="Admin">Адміни</MenuItem>
-                        <MenuItem value="Manager">Менеджери</MenuItem>
+                        {ROLES.map(role =>
+                            <MenuItem value={role}>{role}</MenuItem>
+                        )}
                     </Select>
                 </FormControl>
 
@@ -141,7 +143,7 @@ export default function EmployeesSection() {
                                                     <Assessment />
                                                 </IconButton>
                                             </Tooltip>
-                                            <UserActionsMenu user={user} />
+                                            <UserActionsMenu openEdit={OpenEditUser} user={user} />
                                         </Stack>
                                     </TableCell>
                                 </TableRow>
@@ -156,7 +158,7 @@ export default function EmployeesSection() {
 
                 <WorkerControlModal id={String(effectiveId)} open={isControlCardOpen} onClose={CloseControlCard} isLoading={false} />
                 <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
-                <WorkerEditModal open={isAddUserOpen} onClose={CloseAddUser} />
+                <WorkerEditModal open={isEditUserOpen} onClose={CloseEditUser} user={currentUser} />
 
             </TableContainer>
         </Box>

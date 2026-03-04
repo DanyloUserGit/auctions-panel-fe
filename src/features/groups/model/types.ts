@@ -4,6 +4,7 @@ import type { Auction } from "../../auctions/model/types";
 export interface Group {
     id: string;
     title: string;
+    groupAdminId: string;
     auctions: Auction[]
 }
 export interface GroupCreate {
