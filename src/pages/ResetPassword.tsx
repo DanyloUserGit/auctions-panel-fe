@@ -1,27 +1,30 @@
-import { useState } from "react";
 import {
+    ArrowBack,
+    CheckCircle,
+    LockReset,
+    Visibility,
+    VisibilityOff,
+} from "@mui/icons-material";
+import {
+    Alert,
     Box,
-    Typography,
-    TextField,
-    Paper,
     Button,
     Grid,
     IconButton,
     InputAdornment,
-    Alert,
+    Paper,
+    TextField,
+    Typography,
 } from "@mui/material";
-import {
-    Visibility,
-    VisibilityOff,
-    LockReset,
-    ArrowBack,
-    CheckCircle,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { useChangePassword } from "../features/profile/model/useProfile";
 
 export default function ResetPassword() {
     const navigate = useNavigate();
 
+    const { id: token } = useParams()
+    const { mutate, isPending } = useChangePassword()
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         password: "",
@@ -36,14 +39,16 @@ export default function ResetPassword() {
     const passwordsMatch = formData.password === formData.confirmPassword;
     const isFormValid = formData.password.length >= 6 && passwordsMatch;
 
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (isFormValid) {
+        if (isFormValid && token) {
             console.log("Відправка нового пароля:", formData.password);
-            // Тут буде виклик вашого API
+            mutate({ password: formData.password, token: token })
             setIsSuccess(true);
         }
     };
+
 
     if (isSuccess) {
         return (
@@ -121,7 +126,7 @@ export default function ResetPassword() {
                                 type="submit"
                                 fullWidth
                                 variant="contained"
-                                disabled={!isFormValid}
+                                disabled={!isFormValid || isPending}
                                 size="large"
                                 sx={{
                                     borderRadius: "12px",
@@ -141,6 +146,7 @@ export default function ResetPassword() {
                             <Button
                                 fullWidth
                                 variant="text"
+                                disabled={isPending}
                                 startIcon={<ArrowBack />}
                                 onClick={() => navigate("/login")}
                                 sx={{ textTransform: "none", color: "text.secondary" }}

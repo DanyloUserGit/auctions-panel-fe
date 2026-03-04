@@ -7,13 +7,14 @@ import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
 import Inventory from '../pages/Inventory';
 import Orders from '../pages/Orders';
-import ProfileEdit from '../pages/ProfileEdit';
 import Purchases from '../pages/Purchases';
 import SessionPage from '../pages/SessionPage';
 import { useWindowSize } from '../shared/hooks/useWindowSize';
 import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
 import ResetPassword from '../pages/ResetPassword';
+import Profile from '../pages/Profile';
+import Workers from '../pages/Workers';
 
 
 const router = createBrowserRouter([
@@ -30,7 +31,8 @@ const router = createBrowserRouter([
           { path: 'orders', element: <Orders /> },
           { path: 'purchases', element: <Purchases /> },
           { path: 'inventory', element: <Inventory /> },
-          { path: 'me', element: <ProfileEdit /> }
+          { path: 'me', element: <Profile /> },
+          { path: 'workers', element: <Workers /> }
         ],
       },
     ],
@@ -53,13 +55,13 @@ const router = createBrowserRouter([
     )
   },
   {
-    path: "/reset-password/id",
+    path: "/reset-password/:id",
     element: (
       <ProtectedRoute>
         <ResetPassword />
       </ProtectedRoute>
     )
-  }
+  },
 ]);
 
 

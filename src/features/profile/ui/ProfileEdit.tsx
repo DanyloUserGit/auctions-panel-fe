@@ -2,69 +2,74 @@ import { AdminPanelSettings, ArrowBack, Badge, Security } from "@mui/icons-mater
 import {
     Box,
     Button,
-    Chip,
     Divider,
     FormControl,
     Grid,
     IconButton,
     InputLabel,
     MenuItem,
-    OutlinedInput,
     Paper,
     Select,
     TextField,
     Typography,
-    type SelectChangeEvent,
+    type SelectChangeEvent
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../features/auth/model/useAuth";
-import { RIGHTS, ROLES, type UpdateUser } from "../features/auth/model/user-schema";
+import { sendResetLink } from "../../auth/model/api-user";
+import { useAuth } from "../../auth/model/useAuth";
+import { RIGHTS, ROLES, type UpdateUser, type UserRights, type UserRole } from "../../auth/model/user-schema";
+import { Can } from "../../auth/ui/Can";
+import { useChangeRole, useUpdateProfile } from "../model/useProfile";
 
 export default function ProfileEdit() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    // Ініціалізація стану згідно з UpdateUser типом
+    const { mutate: updateUserMutation, isPending: isPendingProfile } = useUpdateProfile()
+    const { mutate: changeRoleMutation, isPending: isPendingRole } = useChangeRole()
+    // Додай це всередині ProfileEdit
+
+
     const [formData, setFormData] = useState<UpdateUser>({
         id: user?.id || 0,
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
         email: user?.email || "",
         role: user?.role || "User",
-        rights: Array.isArray(user?.rights) ? user.rights : [],
+        rights: (Array.isArray(user?.rights) ? user.rights[0] : user?.rights) as UserRights
     });
 
-    // Обробник для звичайних полів
+
+    const isAdmin = user?.role === "SuperAdmin"
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Обробник для Select (Role)
+    const handleChangePassword = async () => {
+        await sendResetLink();
+        console.log("Лист було надіслано")
+
+    }
     const handleRoleChange = (e: SelectChangeEvent<string>) => {
-        setFormData((prev) => ({ ...prev, role: e.target.value as any }));
+        setFormData((prev) => ({ ...prev, role: e.target.value as UserRole }));
     };
-
-    // Обробник для Multi-Select (Rights)
-    const handleRightsChange = (e: SelectChangeEvent<string[]>) => {
-        const { value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            // MUI multiple повертає масив, але ми страхуємося від дивної поведінки мобільних браузерів
-            rights: typeof value === "string" ? (value.split(",") as any) : value,
-        }));
+    const handleRightChange = (e: SelectChangeEvent<string>) => {
+        setFormData((prev) => ({ ...prev, rights: e.target.value as UserRights }));
     };
-
-    const handleSave = () => {
-        console.log("Дані для відправки на API:", formData);
-        // Тут буде твій mutation.mutate(formData)
-        alert("Дані збережено (дивіться консоль)");
+    const handleSave = async () => {
+        await updateUserMutation(formData)
+        if (isAdmin) await changeRoleMutation({
+            id: String(formData.id),
+            role: formData.role as UserRole,
+            rights: formData.rights as UserRights
+        })
+        navigate("/")
     };
 
     return (
         <Box sx={{ maxWidth: 800, mx: "auto", py: { xs: 2, sm: 4 }, px: 2 }}>
-            {/* Шапка */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
                 <IconButton onClick={() => navigate(-1)} sx={{ color: "text.secondary" }}>
                     <ArrowBack />
@@ -101,6 +106,7 @@ export default function ProfileEdit() {
                             fullWidth
                             label="Ім'я"
                             name="firstName"
+                            disabled={isPendingProfile || isPendingRole}
                             value={formData.firstName}
                             onChange={handleChange}
                             slotProps={{ inputLabel: { shrink: true } }}
@@ -112,6 +118,8 @@ export default function ProfileEdit() {
                             fullWidth
                             label="Прізвище"
                             name="lastName"
+                            disabled={isPendingProfile || isPendingRole}
+
                             value={formData.lastName}
                             onChange={handleChange}
                             slotProps={{ inputLabel: { shrink: true } }}
@@ -132,7 +140,7 @@ export default function ProfileEdit() {
                             type="submit"
                             variant="outlined"
                             size="medium"
-                            onClick={() => navigate(-1)}
+                            onClick={handleChangePassword}
                             sx={{
                                 mt: 2,
                                 mb: 3,
@@ -147,72 +155,64 @@ export default function ProfileEdit() {
                         </Button>
                     </Grid>
 
-                    {/* Секція: Доступ */}
-                    <Grid size={{ xs: 12 }} sx={{ mt: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                            <Security sx={{ color: 'primary.main' }} />
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                                Рівень доступу та права
-                            </Typography>
-                        </Box>
-                        <Divider />
-                    </Grid>
+                    <Can roles={["SuperAdmin"]}>
 
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <FormControl fullWidth>
-                            <InputLabel id="role-label">Роль в системі</InputLabel>
-                            <Select
-                                labelId="role-label"
-                                value={formData.role || ""}
-                                label="Роль в системі"
-                                onChange={handleRoleChange}
-                                startAdornment={<AdminPanelSettings sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />}
-                            >
-                                {ROLES.map((role) => (
-                                    <MenuItem key={role} value={role}>
-                                        {role}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
+                        <Grid size={{ xs: 12 }} sx={{ mt: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                                <Security sx={{ color: 'primary.main' }} />
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                                    Рівень доступу та права
+                                </Typography>
+                            </Box>
+                            <Divider />
+                        </Grid>
 
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <FormControl fullWidth>
-                            <InputLabel id="rights-label">Додаткові права</InputLabel>
-                            <Select
-                                labelId="rights-label"
-                                multiple
-                                value={formData.rights || []}
-                                onChange={handleRightsChange}
-                                input={<OutlinedInput label="Додаткові права" />}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                                        {(selected as string[]).map((value) => (
-                                            <Chip
-                                                key={value}
-                                                label={value}
-                                                size="small"
-                                                color="primary"
-                                                variant="outlined"
-                                                sx={{ fontWeight: 600, borderRadius: '6px' }}
-                                            />
-                                        ))}
-                                    </Box>
-                                )}
-                            >
-                                {RIGHTS.map((right) => (
-                                    <MenuItem key={right} value={right}>
-                                        {right}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl fullWidth>
+                                <InputLabel id="role-label">Роль в системі</InputLabel>
+                                <Select
+                                    labelId="role-label"
+                                    value={formData.role || ""}
+                                    label="Роль в системі"
+                                    disabled={isPendingProfile || isPendingRole}
+
+                                    onChange={handleRoleChange}
+                                    startAdornment={<AdminPanelSettings sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />}
+                                >
+                                    {ROLES.map((role) => (
+                                        <MenuItem key={role} value={role}>
+                                            {role}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl fullWidth>
+                                <InputLabel id="rights-label">Додаткові права</InputLabel>
+                                <Select
+                                    label="Роль в системі"
+                                    labelId="rights-label"
+                                    value={formData.rights}
+                                    disabled={isPendingProfile || isPendingRole}
+                                    onChange={handleRightChange}
+                                    startAdornment={<AdminPanelSettings sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />}
+                                >
+                                    {RIGHTS.map((role) => (
+                                        <MenuItem key={role} value={role}>
+                                            {role}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+
+                    </Can>
 
                 </Grid>
 
-                {/* Дії */}
                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 6 }}>
                     <Button
                         type="submit"

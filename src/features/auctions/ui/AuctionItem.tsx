@@ -10,6 +10,7 @@ import { useState } from "react";
 import type { Auction } from "../model/types";
 import AuctionDeleteModal from "./AuctionDeleteModal";
 import AuctionEditModal from "./AuctionEditModal";
+import { useModal } from "../../../shared/hooks/useModal";
 
 interface AuctionItemProps {
   auction: Auction,
@@ -21,11 +22,9 @@ export default function AuctionItem({
 }: AuctionItemProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation(); 
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
@@ -34,13 +33,8 @@ export default function AuctionItem({
     setAnchorEl(null);
   };
 
-
-  const handleOpenDeleteAuctionModal = () => setDeleteModalOpen(true);
-  const handleCloseDeleteAuctionModal = () => setDeleteModalOpen(false);
-
-  const handleOpenEditAuctionModal = () => setEditModalOpen(true);
-  const handleCloseEditAuctionModal = () => setEditModalOpen(false);
-
+  const { isOpen: isDeleteOpen, open: openDelete, close: closeDelete } = useModal(false)
+  const { isOpen: isEditOpen, open: openEdit, close: closeEdit } = useModal(false)
 
 
   return (
@@ -51,7 +45,7 @@ export default function AuctionItem({
           border: "1px solid #e0e0e0",
           boxShadow: "none",
           transition: "0.2s",
-          position: "relative", 
+          position: "relative",
           "&:hover": {
             borderColor: "var(--color-primary)",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
@@ -77,13 +71,13 @@ export default function AuctionItem({
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
-            <MenuItem onClick={handleOpenEditAuctionModal}>
+            <MenuItem onClick={openEdit}>
               <ListItemIcon>
                 <Edit fontSize="small" />
               </ListItemIcon>
               <Typography variant="inherit">Редагувати</Typography>
             </MenuItem>
-            <MenuItem onClick={handleOpenDeleteAuctionModal} sx={{ color: 'error.main' }}>
+            <MenuItem onClick={openDelete} sx={{ color: 'error.main' }}>
               <ListItemIcon>
                 <DeleteOutline fontSize="small" color="error" />
               </ListItemIcon>
@@ -92,8 +86,8 @@ export default function AuctionItem({
           </Menu>
         </Box>
 
-        <AuctionDeleteModal isModalOpen={isDeleteModalOpen} handleClose={handleCloseDeleteAuctionModal} currentAuction={auction} />
-        <AuctionEditModal isModalOpen={isEditModalOpen} handleClose={handleCloseEditAuctionModal} currentAuction={auction} />
+        <AuctionDeleteModal isModalOpen={isDeleteOpen} handleClose={closeDelete} currentAuction={auction} />
+        <AuctionEditModal isModalOpen={isEditOpen} handleClose={closeEdit} currentAuction={auction} />
 
 
         <CardActionArea sx={{ p: 2 }} onClick={() => onClick(auction)}>
