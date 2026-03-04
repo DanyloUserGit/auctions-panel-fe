@@ -5,7 +5,7 @@ import { Block, Edit, MoreVert } from "@mui/icons-material";
 import { useBlockUser } from "../../auth/model/useAuth";
 
 
-export function UserActionsMenu({ user }: { user: User }) {
+export function UserActionsMenu({ user, openEdit }: { user: User, openEdit: () => void }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const { mutate: block } = useBlockUser()
@@ -24,7 +24,7 @@ export function UserActionsMenu({ user }: { user: User }) {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                <MenuItem onClick={() => setAnchorEl(null)}>
+                <MenuItem onClick={() => { setAnchorEl(null); openEdit() }}>
                     <Edit fontSize="small" sx={{ mr: 1 }} /> Редагувати
                 </MenuItem>
                 <MenuItem onClick={() => { setAnchorEl(null); handleBlock() }} sx={{ color: 'error.main' }}>

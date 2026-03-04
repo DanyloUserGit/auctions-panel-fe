@@ -20,6 +20,11 @@ export const fetchUserByQuery = async (q: string) => {
     const responce = await api.get(`/users/search/`, { params: { query: q } })
     return responce.data
 }
+export const fetchUserById = async (id: string): Promise<User> => {
+    const responce = await api.get(`/users/${id}`)
+    return responce.data
+
+}
 export const updateProfile = async (data: UpdateUser) => {
     const responce = await api.patch(`/profile/edit`, data)
     return responce.data

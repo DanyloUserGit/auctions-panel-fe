@@ -25,7 +25,6 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 export const updateUserSchema = z.object({
-    id: z.number(),
     email: z.string().email().optional(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),

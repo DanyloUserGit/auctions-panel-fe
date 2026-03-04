@@ -13,17 +13,19 @@ import {
 } from '@mui/material';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import BaseModal from '../../../shared/ui/Modal';
-import { useAuth, useCreateUser } from '../../auth/model/useAuth';
-import { createUserSchema, ROLES, type CreateUser } from '../../auth/model/user-schema';
+import { useAuth, useUpdateUser } from '../../auth/model/useAuth';
+import { ROLES, updateUserSchema, type UpdateUser, type User } from '../../auth/model/user-schema';
+import { useEffect } from 'react';
 
 interface CreateUserModalProps {
     open: boolean;
+    user: User
     onClose: () => void;
 }
 
-export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
+export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) => {
     const { user: currentUser } = useAuth();
-    const { mutate: createUser, isPending, error } = useCreateUser();
+    const { mutate: updateUser, isPending, error } = useUpdateUser();
 
     const isSA = currentUser?.role === "SuperAdmin";
 
@@ -33,32 +35,57 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
         control,
         reset,
         formState: { errors }
-    } = useForm<CreateUser>({
-        resolver: zodResolver(createUserSchema),
+    } = useForm<UpdateUser>({
+        resolver: zodResolver(updateUserSchema),
         defaultValues: {
-            rights: "Read",
-            role: "User",
+            email: user?.email,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            role: user?.role,
+            rights: user?.rights,
+            phone: user?.phone,
+            city: user?.city,
+            sessionLimit: user?.sessionLimit
+
         }
     });
-    const onInvalid = (errors: FieldErrors<CreateUser>) => {
+    const onInvalid = (errors: FieldErrors<UpdateUser>) => {
         console.error("Помилки валідації Zod:", errors);
     };
 
-    const onSubmit = (data: CreateUser) => {
-        console.log(data)
-        createUser(data, {
+    const onSubmit = (formData: UpdateUser) => {
+        if (!currentUser?.id) return;
+        console.log(formData)
+        updateUser({
+            id: String(currentUser.id),
+            data: formData
+        }, {
             onSuccess: () => {
                 reset();
                 onClose();
             }
         });
     };
+    useEffect(() => {
+        if (user && open) {
+            reset({
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role,
+                rights: user.rights,
+                phone: user.phone || "",
+                city: user.city || "",
+                sessionLimit: user.sessionLimit
 
+            });
+        }
+    }, [user, open, reset]);
     return (
         <BaseModal
             open={open}
             onClose={onClose}
-            title="Створення нового працівника"
+            title="Редагування працівника"
             maxWidth="sm"
         >
             <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
@@ -95,15 +122,6 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
                             {...register("email")}
                             error={!!errors.email}
                             helperText={errors.email?.message}
-                        />
-                    </Grid>
-                    <Grid size={12}>
-                        <TextField
-                            fullWidth
-                            label="Password"
-                            {...register("password")}
-                            error={!!errors.password}
-                            helperText={errors.password?.message}
                         />
                     </Grid>
 
@@ -155,6 +173,17 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
                             />
                         </Grid>
                     )} */}
+
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                            fullWidth
+                            label="Група (Тільки для SA)"
+                            {...register("sessionLimit")}
+                            error={!!errors.sessionLimit}
+                            helperText={errors.sessionLimit?.message}
+                        />
+                    </Grid>
+
 
                     <Grid size={12}>
                         <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}>
