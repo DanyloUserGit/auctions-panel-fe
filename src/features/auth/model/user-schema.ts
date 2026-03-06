@@ -25,8 +25,7 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 export const updateUserSchema = z.object({
-    id: z.number(),
-    email: z.string().email().optional(),
+    id: z.number({ message: 'Id має бути типом uuid' }),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     role: z.enum(ROLES).optional(),
@@ -34,9 +33,16 @@ export const updateUserSchema = z.object({
     phone: z.string().optional(),
     city: z.string().optional(),
     auctionGroupId: z.uuid().optional(),
-    sessionLimit: z.number().optional()
 })
 export type UpdateUser = z.infer<typeof updateUserSchema>;
+
+
+export const EditProfileSchema = z.object({
+    id: z.uuid({ message: 'Id має бути типом uuid' }),
+    firstName: z.string().min(2, { message: "Ім'я має бути стрічкою, 2 символи та більше." }),
+    lastName: z.string().min(2, { message: 'Прізвище має бути стрічкою, 2 символи та більше.' }),
+});
+export type EditProfile = z.infer<typeof EditProfileSchema>
 
 export const createUserSchema = z.object({
     email: z.string().email(),

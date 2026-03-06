@@ -22,18 +22,20 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useUsers } from '../features/auth/model/useAuth';
-import type { UserRole } from '../features/auth/model/user-schema';
+import { ROLES, type UserRole } from '../features/auth/model/user-schema';
 import { UserActionsMenu } from '../features/Workers/ui/UserActionsMenu';
 import { WorkerControlModal } from '../features/Workers/ui/WorkerControlModal';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 import { WorkerEditModal } from '../features/Workers/ui/WorkerEditModal';
 import { useModal } from '../shared/hooks/useModal';
 
-// Приклад статусів та кольорів
-const roleColors: Record<UserRole, string> = {
+import { type ChipProps } from '@mui/material';
+
+// Використовуємо ChipProps['color'] для значень
+const roleColors: Record<UserRole, ChipProps['color']> = {
     SuperAdmin: "error",
+    GroupAdmin: "primary",
     User: "default",
-    GroupAdmin: "primary"
 };
 
 export default function EmployeesSection() {
@@ -42,14 +44,17 @@ export default function EmployeesSection() {
 
     const { users } = useUsers()
     const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
+    const showUsers = roleFilter === "All" ? users : users?.filter(u => u.role === roleFilter)
     const effectiveId = selectedWorkerId || users?.[0]?.id || "";
     const handleChangeWorker = (id: string) => {
         setSelectedWorkerId(id)
         OpenControlCard()
     }
+    const currentUser = users?.find(u => u.id === effectiveId)
 
     const { isOpen: isControlCardOpen, open: OpenControlCard, close: CloseControlCard } = useModal(false)
     const { isOpen: isAddUserOpen, open: OpenAddUser, close: CloseAddUser } = useModal(false)
+    const { isOpen: isEditUserOpen, open: OpenEditUser, close: CloseEditUser } = useModal(false)
 
     return (
         <Box sx={{ p: 3 }}>
@@ -89,9 +94,10 @@ export default function EmployeesSection() {
                         label="Роль"
                         onChange={(e) => setRoleFilter(e.target.value)}
                     >
-                        <MenuItem value="All">Всі ролі</MenuItem>
-                        <MenuItem value="Admin">Адміни</MenuItem>
-                        <MenuItem value="Manager">Менеджери</MenuItem>
+                        {ROLES.map(role =>
+                            <MenuItem value={role}>{role}</MenuItem>
+                        )}
+                        <MenuItem value="All">All</MenuItem>
                     </Select>
                 </FormControl>
 
@@ -110,8 +116,8 @@ export default function EmployeesSection() {
                     </TableHead>
                     <TableBody>
 
-                        {users && users?.length > 0 ?
-                            users.map((user) => (
+                        {showUsers && showUsers?.length > 0 ?
+                            showUsers.map((user) => (
                                 <TableRow key={user.id} hover>
                                     <TableCell>
                                         <Box>
@@ -141,7 +147,7 @@ export default function EmployeesSection() {
                                                     <Assessment />
                                                 </IconButton>
                                             </Tooltip>
-                                            <UserActionsMenu user={user} />
+                                            <UserActionsMenu openEdit={OpenEditUser} user={user} />
                                         </Stack>
                                     </TableCell>
                                 </TableRow>
@@ -156,7 +162,10 @@ export default function EmployeesSection() {
 
                 <WorkerControlModal id={String(effectiveId)} open={isControlCardOpen} onClose={CloseControlCard} isLoading={false} />
                 <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
-                <WorkerEditModal open={isAddUserOpen} onClose={CloseAddUser} />
+                {
+                    currentUser &&
+                    <WorkerEditModal open={isEditUserOpen} onClose={CloseEditUser} user={currentUser} />
+                }
 
             </TableContainer>
         </Box>

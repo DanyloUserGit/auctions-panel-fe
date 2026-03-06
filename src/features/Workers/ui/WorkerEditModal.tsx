@@ -11,19 +11,21 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import { useEffect } from 'react';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import BaseModal from '../../../shared/ui/Modal';
-import { useAuth, useCreateUser } from '../../auth/model/useAuth';
-import { createUserSchema, ROLES, type CreateUser } from '../../auth/model/user-schema';
+import { useAuth, useUpdateUser } from '../../auth/model/useAuth';
+import { ROLES, updateUserSchema, type UpdateUser, type User } from '../../auth/model/user-schema';
 
 interface CreateUserModalProps {
     open: boolean;
+    user: User
     onClose: () => void;
 }
 
-export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
+export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) => {
     const { user: currentUser } = useAuth();
-    const { mutate: createUser, isPending, error } = useCreateUser();
+    const { mutate: updateUser, isPending, error } = useUpdateUser();
 
     const isSA = currentUser?.role === "SuperAdmin";
 
@@ -33,32 +35,59 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
         control,
         reset,
         formState: { errors }
-    } = useForm<CreateUser>({
-        resolver: zodResolver(createUserSchema),
+    } = useForm<UpdateUser>({
+        resolver: zodResolver(updateUserSchema),
         defaultValues: {
-            rights: "Read",
-            role: "User",
+            id: user.id,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            city: user.city,
+            phone: user.phone,
+            role: user.role,
+            rights: user.rights,
+            auctionGroupId: user.auctionGroupId
+
+
         }
     });
-    const onInvalid = (errors: FieldErrors<CreateUser>) => {
+    const onInvalid = (errors: FieldErrors<UpdateUser>) => {
         console.error("Помилки валідації Zod:", errors);
     };
 
-    const onSubmit = (data: CreateUser) => {
-        console.log(data)
-        createUser(data, {
-            onSuccess: () => {
-                reset();
-                onClose();
-            }
-        });
-    };
+    const onSubmit = (formData: UpdateUser) => {
+        if (!currentUser?.id) return;
+        try {
 
+            updateUser(formData, {
+                onSuccess: () => {
+                    reset();
+                    onClose();
+                }
+            });
+        } catch (err) {
+            console.error(err)
+        }
+
+    };
+    useEffect(() => {
+        if (user && open) {
+            reset({
+                id: user.id,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                city: user.city,
+                phone: user.phone,
+                role: user.role,
+                rights: user.rights,
+                auctionGroupId: user.auctionGroupId
+            });
+        }
+    }, [user, open, reset]);
     return (
         <BaseModal
             open={open}
             onClose={onClose}
-            title="Створення нового працівника"
+            title="Редагування працівника"
             maxWidth="sm"
         >
             <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
@@ -88,7 +117,7 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
                         />
                     </Grid>
 
-                    <Grid size={12}>
+                    {/* <Grid size={12}>
                         <TextField
                             fullWidth
                             label="Email"
@@ -96,16 +125,7 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
                             error={!!errors.email}
                             helperText={errors.email?.message}
                         />
-                    </Grid>
-                    <Grid size={12}>
-                        <TextField
-                            fullWidth
-                            label="Password"
-                            {...register("password")}
-                            error={!!errors.password}
-                            helperText={errors.password?.message}
-                        />
-                    </Grid>
+                    </Grid> */}
 
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
@@ -144,17 +164,18 @@ export const WorkerEditModal = ({ open, onClose }: CreateUserModalProps) => {
                         </FormControl>
                     </Grid>
 
-                    {/* {isSA && (
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                fullWidth
-                                label="Група (Тільки для SA)"
-                                {...register("group")}
-                                error={!!errors.group}
-                                helperText={errors.group?.message}
-                            />
-                        </Grid>
-                    )} */}
+
+
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                            fullWidth
+                            label="Група (Тільки для SA)"
+                            {...register("auctionGroupId")}
+                            error={!!errors.auctionGroupId}
+                            helperText={errors.auctionGroupId?.message}
+                        />
+                    </Grid>
+
 
                     <Grid size={12}>
                         <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}>

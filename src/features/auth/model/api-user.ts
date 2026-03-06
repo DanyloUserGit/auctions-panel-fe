@@ -20,6 +20,11 @@ export const fetchUserByQuery = async (q: string) => {
     const responce = await api.get(`/users/search/`, { params: { query: q } })
     return responce.data
 }
+export const fetchUserById = async (id: string): Promise<User> => {
+    const responce = await api.get(`/users/${id}`)
+    return responce.data
+
+}
 export const updateProfile = async (data: UpdateUser) => {
     const responce = await api.patch(`/profile/edit`, data)
     return responce.data
@@ -49,8 +54,9 @@ export const createUser = async (data: CreateUser) => {
     const responce = await api.post(`/users`, data)
     return responce.data
 }
-export const updateUser = async (id: string, data: UpdateUser) => {
-    const responce = await api.patch(`users/${id}`, data)
+export const updateUser = async (data: UpdateUser) => {
+    const responce = await api.patch(`users/${data.id}`, data)
+    console.log(responce.data)
     return responce.data
 }
 export const handleBlockUser = async (user: User) => {

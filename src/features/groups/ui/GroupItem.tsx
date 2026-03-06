@@ -2,13 +2,13 @@ import { AccessTime, DeleteOutline, Edit, Gavel, Lock, MoreVert, People, Sensors
 import {
     Box,
     IconButton,
-    LinearProgress,
     ListItemIcon,
     Menu, MenuItem,
     Paper, Typography
 } from "@mui/material";
 import { useState, type ReactNode } from "react";
 import { Can } from "../../auth/ui/Can";
+import type { Group } from "../model/types";
 
 // Mock data generator (залишаємо як було)
 const getMockData = (groupId: string) => ({
@@ -21,7 +21,7 @@ const getMockData = (groupId: string) => ({
 });
 
 interface GroupTabProps {
-    group: { id: string; title: string };
+    group: Group;
     isActive: boolean;
     onSelect: (id: string) => void;
     onEdit?: () => void;
@@ -30,9 +30,7 @@ interface GroupTabProps {
 
 export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDelete }: GroupTabProps) {
     const mock = getMockData(group.id);
-    const sessionPercent = (mock.activeSessions / mock.sessionLimit) * 100;
 
-    // Стан для меню
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
@@ -65,8 +63,7 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
                 '&:hover': { borderColor: isActive ? 'primary.main' : 'primary.light' }
             }}
         >
-            {/* Кнопка меню (три крапки) */}
-            <Can roles={["Admin", "GroupAdmin", "SuperAdmin"]}>
+            <Can roles={["GroupAdmin", "SuperAdmin"]}>
 
                 <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}>
                     <IconButton size="small" onClick={handleOpenMenu}>
@@ -91,7 +88,6 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
                 </Box>
             </Can>
 
-            {/* Назва та Статус */}
             <Box sx={{ mb: 1, pr: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <Typography
@@ -107,35 +103,13 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
                 </Typography>
             </Box>
 
-            {/* Метрики (Юзери, Аукціони, Сесії) */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <StatBlock icon={<People />} label="Юзери" value={mock.userCount} />
-                <StatBlock icon={<Gavel />} label="Аукціони" value={mock.auctionsCount} />
+                <StatBlock icon={<Gavel />} label="Аукціони" value={group.auctions?.length} />
                 <StatBlock icon={<Sensors />} label="Сесії" value={mock.activeSessions} />
             </Box>
 
-            {/* Ліміт сесій */}
-            <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="caption" sx={{ fontSize: '10px', color: 'text.secondary', fontWeight: 600 }}>
-                        ЛІМІТ СЕСІЙ
-                    </Typography>
-                    <Typography variant="caption" sx={{ fontSize: '10px', fontWeight: 700 }}>
-                        {mock.activeSessions}/{mock.sessionLimit}
-                    </Typography>
-                </Box>
-                <LinearProgress
-                    variant="determinate"
-                    value={sessionPercent}
-                    sx={{
-                        height: 6,
-                        borderRadius: 3,
-                        '& .MuiLinearProgress-bar': {
-                            bgcolor: sessionPercent > 90 ? 'error.main' : 'primary.main'
-                        }
-                    }}
-                />
-            </Box>
+
         </Paper>
     );
 }
