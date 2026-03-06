@@ -11,11 +11,11 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import { useEffect } from 'react';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import BaseModal from '../../../shared/ui/Modal';
 import { useAuth, useUpdateUser } from '../../auth/model/useAuth';
 import { ROLES, updateUserSchema, type UpdateUser, type User } from '../../auth/model/user-schema';
-import { useEffect } from 'react';
 
 interface CreateUserModalProps {
     open: boolean;
@@ -38,14 +38,15 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
     } = useForm<UpdateUser>({
         resolver: zodResolver(updateUserSchema),
         defaultValues: {
-            email: user?.email,
+            id: user.id,
             firstName: user?.firstName,
             lastName: user?.lastName,
-            role: user?.role,
-            rights: user?.rights,
-            phone: user?.phone,
-            city: user?.city,
-            sessionLimit: user?.sessionLimit
+            city: user.city,
+            phone: user.phone,
+            role: user.role,
+            rights: user.rights,
+            auctionGroupId: user.auctionGroupId
+
 
         }
     });
@@ -55,29 +56,30 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
 
     const onSubmit = (formData: UpdateUser) => {
         if (!currentUser?.id) return;
-        console.log(formData)
-        updateUser({
-            id: String(currentUser.id),
-            data: formData
-        }, {
-            onSuccess: () => {
-                reset();
-                onClose();
-            }
-        });
+        try {
+
+            updateUser(formData, {
+                onSuccess: () => {
+                    reset();
+                    onClose();
+                }
+            });
+        } catch (err) {
+            console.error(err)
+        }
+
     };
     useEffect(() => {
         if (user && open) {
             reset({
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                id: user.id,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                city: user.city,
+                phone: user.phone,
                 role: user.role,
                 rights: user.rights,
-                phone: user.phone || "",
-                city: user.city || "",
-                sessionLimit: user.sessionLimit
-
+                auctionGroupId: user.auctionGroupId
             });
         }
     }, [user, open, reset]);
@@ -115,7 +117,7 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                         />
                     </Grid>
 
-                    <Grid size={12}>
+                    {/* <Grid size={12}>
                         <TextField
                             fullWidth
                             label="Email"
@@ -123,7 +125,7 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                             error={!!errors.email}
                             helperText={errors.email?.message}
                         />
-                    </Grid>
+                    </Grid> */}
 
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
@@ -162,25 +164,15 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                         </FormControl>
                     </Grid>
 
-                    {/* {isSA && (
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                fullWidth
-                                label="Група (Тільки для SA)"
-                                {...register("group")}
-                                error={!!errors.group}
-                                helperText={errors.group?.message}
-                            />
-                        </Grid>
-                    )} */}
+
 
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                             fullWidth
                             label="Група (Тільки для SA)"
-                            {...register("sessionLimit")}
-                            error={!!errors.sessionLimit}
-                            helperText={errors.sessionLimit?.message}
+                            {...register("auctionGroupId")}
+                            error={!!errors.auctionGroupId}
+                            helperText={errors.auctionGroupId?.message}
                         />
                     </Grid>
 
