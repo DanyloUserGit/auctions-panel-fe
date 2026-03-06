@@ -32,7 +32,6 @@ export default function ProfileEdit() {
 
 
     const [formData, setFormData] = useState<UpdateUser>({
-        id: user?.id || 0,
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
         email: user?.email || "",
