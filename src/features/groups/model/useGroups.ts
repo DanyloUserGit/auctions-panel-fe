@@ -21,8 +21,8 @@ export function useGroups(groupId?: string) {
     staleTime: 5 * 60 * 1000,
   });
   const groupDetailQuery = useQuery({
-    queryKey: groupsKeys.detail(groupId || ''),
-    queryFn: () => fetchGroupByid(groupId || ''),
+    queryKey: groupsKeys.detail(groupId || ""),
+    queryFn: () => fetchGroupByid(groupId || ""),
     staleTime: 5 * 60 * 1000,
 
   })
@@ -38,13 +38,9 @@ export function useGroups(groupId?: string) {
 
 
   const EditGroupMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: GroupEdit }) => editGroup(id, data),
+    mutationFn: ({ id, group }: { id: string, group: GroupEdit }) => editGroup({ id, group }),
     onSuccess: (_, variables) => {
-      // 1. Оновлюємо список груп
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
-
-      // 2. ВАЖЛИВО: Оновлюємо список аукціонів саме для цієї групи
-      // Це змусить useAuctionsData(groupId) перечитати дані
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
     },
   });

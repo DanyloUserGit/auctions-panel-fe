@@ -10,8 +10,11 @@ export interface Group {
 export interface GroupCreate {
     title: string;
     auctions: string[];
+    groupAdminId: string;
 }
 export interface GroupEdit {
+    id?: string;
     title?: string;
     auctions?: string[];
+    groupAdminId?: string;
 }

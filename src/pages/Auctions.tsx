@@ -10,13 +10,13 @@ import type { Group } from "../features/groups/model/types";
 import { useGroups } from "../features/groups/model/useGroups";
 import AddGroupModal from "../features/groups/ui/AddGroupModal";
 import AuctionsGroup from "../features/groups/ui/AuctionsGroup";
-import EditGroupModal from "../features/groups/ui/EditGroupModal";
 import { useSession } from "../features/sessions/model/store";
 import { useSessionsData } from "../features/sessions/model/useSessionData";
 import { ButtonUI } from "../shared/ui/Button";
 import SessionList from "../features/sessions/ui/SessionList";
 import GroupSearch from "../features/groups/ui/GroupSearch";
 import { useModal } from "../shared/hooks/useModal";
+import EditGroupModal from "../features/groups/ui/EditGroupModal";
 
 
 export default function AuctionsPage() {
@@ -52,7 +52,7 @@ export default function AuctionsPage() {
   }, [filteredGroups, selectedGroupId])
 
 
-  const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId || '');
+  const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId || "");
   const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(sessionConnect.auctionAuthId);
 
   const [view, setView] = useState<'auctions' | 'accounts' | 'sessions'>('auctions');
@@ -153,7 +153,7 @@ export default function AuctionsPage() {
 
           <AuctionsGroup
             groups={filteredGroups}
-            activeGroupId={activeGroupId || ''}
+            activeGroupId={activeGroupId || ""}
             setActiveGroupId={handleGroupChange}
             onEditGroup={handleOpenEditGroup}
           />
@@ -166,6 +166,7 @@ export default function AuctionsPage() {
             </Box>
           )}
           <EditGroupModal
+            key={activeGroupId}
             current_group={groups.find((group: Group) => group.id === activeGroupId)}
             isModalOpen={isEditGroupOpen}
             handleClose={handleModalEditGroup}
@@ -180,7 +181,7 @@ export default function AuctionsPage() {
         <Grid container spacing={3}>
           {view === 'auctions' ? (
             <AuctionsList
-              currentGroupId={activeGroupId || ''}
+              currentGroupId={activeGroupId || ""}
               filteredAuctions={auctions}
               onAuctionClick={handleAuctionClick}
             />

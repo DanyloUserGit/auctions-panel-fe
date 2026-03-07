@@ -1,13 +1,25 @@
 import {
-    Box, Grid, Paper, Typography, Avatar,
-    Chip, List, ListItem, ListItemText,
-    ListItemIcon, Skeleton, Stack,
-    Modal
-} from '@mui/material';
-import {
-    Security, Badge, History, Email,
-    CheckCircle, Block, AccessTime, Smartphone
+    AccessTime,
+    Badge,
+    Block,
+    CheckCircle,
+    Email,
+    History,
+    Security,
+    Smartphone
 } from '@mui/icons-material';
+import {
+    Avatar,
+    Box,
+    Chip,
+    Grid,
+    List, ListItem,
+    ListItemIcon,
+    ListItemText,
+    Paper,
+    Skeleton, Stack,
+    Typography
+} from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
 import { useControlCard } from '../../auth/model/useAuth';
 
@@ -48,7 +60,7 @@ export const WorkerControlModal = ({ open, onClose, id, isLoading }: WorkerContr
                                 {data.profile.fullName[0]}
                             </Avatar>
                             <Typography variant="h6" sx={{ fontWeight: 800 }}>{data.profile.fullName}</Typography>
-                            <Chip label={data.profile.role} size="small" color="primary" variant="contained" sx={{ mt: 1, fontWeight: 600 }} />
+                            <Chip label={data.profile.role} size="small" color="primary" variant="filled" sx={{ mt: 1, fontWeight: 600 }} />
 
                             <Box sx={{ mt: 4, textAlign: 'left' }}>
                                 <Stack spacing={2}>
@@ -96,7 +108,7 @@ export const WorkerControlModal = ({ open, onClose, id, isLoading }: WorkerContr
                                     <History sx={{ fontSize: 16 }} /> Останні події
                                 </Typography>
                                 <List dense disablePadding>
-                                    {data.recentEvents.slice(0, 3).map((event: any) => (
+                                    {data.recentEvents.slice(0, 3).map((event: { id: string, createdAt: Date }) => (
                                         <ListItem key={event.id} sx={{ px: 0, py: 0.5 }}>
                                             <ListItemIcon sx={{ minWidth: 30 }}><AccessTime sx={{ fontSize: 14 }} /></ListItemIcon>
                                             <ListItemText

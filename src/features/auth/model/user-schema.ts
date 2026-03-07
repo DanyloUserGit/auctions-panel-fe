@@ -7,7 +7,7 @@ export const RIGHTS = ["Read", "Write", "All"] as const;
 export type UserRights = (typeof RIGHTS)[number]
 
 export const userSchema = z.object({
-    id: z.number(),
+    id: z.string(),
     email: z.string().email(),
     firstName: z.string(),
     lastName: z.string(),
@@ -25,7 +25,8 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 export const updateUserSchema = z.object({
-    id: z.number({ message: 'Id має бути типом uuid' }),
+    id: z.string({ message: 'Id має бути типом uuid' }),
+    email: z.string().optional(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     role: z.enum(ROLES).optional(),
@@ -35,6 +36,7 @@ export const updateUserSchema = z.object({
     auctionGroupId: z.uuid().optional(),
 })
 export type UpdateUser = z.infer<typeof updateUserSchema>;
+
 
 
 export const EditProfileSchema = z.object({

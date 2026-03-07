@@ -1,9 +1,9 @@
-import { Autocomplete, Box, Button, CircularProgress, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Autocomplete, Box, Button, CircularProgress, debounce, TextField } from '@mui/material';
+import { useMemo, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
-import { fetchUserByQuery } from '../../auth/model/api-user';
-import { useCreateAuction } from '../model/useAuctions';
+import { fetchUsersByQuery } from '../../auth/model/api-user';
 import type { User } from '../../auth/model/user-schema';
+import { useCreateAuction } from '../model/useAuctions';
 
 // interface Auction {
 //     id: string;
@@ -25,30 +25,31 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
     const [addedAcounts, setAddedAcounts] = useState<User[]>([]);
 
     const [options, setOptions] = useState<User[]>([]);
-    const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
 
-    useEffect(() => {
-        let active = true;
 
-        if (inputValue === '') {
-            setOptions(addedAcounts); // Показуємо вже вибрані, якщо пошук порожній
-            return undefined;
-        }
+    const debouncedFetch = useMemo(
+        () =>
+            debounce(async (query: string) => {
+                if (!query) {
+                    setOptions(addedAcounts);
+                    return;
+                }
 
-        setIsLoading(true);
-        fetchUserByQuery(inputValue).then((results) => {
-            if (active) {
-                // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
-                setOptions(results.data || []);
-                setIsLoading(false);
-                console.log(results.data )
-            }
-        });
+                setIsLoading(true);
+                try {
+                    const { data: results } = await fetchUsersByQuery(query);
+                    const combined = [...addedAcounts, ...(results || [])];
+                    const uniqueOptions = Array.from(new Map(combined.map(item => [item.id, item])).values());
 
-        return () => { active = false; };
-    }, [inputValue, addedAcounts]);
+                    setOptions(uniqueOptions);
+                } finally {
+                    setIsLoading(false);
+                }
+            }, 400),
+        [addedAcounts]
+    );
 
     const handleSubmit = () => {
         if (!title.trim()) return;
@@ -108,10 +109,14 @@ export default function AuctionAddModal({ isModalOpen, handleClose, modal_title,
                     options={options}
                     loading={isLoading}
                     onInputChange={(_, newInputValue) => {
-                        setInputValue(newInputValue);
+                        debouncedFetch(newInputValue)
                     }}
+
                     onChange={(_, newValue) => {
-                        setAddedAcounts(newValue);
+                        setOptions(prev => {
+                            const combined = [...newValue, ...prev];
+                            return Array.from(new Map(combined.map(item => [item.id, item])).values());
+                        });
                     }}
                     getOptionLabel={(option) => option.email}
                     isOptionEqualToValue={(option, value) => option.id === value.id}

@@ -17,7 +17,7 @@ const getMockData = (groupId: string) => ({
     activeSessions: 34,
     auctionsCount: 8,
     lastActivity: "5 хв. тому",
-    isBlocked: groupId === '3',
+    isBlocked: groupId === "3",
 });
 
 interface GroupTabProps {
