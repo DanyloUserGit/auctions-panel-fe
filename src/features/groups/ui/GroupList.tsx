@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import type { Group } from "../model/types";
 import GroupTabItem from "./GroupItem";
-import { useEffect } from "react";
 
 interface Props {
     groups: Group[],
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export default function AuctionsGroup({ groups, activeGroupId, setActiveGroupId, onEdit, onDelete }: Props) {
-    useEffect(() => console.log(groups), [groups])
     return (
         <Box
             sx={{
@@ -25,8 +23,8 @@ export default function AuctionsGroup({ groups, activeGroupId, setActiveGroupId,
                 px: { xs: 2, sm: 0 },
                 mx: { xs: -2, sm: 0 },
                 // scrollSnapType: "x mandatory",
-                scrollbarWidth: 'none',
-                '&::-webkit-scrollbar': { display: 'none' }
+                // scrollbarWidth: 'none',
+                // '&::-webkit-scrollbar': { display: 'none' }
             }}
         >
             {groups.map((group: Group) => (

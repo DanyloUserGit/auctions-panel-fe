@@ -14,6 +14,7 @@ export const fetchGroupByQuery = async (query: string) => {
 export const fetchGroupByid = async (id: string) => {
     if (!id) return {}
     const responce = await api.get(`/auction-groups/${id}`)
+    console.log(responce.data)
     return responce.data
 }
 export const createGroup = async (newGroup: GroupCreate) => {
@@ -21,12 +22,14 @@ export const createGroup = async (newGroup: GroupCreate) => {
     const data = await api.post('/auction-groups', newGroup);
     return data
 }
-export const editGroup = async (groupId: string, editedGroup: GroupEdit) => {
-    // if (!groupId) return {}
-    console.log(editedGroup)
-    const data = await api.patch(`/auction-groups/${groupId}`, editedGroup);
-    return data
-
+export const editGroup = async ({ id, group }: { id: string, group: GroupEdit }) => {
+    console.log(group)
+    const { data } = await api.patch(`/auction-groups/${id}`, {
+        title: group.title,
+        auctions: group.auctions,
+        groupAdmin: group.groupAdminId
+    });
+    return data;
 }
 
 export const deleteGroup = async (groupId: string) => {

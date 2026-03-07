@@ -1,71 +1,118 @@
-import { Autocomplete, Box, Button, CircularProgress, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Autocomplete, Box, Button, CircularProgress, debounce, TextField } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
-import { useGroups } from '../model/useGroups';
 import type { Auction } from '../../auctions/model/types';
-
+import type { Group } from '../model/types';
+import { useGroups } from '../model/useGroups';
+import type { User } from '../../auth/model/user-schema';
+import { fetchUserById, fetchUsersByQuery } from '../../auth/model/api-user';
 interface AddGroupModalProps {
   isModalOpen: boolean;
   handleClose: () => void;
   modal_title: string;
-  current_group: {
-    id: string;
-    title: string;
-    auctions: Auction[]
-  }
+  current_group: Group
 }
 
-export default function AddGroupModal({ current_group, isModalOpen, handleClose, modal_title }: AddGroupModalProps) {
+export default function EditGroupModal({ current_group, isModalOpen, handleClose, modal_title }: AddGroupModalProps) {
   const { EditGroupMutation } = useGroups();
 
   const [title, setTitle] = useState<string>(current_group?.title ?? '');
+  const [addedAuctions, setAddedAuctions] = useState<Auction[]>(current_group?.auctions ?? []);
+  const [groupAdmin, setGroupAdmin] = useState<User | null>(null)
 
-  const [addedAuctions, setAddedAuctions] = useState<Auction[]>(
-    current_group?.auctions ? [...current_group.auctions] : []
+  const [adminOptions, setAdminOptions] = useState<User[]>([]);
+  const [adminInput, setAdminInput] = useState("");
+  const [isAdminsLoading, setIsAdminsLoading] = useState(false);
+
+
+  useEffect(() => {
+    if (!current_group?.groupAdminId || !isModalOpen) {
+      setGroupAdmin(null);
+      return;
+    }
+
+    let active = true;
+    setIsAdminsLoading(true);
+
+    fetchUserById(current_group.groupAdminId)
+      .then((user) => {
+        if (active && user) {
+          setGroupAdmin(user);
+          setAdminOptions((prev) => {
+            const exists = prev.find(opt => opt.id === user.id);
+            return exists ? prev : [user, ...prev];
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Помилка завантаження адміна:", error);
+      })
+      .finally(() => {
+        if (active) setIsAdminsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [current_group?.groupAdminId, isModalOpen]);
+
+  const [options, setOptions] = useState<Auction[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => { console.log(current_group) }, [current_group])
+
+  useEffect(() => {
+
+  }, [current_group])
+
+  const debouncedFetch = useMemo(
+    () =>
+      debounce(async (query: string) => {
+        if (!query) {
+          setOptions(addedAuctions);
+          return;
+        }
+
+        setIsLoading(true);
+        try {
+          const results = await fetchAuctionsByQuery(query);
+          const combined = [...addedAuctions, ...(results || [])];
+          const uniqueOptions = Array.from(new Map(combined.map(item => [item.id, item])).values());
+
+          setOptions(uniqueOptions);
+        } finally {
+          setIsLoading(false);
+        }
+      }, 400),
+    [addedAuctions]
   );
 
 
-  // Стан для асинхронного пошуку
-  const [options, setOptions] = useState<Auction[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-
-
-  useEffect(() => {
-    if (isModalOpen && current_group) {
-      setTitle(current_group.title);
-      setAddedAuctions([...current_group.auctions]);
-    }
-  }, [current_group, isModalOpen]);
-
   useEffect(() => {
     let active = true;
-
-    if (inputValue === '') {
-      setOptions(addedAuctions); // Показуємо вже вибрані, якщо пошук порожній
-      return undefined;
+    if (adminInput === '') {
+      setAdminOptions([]);
+      return;
     }
-
-    setIsLoading(true);
-    fetchAuctionsByQuery(inputValue).then((results) => {
+    setIsAdminsLoading(true);
+    fetchUsersByQuery(adminInput).then((results) => {
       if (active) {
-        // Об'єднуємо результати пошуку з уже вибраними, щоб вони не зникали
-        setOptions(results || []);
-        setIsLoading(false);
+        setAdminOptions(results.data || []);
+        setIsAdminsLoading(false);
       }
+    }).catch(() => {
+      if (active) setAdminOptions([])
     });
-
     return () => { active = false; };
-  }, [inputValue, addedAuctions]);
-
+  }, [adminInput]);
   const handleSubmit = () => {
     if (!title.trim()) return;
 
     EditGroupMutation.mutate({
       id: current_group.id,
-      data: {
+      group: {
+        groupAdminId: groupAdmin?.id,
         title,
         auctions: addedAuctions.map(a => a.id)
       }
@@ -73,6 +120,7 @@ export default function AddGroupModal({ current_group, isModalOpen, handleClose,
       onSuccess: () => {
         setTitle("");
         setAddedAuctions([]);
+        setGroupAdmin(null)
         handleClose();
       }
     });
@@ -113,10 +161,14 @@ export default function AddGroupModal({ current_group, isModalOpen, handleClose,
           options={options}
           loading={isLoading}
           onInputChange={(_, newInputValue) => {
-            setInputValue(newInputValue);
+            debouncedFetch(newInputValue);
           }}
           onChange={(_, newValue) => {
             setAddedAuctions(newValue);
+            setOptions(prev => {
+              const combined = [...newValue, ...prev];
+              return Array.from(new Map(combined.map(item => [item.id, item])).values());
+            });
           }}
           getOptionLabel={(option) => option.title}
           isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -130,6 +182,34 @@ export default function AddGroupModal({ current_group, isModalOpen, handleClose,
                 endAdornment: (
                   <>
                     {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+        />
+        <Autocomplete
+          value={groupAdmin}
+          options={adminOptions || []}
+          loading={isAdminsLoading}
+          onInputChange={(_, val) => setAdminInput(val)}
+          onChange={(_, val) => setGroupAdmin(val)}
+          getOptionLabel={(o) => {
+            if (!o) return "";
+            return `${o.firstName || ""} ${o.lastName || ""} (${o.email || ""})`;
+          }}
+          isOptionEqualToValue={(o, v) => o?.id === v?.id}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Адміністратор групи"
+              placeholder="Пошук за іменем або email..."
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {isAdminsLoading ? <CircularProgress color="inherit" size={20} /> : null}
                     {params.InputProps.endAdornment}
                   </>
                 ),

@@ -117,16 +117,6 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                         />
                     </Grid>
 
-                    {/* <Grid size={12}>
-                        <TextField
-                            fullWidth
-                            label="Email"
-                            {...register("email")}
-                            error={!!errors.email}
-                            helperText={errors.email?.message}
-                        />
-                    </Grid> */}
-
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                             fullWidth

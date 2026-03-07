@@ -100,12 +100,12 @@ export const SessionContainer: FC = () => {
 
                 // ДИНАМІЧНЕ ВИЗНАЧЕННЯ IP (Локально чи VPS)
                 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                
+
                 // Вставте сюди публічний IP вашого Ubuntu сервера замість 198.51.100.25 !!!
                 // Або використовуйте .env змінну, якщо вона налаштована (наприклад VITE_VPS_IP)
                 // @ts-ignore
                 const fallbackVpsIp = '155.117.43.95';
-                
+
                 const TARGET_IP = isLocalhost ? '127.0.0.1' : fallbackVpsIp;
 
                 try {
@@ -124,7 +124,7 @@ export const SessionContainer: FC = () => {
                             if (candidate) await pc.addIceCandidate(new RTCIceCandidate(candidate));
                         }
                     } else if (signalData.type === 'candidate' && 'candidate' in signalData) {
-                        let candidateInit = { ...signalData.candidate };
+                        const candidateInit = { ...signalData.candidate };
                         if (candidateInit.candidate) {
                             candidateInit.candidate = candidateInit.candidate.replace(/(172|192|10)\.\d+\.\d+\.\d+/g, TARGET_IP);
                         }
