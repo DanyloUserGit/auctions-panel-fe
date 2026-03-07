@@ -38,7 +38,6 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
     } = useForm<UpdateUser>({
         resolver: zodResolver(updateUserSchema),
         defaultValues: {
-            id: user.id,
             firstName: user?.firstName,
             lastName: user?.lastName,
             city: user.city,
@@ -55,10 +54,11 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
     };
 
     const onSubmit = (formData: UpdateUser) => {
+        console.log(formData)
         if (!currentUser?.id) return;
         try {
 
-            updateUser(formData, {
+            updateUser({ id: user.id, data: formData }, {
                 onSuccess: () => {
                     reset();
                     onClose();
@@ -72,14 +72,13 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
     useEffect(() => {
         if (user && open) {
             reset({
-                id: user.id,
-                firstName: user?.firstName,
-                lastName: user?.lastName,
-                city: user.city,
-                phone: user.phone,
+                firstName: user?.firstName || "",
+                lastName: user?.lastName || "",
+                city: user.city || "",
+                phone: user.phone || "",
                 role: user.role,
                 rights: user.rights,
-                auctionGroupId: user.auctionGroupId
+                auctionGroupId: user.auctionGroupId || ""
             });
         }
     }, [user, open, reset]);

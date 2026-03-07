@@ -25,11 +25,11 @@ import { useUsers } from '../features/auth/model/useAuth';
 import { ROLES, type UserRole } from '../features/auth/model/user-schema';
 import { UserActionsMenu } from '../features/Workers/ui/UserActionsMenu';
 import { WorkerControlModal } from '../features/Workers/ui/WorkerControlModal';
-import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 import { WorkerEditModal } from '../features/Workers/ui/WorkerEditModal';
 import { useModal } from '../shared/hooks/useModal';
 
 import { type ChipProps } from '@mui/material';
+import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 
 // Використовуємо ChipProps['color'] для значень
 const roleColors: Record<UserRole, ChipProps['color']> = {

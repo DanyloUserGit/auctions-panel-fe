@@ -32,7 +32,6 @@ export default function ProfileEdit() {
 
 
     const [formData, setFormData] = useState<UpdateUser>({
-        id: user?.id || 0,
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
         email: user?.email || "",
@@ -61,7 +60,7 @@ export default function ProfileEdit() {
     const handleSave = async () => {
         await updateUserMutation(formData)
         if (isAdmin) await changeRoleMutation({
-            id: String(formData.id),
+            id: String(user.id),
             role: formData.role as UserRole,
             rights: formData.rights as UserRights
         })
