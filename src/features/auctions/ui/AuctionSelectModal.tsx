@@ -1,11 +1,23 @@
-import { AccountCircle } from "@mui/icons-material";
-import { Badge, List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
-import BaseModal from "../../../shared/ui/Modal";
+import { AccountCircle } from '@mui/icons-material';
+import {
+  Badge,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from '@mui/material';
+import BaseModal from '../../../shared/ui/Modal';
 
 // Шаблонні дані акаунтів (згідно з ТЗ, вони тягнуться з бази [cite: 42, 43])
 const MOCK_ACCOUNTS = [
-  { id: "u1", login: "manager_usa_1", isShared: true, hasActiveSession: true },
-  { id: "u2", login: "main_buyer_pro", isShared: false, hasActiveSession: false },
+  { id: 'u1', login: 'manager_usa_1', isShared: true, hasActiveSession: true },
+  {
+    id: 'u2',
+    login: 'main_buyer_pro',
+    isShared: false,
+    hasActiveSession: false,
+  },
 ];
 
 interface Props {
@@ -15,7 +27,11 @@ interface Props {
   auctionId: string;
 }
 
-export default function AccountSelectModal({ open, onClose, auctionTitle }: Props) {
+export default function AccountSelectModal({
+  open,
+  onClose,
+  auctionTitle,
+}: Props) {
   return (
     <BaseModal
       open={open}
@@ -33,20 +49,20 @@ export default function AccountSelectModal({ open, onClose, auctionTitle }: Prop
             key={account.id}
             onClick={() => {
               // Логіка: якщо sessionActive — joinSession, інакше — startNewSession [cite: 105, 362, 363]
-              console.log("Запуск сесії для", account.login);
+              console.log('Запуск сесії для', account.login);
               onClose();
             }}
             sx={{
               borderRadius: 2,
               mb: 1,
-              border: "1px solid #eee",
-              "&:hover": { borderColor: "var(--color-primary)" }
+              border: '1px solid #eee',
+              '&:hover': { borderColor: 'var(--color-primary)' },
             }}
           >
             <ListItemIcon>
               <Badge
                 variant="dot"
-                color={account.hasActiveSession ? "success" : "default"}
+                color={account.hasActiveSession ? 'success' : 'default'}
                 invisible={!account.hasActiveSession}
               >
                 <AccountCircle color="primary" />
@@ -54,7 +70,11 @@ export default function AccountSelectModal({ open, onClose, auctionTitle }: Prop
             </ListItemIcon>
             <ListItemText
               primary={account.login}
-              secondary={account.hasActiveSession ? "Є активна сесія (приєднатися)" : "Нова сесія"}
+              secondary={
+                account.hasActiveSession
+                  ? 'Є активна сесія (приєднатися)'
+                  : 'Нова сесія'
+              }
             />
           </ListItemButton>
         ))}

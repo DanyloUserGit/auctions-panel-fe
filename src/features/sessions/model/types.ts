@@ -1,40 +1,40 @@
-import type { Account } from "../../acounts/model/types";
-import type { Auction } from "../../auctions/model/types";
-import type { User } from "../../auth/model/user-schema";
+import type { Account } from '../../acounts/model/types';
+import type { Auction } from '../../auctions/model/types';
+import type { User } from '../../auth/model/user-schema';
 
 export type SessionConnectData = {
-    auctionId: string,
-    auctionAuthId: string,
-    width: number,
-    height: number
-}
+  auctionId: string;
+  auctionAuthId: string;
+  width: number;
+  height: number;
+};
 export type WebRTCSignalData =
-    | RTCSessionDescriptionInit
-    | { type: 'candidate'; candidate: RTCIceCandidateInit };
+  | RTCSessionDescriptionInit
+  | { type: 'candidate'; candidate: RTCIceCandidateInit };
 
 export interface AuctionSocketEvents {
-    onConnect: () => void;
-    onSessionReady: (data: { sessionId: string }) => void;
-    onSignalFromWorker: (signalData: WebRTCSignalData) => void;
-    onError: (err: { message: string }) => void;
+  onConnect: () => void;
+  onSessionReady: (data: { sessionId: string }) => void;
+  onSignalFromWorker: (signalData: WebRTCSignalData) => void;
+  onError: (err: { message: string }) => void;
 }
 
 export interface Session {
-    id: string;
+  id: string;
 
-    maxConnections: number;
-    activeConnections: number;
-    isActive: boolean;
+  maxConnections: number;
+  activeConnections: number;
+  isActive: boolean;
 
-    auction: Auction;
+  auction: Auction;
 
-    account: Account;
+  account: Account;
 
-    users: User[];
+  users: User[];
 
-    expiresAt: string;
-    createdAt: string;
+  expiresAt: string;
+  createdAt: string;
 
-    workerId?: string | null;
-    worker?: Worker | null;
+  workerId?: string | null;
+  worker?: Worker | null;
 }
