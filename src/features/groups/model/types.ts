@@ -10,7 +10,7 @@ export interface Group {
 export interface GroupCreate {
     title: string;
     auctions: string[];
-    groupAdminId: string;
+    groupAdminId: string | null;
 }
 export interface GroupEdit {
     id?: string;

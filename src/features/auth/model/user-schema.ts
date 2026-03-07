@@ -20,6 +20,11 @@ export const userSchema = z.object({
     sessionRights: z.enum(RIGHTS),
     isActive: z.boolean(),
     isBlocked: z.boolean(),
+    telegramChatId: z.string(),
+    viberId: z.string(),
+    lastLogin: z.date(),
+    lastActivity: z.date(),
+    sessionId: z.string(),
 });
 
 export type User = z.infer<typeof userSchema>;

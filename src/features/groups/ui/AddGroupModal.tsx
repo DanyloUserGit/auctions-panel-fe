@@ -75,11 +75,11 @@ export default function AddGroupModal({ isModalOpen, handleClose, modal_title }:
 
     const handleSubmit = () => {
         if (!title.trim()) return;
-
+        console.log(groupAdmin)
         GroupCreation.mutate({
             title,
             auctions: addedAuctions.map(a => a.id),
-            groupAdminId: groupAdmin ? groupAdmin?.id : ""
+            groupAdminId: groupAdmin ? groupAdmin?.id : null
         }, {
             onSuccess: () => {
                 setTitle("");

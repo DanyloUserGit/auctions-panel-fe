@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
 import { useControlCard } from '../../auth/model/useAuth';
+import { useEffect } from 'react';
 
 interface WorkerControlModalProps {
     open: boolean;
@@ -33,6 +34,7 @@ interface WorkerControlModalProps {
 export const WorkerControlModal = ({ open, onClose, id, isLoading }: WorkerControlModalProps) => {
     if (!id) onClose()
     const { userData: data } = useControlCard(String(id));
+    useEffect(() => { console.log(data) }, [data])
 
     const renderSkeleton = () => (
         <Grid container spacing={3}>

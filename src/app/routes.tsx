@@ -15,6 +15,8 @@ import { ProtectedRoute } from './ProtectedRoute';
 import ResetPassword from '../pages/ResetPassword';
 import Profile from '../pages/Profile';
 import Workers from '../pages/Workers';
+import NotificationsPage from '../pages/Notification';
+import TrainingPage from '../pages/Training';
 
 
 const router = createBrowserRouter([
@@ -32,7 +34,9 @@ const router = createBrowserRouter([
           { path: 'purchases', element: <Purchases /> },
           { path: 'inventory', element: <Inventory /> },
           { path: 'me', element: <Profile /> },
-          { path: 'workers', element: <Workers /> }
+          { path: 'workers', element: <Workers /> },
+          { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'training', element: <TrainingPage /> }
         ],
       },
     ],

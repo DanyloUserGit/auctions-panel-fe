@@ -60,11 +60,7 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
   const [options, setOptions] = useState<Auction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => { console.log(current_group) }, [current_group])
 
-  useEffect(() => {
-
-  }, [current_group])
 
   const debouncedFetch = useMemo(
     () =>

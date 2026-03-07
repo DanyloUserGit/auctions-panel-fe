@@ -28,7 +28,7 @@ export function useGroups(groupId?: string) {
   })
 
   const GroupCreation = useMutation({
-    mutationFn: (newGroup: GroupCreate) => createGroup(newGroup),
+    mutationFn: (newGroup: GroupCreate) => { console.log(newGroup); return createGroup(newGroup) },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
     },

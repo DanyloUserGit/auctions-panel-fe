@@ -20,7 +20,7 @@ import {
     Tooltip,
     Typography
 } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useUsers } from '../features/auth/model/useAuth';
 import { ROLES, type UserRole } from '../features/auth/model/user-schema';
 import { UserActionsMenu } from '../features/Workers/ui/UserActionsMenu';
@@ -44,11 +44,28 @@ export default function EmployeesSection() {
 
     const { users } = useUsers()
     const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
-    const showUsers = roleFilter === "All" ? users : users?.filter(u => u.role === roleFilter)
+    const filteredUsers = useMemo(() => {
+        if (!users) return [];
+
+        return users.filter((user) => {
+            // Пошук за ім'ям, прізвищем або email
+            const searchTerm = search.toLowerCase();
+            const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+            const email = user.email.toLowerCase();
+
+            const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
+
+            const matchesRole = roleFilter === "All" || user.role === roleFilter;
+
+            return matchesSearch && matchesRole;
+        });
+    }, [users, search, roleFilter]);
+
+    // 2. Використовуємо цей масив для відображення
+    const showUsers = filteredUsers;
     const effectiveId = selectedWorkerId || users?.[0]?.id || "";
     const handleChangeWorker = (id: string) => {
         setSelectedWorkerId(id)
-        OpenControlCard()
     }
     const currentUser = users?.find(u => u.id === effectiveId)
 
@@ -84,6 +101,13 @@ export default function EmployeesSection() {
                                 <Search fontSize="small" />
                             </InputAdornment>
                         ),
+                        endAdornment: search && (
+                            <InputAdornment position="end">
+                                <IconButton size="small" onClick={() => setSearch("")}>
+                                    <Add sx={{ transform: 'rotate(45deg)' }} />
+                                </IconButton>
+                            </InputAdornment>
+                        )
                     }}
                 />
 
@@ -142,12 +166,13 @@ export default function EmployeesSection() {
                                     </TableCell>
                                     <TableCell align="right">
                                         <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                            <Tooltip title="Картка контролю" onClick={() => handleChangeWorker(String(user.id))}>
+
+                                            <Tooltip title="Картка контролю" onClick={() => { handleChangeWorker(String(user.id)); OpenControlCard() }}>
                                                 <IconButton size="small" color="primary">
                                                     <Assessment />
                                                 </IconButton>
                                             </Tooltip>
-                                            <UserActionsMenu openEdit={OpenEditUser} user={user} />
+                                            <UserActionsMenu openEdit={() => { handleChangeWorker(String(user.id)); OpenEditUser() }} user={user} />
                                         </Stack>
                                     </TableCell>
                                 </TableRow>
@@ -164,7 +189,7 @@ export default function EmployeesSection() {
                 <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
                 {
                     currentUser &&
-                    <WorkerEditModal open={isEditUserOpen} onClose={CloseEditUser} user={currentUser} />
+                    <WorkerEditModal key={effectiveId} open={isEditUserOpen} onClose={CloseEditUser} user={currentUser} />
                 }
 
             </TableContainer>

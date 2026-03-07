@@ -118,34 +118,42 @@ export default function AuctionsPage() {
           </Typography>
         </Box>
 
-        <GroupSearch onSearch={(val) => setSearch(val)} />
-        <Tooltip title={isAlphabetical ? "Скинути сортування" : "Сортувати А-Я"}>
-          <IconButton
-            onClick={() => setisAlphabetical(!isAlphabetical)}
-            sx={{
-              border: "1px solid",
-              borderColor: isAlphabetical ? "primary.main" : "divider",
-              color: isAlphabetical ? "primary.main" : "text.secondary",
-              borderRadius: "12px",
-              height: "40px", // Щоб висота збігалася з TextField
-              width: "40px",
-              bgcolor: isAlphabetical ? "rgba(25, 118, 210, 0.04)" : "transparent",
-              "&:hover": {
-                bgcolor: isAlphabetical ? "rgba(25, 118, 210, 0.08)" : "rgba(0, 0, 0, 0.04)",
-              }
-            }}
-          >
-            <SortByAlpha />
-          </IconButton>
-        </Tooltip>
+        <Box className="flex gap-4">
 
-        {view === 'auctions' && (
-          <Can roles={['GroupAdmin', 'SuperAdmin',]}>
-            <ButtonUI onClick={handleOpenCreateGroup} styles={{ width: { xs: "100%", sm: "auto" } }}>
-              <Add /> Створити групу
-            </ButtonUI>
-          </Can>
-        )}
+          <GroupSearch onSearch={(val) => setSearch(val)} />
+          <Tooltip title={isAlphabetical ? "Скинути сортування" : "Сортувати А-Я"}>
+            <IconButton
+              onClick={() => setisAlphabetical(!isAlphabetical)}
+              sx={{
+                border: "1px solid",
+                borderColor: isAlphabetical ? "primary.main" : "divider",
+                color: isAlphabetical ? "primary.main" : "text.secondary",
+                borderRadius: "12px",
+                height: "40px", // Щоб висота збігалася з TextField
+                width: "40px",
+                bgcolor: isAlphabetical ? "rgba(25, 118, 210, 0.04)" : "transparent",
+                "&:hover": {
+                  bgcolor: isAlphabetical ? "rgba(25, 118, 210, 0.08)" : "rgba(0, 0, 0, 0.04)",
+                }
+              }}
+            >
+              <SortByAlpha />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        <Can roles={["GroupAdmin", "SuperAdmin"]}>
+
+          {view === 'auctions' && (
+            <Can roles={['GroupAdmin', 'SuperAdmin',]}>
+              <ButtonUI onClick={handleOpenCreateGroup} styles={{ width: { xs: "100%", sm: "auto" } }}>
+                <Add /> Створити групу
+              </ButtonUI>
+            </Can>
+          )}
+        </Can>
+
+
       </Box>
 
       {view === 'auctions' && (
