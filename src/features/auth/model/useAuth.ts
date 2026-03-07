@@ -1,12 +1,22 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { apiLogout, createUser, fetchControlCard, fetchCurrentUser, fetchUserById, fetchUsers, handleBlockUser, refreshUser, updateUser } from "./api-user";
-import type { CreateUser, UpdateUser, User } from "./user-schema";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import {
+  apiLogout,
+  createUser,
+  fetchControlCard,
+  fetchCurrentUser,
+  fetchUserById,
+  fetchUsers,
+  handleBlockUser,
+  refreshUser,
+  updateUser,
+} from './api-user';
+import type { CreateUser, UpdateUser, User } from './user-schema';
 
 export const authKeys = {
-  me: ["auth", "me"] as const,
-  users: ["users"] as const,
-  controlCard: (id: string) => ["auth", "users", "control-card", id] as const,
+  me: ['auth', 'me'] as const,
+  users: ['users'] as const,
+  controlCard: (id: string) => ['auth', 'users', 'control-card', id] as const,
 };
 
 export const useAuth = () => {
@@ -45,7 +55,7 @@ export const useAuth = () => {
     try {
       await apiLogout();
     } catch (err) {
-      console.error("Logout failed:", err);
+      console.error('Logout failed:', err);
     } finally {
       queryClient.setQueryData(authKeys.me, null);
       queryClient.clear();
@@ -62,7 +72,6 @@ export const useAuth = () => {
   };
 };
 
-
 let refreshPromise: Promise<boolean> | null = null;
 
 export const initAuth = async (): Promise<boolean> => {
@@ -70,10 +79,10 @@ export const initAuth = async (): Promise<boolean> => {
 
   refreshPromise = (async () => {
     try {
-      await refreshUser()
-      return true
+      await refreshUser();
+      return true;
     } catch (e) {
-      console.error(e)
+      console.error(e);
       return false;
     } finally {
       refreshPromise = null;
@@ -85,19 +94,19 @@ export const initAuth = async (): Promise<boolean> => {
 export const useUsers = () => {
   const { data, isLoading, isPending, error, isError } = useQuery({
     queryKey: authKeys.users,
-    queryFn: fetchUsers
-  })
-  return { users: data, isLoading, isPending, error, isError }
-}
+    queryFn: fetchUsers,
+  });
+  return { users: data, isLoading, isPending, error, isError };
+};
 
 export const useControlCard = (id: string) => {
   const { data, isLoading, isPending, error, isError } = useQuery({
     queryKey: authKeys.controlCard(id),
     queryFn: () => fetchControlCard(id),
-    enabled: !!id
-  })
-  return { userData: data, isLoading, isPending, error, isError }
-}
+    enabled: !!id,
+  });
+  return { userData: data, isLoading, isPending, error, isError };
+};
 
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
@@ -109,8 +118,8 @@ export const useCreateUser = () => {
       });
     },
     onError: (error) => {
-      console.error("Помилка при створенні користувача:", error);
-    }
+      console.error('Помилка при створенні користувача:', error);
+    },
   });
 };
 export const useBlockUser = () => {
@@ -123,24 +132,25 @@ export const useBlockUser = () => {
       });
     },
     onError: (error) => {
-      console.error("Помилка при створенні користувача:", error);
-    }
+      console.error('Помилка при створенні користувача:', error);
+    },
   });
-}
+};
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string, data: UpdateUser }) => updateUser(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateUser }) =>
+      updateUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,
       });
     },
     onError: (error) => {
-      console.error("Помилка при створенні користувача:", error);
-    }
+      console.error('Помилка при створенні користувача:', error);
+    },
   });
-}
+};
 export const useUserById = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -151,7 +161,7 @@ export const useUserById = () => {
       });
     },
     onError: (error) => {
-      console.error("Помилка при створенні користувача:", error);
-    }
+      console.error('Помилка при створенні користувача:', error);
+    },
   });
-}
+};

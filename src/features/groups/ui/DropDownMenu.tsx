@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
 import { MoreVert, Edit, DeleteOutline } from '@mui/icons-material';
 
 interface DropDownMenuProps {
@@ -43,15 +49,23 @@ export default function DropDownMenu({ onEdit, onDelete }: DropDownMenuProps) {
           horizontal: 'right',
         }}
       >
-        <MenuItem onClick={() => { onEdit(); handleClose(); }}>
+        <MenuItem
+          onClick={() => {
+            onEdit();
+            handleClose();
+          }}
+        >
           <ListItemIcon>
             <Edit fontSize="small" />
           </ListItemIcon>
           <ListItemText>Редагувати</ListItemText>
         </MenuItem>
-        
-        <MenuItem 
-          onClick={() => { onDelete(); handleClose(); }}
+
+        <MenuItem
+          onClick={() => {
+            onDelete();
+            handleClose();
+          }}
           sx={{ color: 'error.main' }}
         >
           <ListItemIcon>

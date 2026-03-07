@@ -1,10 +1,10 @@
-import { Grid } from "@mui/material";
-import AddItemButton from "../../../shared/ui/AddItemButton";
-import { Can } from "../../auth/ui/Can";
-import type { Auction } from "../model/types";
-import AuctionAddModal from "./AuctionAddModal";
-import AuctionItem from "./AuctionItem";
-import { useModal } from "../../../shared/hooks/useModal";
+import { Grid } from '@mui/material';
+import AddItemButton from '../../../shared/ui/AddItemButton';
+import { Can } from '../../auth/ui/Can';
+import type { Auction } from '../model/types';
+import AuctionAddModal from './AuctionAddModal';
+import AuctionItem from './AuctionItem';
+import { useModal } from '../../../shared/hooks/useModal';
 
 interface Props {
   filteredAuctions: Auction[];
@@ -12,9 +12,12 @@ interface Props {
   currentGroupId: string;
 }
 
-export default function AuctionsList({ filteredAuctions, onAuctionClick, currentGroupId }: Props) {
-  const { isOpen, open, close } = useModal(false)
-
+export default function AuctionsList({
+  filteredAuctions,
+  onAuctionClick,
+  currentGroupId,
+}: Props) {
+  const { isOpen, open, close } = useModal(false);
 
   const isEmpty = filteredAuctions.length === 0;
 
@@ -27,8 +30,8 @@ export default function AuctionsList({ filteredAuctions, onAuctionClick, current
         margin: 0, // Скидаємо марджини, які створює spacing
         '& > .MuiGrid-item': {
           paddingTop: 3, // Повертаємо відступи вручну, якщо вони зникли
-          paddingLeft: 3
-        }
+          paddingLeft: 3,
+        },
       }}
     >
       {/* 1. Рендеримо аукціони, якщо вони є */}
@@ -41,11 +44,7 @@ export default function AuctionsList({ filteredAuctions, onAuctionClick, current
       ))}
 
       <Can roles={['GroupAdmin', 'SuperAdmin']}>
-        <AddItemButton
-          type="auction"
-          isEmpty={isEmpty}
-          onClick={open}
-        />
+        <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />
 
         {/* Модалка */}
         <AuctionAddModal

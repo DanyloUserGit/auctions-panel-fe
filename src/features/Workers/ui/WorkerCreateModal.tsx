@@ -31,7 +31,6 @@
 //     const { user: currentUser } = useAuth();
 //     const { mutate: createUser, isPending, error } = useCreateUser();
 
-
 //     const [addeGroups, setAddedGroups] = useState<Group[]>([]);
 //     const [group, setGroup] = useState<Group | null>(null)
 
@@ -39,8 +38,6 @@
 //     const [isAdminsLoading, setIsAdminsLoading] = useState(false);
 //     const [options, setOptions] = useState<Auction[]>([]);
 //     const [isLoading, setIsLoading] = useState(false);
-
-
 
 //     const isSA = currentUser?.role === "SuperAdmin";
 
@@ -93,7 +90,6 @@
 //             }, 400),
 //         [addeGroups]
 //     );
-
 
 //     return (
 //         <BaseModal
@@ -255,12 +251,10 @@
 //     );
 // };
 interface CreateUserModalProps {
-    open: boolean;
-    onClose: () => void;
+  open: boolean;
+  onClose: () => void;
 }
 
 export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
-    return (
-        <div onClick={onClose}>{open}</div>
-    )
-}
+  return <div onClick={onClose}>{open}</div>;
+};

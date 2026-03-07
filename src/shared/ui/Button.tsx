@@ -1,14 +1,14 @@
-import { Button as ButtonMui } from "@mui/material"
-import type { FC, ReactNode } from "react"
+import { Button as ButtonMui } from '@mui/material';
+import type { FC, ReactNode } from 'react';
 interface ButtonProps {
   children: ReactNode;
-  onClick: () => void
+  onClick: () => void;
   styles: {
     width: {
       xs: string;
       sm: string;
     };
-  }
+  };
 }
 export const ButtonUI: FC<ButtonProps> = ({ children, onClick, styles }) => {
   return (
@@ -20,13 +20,13 @@ export const ButtonUI: FC<ButtonProps> = ({ children, onClick, styles }) => {
       sx={{
         mt: 2,
         mb: 3,
-        backgroundColor: "var(--color-primary)",
-        "&:hover": { backgroundColor: "var(--color-accent)" },
+        backgroundColor: 'var(--color-primary)',
+        '&:hover': { backgroundColor: 'var(--color-accent)' },
         py: 1.5,
-        ...styles
+        ...styles,
       }}
     >
       {children}
     </ButtonMui>
-  )
-}
+  );
+};

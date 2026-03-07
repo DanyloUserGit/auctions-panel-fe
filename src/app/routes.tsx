@@ -1,5 +1,9 @@
 import { useEffect } from 'react';
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from 'react-router-dom';
 import LoginForm from '../features/auth/ui/LoginFrom';
 import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
@@ -16,7 +20,6 @@ import ResetPassword from '../pages/ResetPassword';
 import Profile from '../pages/Profile';
 import Workers from '../pages/Workers';
 
-
 const router = createBrowserRouter([
   {
     path: '/',
@@ -32,14 +35,13 @@ const router = createBrowserRouter([
           { path: 'purchases', element: <Purchases /> },
           { path: 'inventory', element: <Inventory /> },
           { path: 'me', element: <Profile /> },
-          { path: 'workers', element: <Workers /> }
+          { path: 'workers', element: <Workers /> },
         ],
       },
     ],
-
   },
   {
-    path: "/login",
+    path: '/login',
     element: (
       <GuestRoute>
         <LoginForm />
@@ -47,25 +49,22 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/session/:sessionId?",
+    path: '/session/:sessionId?',
     element: (
       <ProtectedRoute>
         <SessionPage />
       </ProtectedRoute>
-    )
+    ),
   },
   {
-    path: "/reset-password/:id",
+    path: '/reset-password/:id',
     element: (
       <ProtectedRoute>
         <ResetPassword />
       </ProtectedRoute>
-    )
+    ),
   },
 ]);
-
-
-
 
 export default function AppRouter() {
   const { width, height } = useWindowSize();
@@ -73,6 +72,6 @@ export default function AppRouter() {
   useEffect(() => {
     sessionConnect.setWidth(width);
     sessionConnect.setHeight(height);
-  }, [])
+  }, []);
   return <RouterProvider router={router} />;
 }

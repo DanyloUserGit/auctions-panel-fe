@@ -1,13 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createAuction, deleteAuction, editAuction, fetchAuctions } from './api-auctions';
+import {
+  createAuction,
+  deleteAuction,
+  editAuction,
+  fetchAuctions,
+} from './api-auctions';
 import type { AuctionCreate, AuctionEdit } from './types';
 export const auctionsKeys = {
-  all: ["auctions"] as const,
+  all: ['auctions'] as const,
   byGroup: (groupId: string) => [...auctionsKeys.all, groupId] as const,
 };
 
 export function useAuctionsData(groupId: string) {
-
   const {
     data = [],
     isLoading,
@@ -17,35 +21,28 @@ export function useAuctionsData(groupId: string) {
     queryKey: auctionsKeys.byGroup(groupId),
     queryFn: () => fetchAuctions(groupId),
     staleTime: 5 * 60 * 1000,
-    enabled: !!groupId
+    enabled: !!groupId,
   });
-
 
   return { items: data, isLoading, isError, error: error ?? null };
 }
-
-
-
 
 export function useCreateAuction() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: AuctionCreate) => createAuction(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['auctions'] }),
-
   });
 }
 
 export function useEditAuction() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string, data: AuctionEdit }) =>
+    mutationFn: ({ id, data }: { id: string; data: AuctionEdit }) =>
       editAuction(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['auctions'] }),
   });
 }
-
-
 
 export function useDeleteAuction() {
   const queryClient = useQueryClient();

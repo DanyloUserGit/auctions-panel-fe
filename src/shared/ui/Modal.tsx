@@ -6,7 +6,7 @@ import {
   DialogActions,
   IconButton,
   Typography,
-  Box
+  Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
@@ -25,7 +25,7 @@ export default function BaseModal({
   title,
   children,
   actions,
-  maxWidth = 'sm'
+  maxWidth = 'sm',
 }: BaseModalProps) {
   return (
     <Dialog
@@ -36,7 +36,15 @@ export default function BaseModal({
       sx={{ '& .MuiPaper-root': { borderRadius: '16px' } }}
     >
       {/* Шапка модалки */}
-      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
           {title}
         </Typography>
@@ -50,16 +58,10 @@ export default function BaseModal({
       </DialogTitle>
 
       <DialogContent dividers sx={{ p: 3, borderTop: '1px solid #f0f0f0' }}>
-        <Box sx={{ mt: 1 }}>
-          {children}
-        </Box>
+        <Box sx={{ mt: 1 }}>{children}</Box>
       </DialogContent>
 
-      {actions && (
-        <DialogActions sx={{ p: 2, px: 3 }}>
-          {actions}
-        </DialogActions>
-      )}
+      {actions && <DialogActions sx={{ p: 2, px: 3 }}>{actions}</DialogActions>}
     </Dialog>
   );
 }

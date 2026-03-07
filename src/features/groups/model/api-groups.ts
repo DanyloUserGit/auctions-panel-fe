@@ -1,39 +1,46 @@
-import { api } from "../../../shared/http"
-import type { GroupCreate, GroupEdit } from "./types"
+import { api } from '../../../shared/http';
+import type { GroupCreate, GroupEdit } from './types';
 
 export const fetchGroups = async () => {
-    const responce = await api.get("/auction-groups")
-    console.log(responce.data)
-    return responce.data
-}
+  const responce = await api.get('/auction-groups');
+  console.log(responce.data);
+  return responce.data;
+};
 export const fetchGroupByQuery = async (query: string) => {
-    const responce = await api.get(`/auction-groups/search`, { params: { query } })
-    console.log(responce.data)
-    return responce.data
-}
+  const responce = await api.get(`/auction-groups/search`, {
+    params: { query },
+  });
+  console.log(responce.data);
+  return responce.data;
+};
 export const fetchGroupByid = async (id: string) => {
-    if (!id) return {}
-    const responce = await api.get(`/auction-groups/${id}`)
-    console.log(responce.data)
-    return responce.data
-}
+  if (!id) return {};
+  const responce = await api.get(`/auction-groups/${id}`);
+  console.log(responce.data);
+  return responce.data;
+};
 export const createGroup = async (newGroup: GroupCreate) => {
-    console.log(newGroup)
-    const data = await api.post('/auction-groups', newGroup);
-    return data
-}
-export const editGroup = async ({ id, group }: { id: string, group: GroupEdit }) => {
-    console.log(group)
-    const { data } = await api.patch(`/auction-groups/${id}`, {
-        title: group.title,
-        auctions: group.auctions,
-        groupAdmin: group.groupAdminId
-    });
-    return data;
-}
+  console.log(newGroup);
+  const data = await api.post('/auction-groups', newGroup);
+  return data;
+};
+export const editGroup = async ({
+  id,
+  group,
+}: {
+  id: string;
+  group: GroupEdit;
+}) => {
+  console.log(group);
+  const { data } = await api.patch(`/auction-groups/${id}`, {
+    title: group.title,
+    auctions: group.auctions,
+    groupAdmin: group.groupAdminId,
+  });
+  return data;
+};
 
 export const deleteGroup = async (groupId: string) => {
-    const data = await api.delete(`/auction-groups/${groupId}`);
-    return data
-
-}
+  const data = await api.delete(`/auction-groups/${groupId}`);
+  return data;
+};
