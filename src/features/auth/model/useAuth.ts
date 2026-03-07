@@ -130,7 +130,7 @@ export const useBlockUser = () => {
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: UpdateUser) => updateUser(data),
+    mutationFn: ({ id, data }: { id: string, data: UpdateUser }) => updateUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,

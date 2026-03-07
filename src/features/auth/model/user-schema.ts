@@ -25,16 +25,20 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 export const updateUserSchema = z.object({
-    id: z.string({ message: 'Id має бути типом uuid' }),
-    email: z.string().optional(),
+    // id: z.string({ message: 'Id має бути типом uuid' }),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    role: z.enum(ROLES).optional(),
-    rights: z.enum(RIGHTS).optional(),
+    email: z.string().optional(),
+    password: z.string().optional(),
     phone: z.string().optional(),
     city: z.string().optional(),
-    auctionGroupId: z.uuid().optional(),
+    role: z.enum(ROLES).optional(),
+    rights: z.enum(RIGHTS).optional(),
+    auctionGroupId: z.uuid().optional().nullable().or(z.literal("")),
+    sessionLimit: z.number().optional()
 })
+
+
 export type UpdateUser = z.infer<typeof updateUserSchema>;
 
 
