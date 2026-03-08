@@ -24,8 +24,8 @@ export const fetchUserById = async (id: string): Promise<User> => {
   const responce = await api.get(`/users/${id}`);
   return responce.data;
 };
-export const updateProfile = async (data: UpdateUser, id:string) => {
-  const responce = await api.patch(`/profile/edit`, {...data, id});
+export const updateProfile = async (data: UpdateUser, id: string) => {
+  const responce = await api.patch(`/profile/edit`, { ...data, id });
   return responce.data;
 };
 export const updateRole = async (data: ChangeRole) => {
@@ -58,9 +58,7 @@ export const createUser = async (data: CreateUser) => {
   return responce.data;
 };
 export const updateUser = async (id: string, data: UpdateUser) => {
-  console.log(data);
   const responce = await api.patch(`users/${id}`, data);
-  console.log(responce.data);
   return responce.data;
 };
 export const handleBlockUser = async (user: User) => {

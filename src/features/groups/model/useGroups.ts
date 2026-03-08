@@ -8,6 +8,7 @@ import {
   fetchGroups,
 } from './api-groups';
 import type { GroupCreate, GroupEdit } from './types';
+import { authKeys } from '../../auth/model/useAuth';
 export const groupsKeys = {
   key: ['groups'] as const,
   detail: (id: string) => [...groupsKeys.key, id] as const,
@@ -33,9 +34,13 @@ export function useGroups(groupId?: string) {
   });
 
   const GroupCreation = useMutation({
-    mutationFn: (newGroup: GroupCreate) => createGroup(newGroup),
+    mutationFn: (newGroup: GroupCreate) => {
+      console.log(newGroup);
+      return createGroup(newGroup);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
+      queryClient.invalidateQueries({ queryKey: authKeys.users });
     },
   });
 
@@ -45,15 +50,22 @@ export function useGroups(groupId?: string) {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
+
+      queryClient.invalidateQueries({ queryKey: authKeys.users });
+
+      if (variables.group.groupAdminId) {
+        queryClient.invalidateQueries({
+          queryKey: authKeys.controlCard(variables.group.groupAdminId),
+        });
+      }
     },
   });
-
   const DeleteGroupMutation = useMutation({
     mutationFn: (id: string) => deleteGroup(id),
     onSuccess: (_, deletedId) => {
       queryClient.removeQueries({ queryKey: groupsKeys.detail(deletedId) });
-      // Оновлюємо список
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 

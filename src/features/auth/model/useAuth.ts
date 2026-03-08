@@ -151,17 +151,14 @@ export const useUpdateUser = () => {
     },
   });
 };
-export const useUserById = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => fetchUserById(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: authKeys.users,
-      });
+export const useUserById = (id: string | null) => {
+  return useQuery({
+    queryKey: [authKeys.users, id],
+    queryFn: () => {
+      if (!id) throw new Error('ID is required');
+      return fetchUserById(id);
     },
-    onError: (error) => {
-      console.error('Помилка при створенні користувача:', error);
-    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 };
