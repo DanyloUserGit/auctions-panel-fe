@@ -36,7 +36,7 @@ const router = createBrowserRouter([
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
           { path: 'notifications', element: <NotificationsPage /> },
-          { path: 'training', element: <TrainingPage /> }
+          { path: 'learning', element: <TrainingPage /> }
         ],
       },
     ],
