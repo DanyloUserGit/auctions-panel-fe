@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FC
-} from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { socket } from '../../../shared/http';
 import { useAuth } from '../../auth/model/useAuth';
@@ -58,7 +53,6 @@ export const SessionContainer: FC = () => {
       },
 
       onSessionReady: async (data) => {
-
         if (!sessionId && data.sessionId) {
           window.history.replaceState(null, '', `/session/${data.sessionId}`);
         }
@@ -97,7 +91,7 @@ export const SessionContainer: FC = () => {
 
           // 2. Чекаємо, коли реально підуть дані
           track.onunmute = () => {
-            setIsLoading(false)
+            setIsLoading(false);
 
             // 3. Запускаємо відтворення ТІЛЬКИ ТУТ, коли відео розблоковано
             if (videoRef.current) {
@@ -222,12 +216,20 @@ export const SessionContainer: FC = () => {
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLVideoElement>) => {
-    sendInteraction({ type: 'mousedown', ...getCoordinates(e), button: e.button });
-    videoRef.current?.focus()
+    sendInteraction({
+      type: 'mousedown',
+      ...getCoordinates(e),
+      button: e.button,
+    });
+    videoRef.current?.focus();
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLVideoElement>) => {
-    sendInteraction({ type: 'mouseup', ...getCoordinates(e), button: e.button });
+    sendInteraction({
+      type: 'mouseup',
+      ...getCoordinates(e),
+      button: e.button,
+    });
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLVideoElement>) => {
@@ -244,7 +246,7 @@ export const SessionContainer: FC = () => {
     e.preventDefault();
     sendInteraction({ type: 'keyup', key: e.key });
   };
-  if(isLoading) return <Loader />
+  if (isLoading) return <Loader />;
   return (
     <div
       className="relative w-full h-full bg-black min-h-screen outline-none"
@@ -258,12 +260,10 @@ export const SessionContainer: FC = () => {
         playsInline
         muted
         controls={false}
-        
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onWheel={handleWheel}
-
         className="w-full h-full object-contain cursor-none"
       />
     </div>

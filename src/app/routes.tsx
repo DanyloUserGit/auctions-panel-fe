@@ -22,7 +22,6 @@ import Workers from '../pages/Workers';
 import NotificationsPage from '../pages/Notification';
 import TrainingPage from '../pages/Training';
 
-
 const router = createBrowserRouter([
   {
     path: '/',
@@ -71,12 +70,16 @@ const router = createBrowserRouter([
   },
 ]);
 
+// src/app/routes.tsx
 export default function AppRouter() {
   const { width, height } = useWindowSize();
-  const sessionConnect = useSession();
+  const setWidth = useSession((state) => state.setWidth);
+  const setHeight = useSession((state) => state.setHeight);
+
   useEffect(() => {
-    sessionConnect.setWidth(width);
-    sessionConnect.setHeight(height);
-  }, [height, sessionConnect, width]);
+    setWidth(width);
+    setHeight(height);
+  }, [width, height, setWidth, setHeight]);
+
   return <RouterProvider router={router} />;
 }

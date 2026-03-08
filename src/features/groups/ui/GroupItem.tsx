@@ -1,16 +1,29 @@
-import { AccountCircle, DeleteOutline, Edit, Gavel, Lock, MailOutline, MoreVert, People, Sensors } from "@mui/icons-material";
+import {
+  AccountCircle,
+  DeleteOutline,
+  Edit,
+  Gavel,
+  Lock,
+  MailOutline,
+  MoreVert,
+  People,
+  Sensors,
+} from '@mui/icons-material';
 import {
   Box,
   Divider,
   IconButton,
   ListItemIcon,
-  Menu, MenuItem,
-  Paper, Tooltip, Typography
-} from "@mui/material";
-import { useState, type ReactNode } from "react";
-import { useUserById } from "../../auth/model/useAuth";
-import { Can } from "../../auth/ui/Can";
-import type { Group } from "../model/types";
+  Menu,
+  MenuItem,
+  Paper,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { useState, type ReactNode } from 'react';
+import { useUserById } from '../../auth/model/useAuth';
+import { Can } from '../../auth/ui/Can';
+import type { Group } from '../model/types';
 
 const getMockData = (groupId: string) => ({
   userCount: 15,
@@ -29,13 +42,20 @@ interface GroupTabProps {
   onDelete?: (id: string) => void;
 }
 
-export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDelete }: GroupTabProps) {
+export default function GroupTabItem({
+  group,
+  isActive,
+  onSelect,
+  onEdit,
+  onDelete,
+}: GroupTabProps) {
   const mock = getMockData(group.id);
-  const { data: admin, isLoading: isAdminLoading } = useUserById(group.groupAdminId);
+  const { data: admin, isLoading: isAdminLoading } = useUserById(
+    group.groupAdminId,
+  );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
-
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -59,18 +79,22 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
         borderRadius: '14px',
         border: '2px solid',
         borderColor: isActive ? 'primary.main' : 'divider',
-        bgcolor: mock.isBlocked ? '#fafafa' : (isActive ? 'rgba(25, 118, 210, 0.04)' : 'background.paper'),
+        bgcolor: mock.isBlocked
+          ? '#fafafa'
+          : isActive
+            ? 'rgba(25, 118, 210, 0.04)'
+            : 'background.paper',
         transition: '0.2s',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         height: '100%',
-        '&:hover': { borderColor: isActive ? 'primary.main' : 'primary.light' }
+        '&:hover': { borderColor: isActive ? 'primary.main' : 'primary.light' },
       }}
     >
-      <Can roles={["GroupAdmin", "SuperAdmin"]}>
-        <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}>
+      <Can roles={['GroupAdmin', 'SuperAdmin']}>
+        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
           <IconButton size="small" onClick={handleOpenMenu}>
             <MoreVert sx={{ fontSize: 18 }} />
           </IconButton>
@@ -80,12 +104,27 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
             onClose={handleCloseMenu}
             onClick={(e) => e.stopPropagation()}
           >
-            <MenuItem onClick={(e) => { handleCloseMenu(e); onEdit?.(); }}>
-              <ListItemIcon><Edit fontSize="small" /></ListItemIcon>
+            <MenuItem
+              onClick={(e) => {
+                handleCloseMenu(e);
+                onEdit?.();
+              }}
+            >
+              <ListItemIcon>
+                <Edit fontSize="small" />
+              </ListItemIcon>
               Редагувати
             </MenuItem>
-            <MenuItem onClick={(e) => { handleCloseMenu(e); onDelete?.(group.id); }} sx={{ color: 'error.main' }}>
-              <ListItemIcon><DeleteOutline fontSize="small" color="error" /></ListItemIcon>
+            <MenuItem
+              onClick={(e) => {
+                handleCloseMenu(e);
+                onDelete?.(group.id);
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <ListItemIcon>
+                <DeleteOutline fontSize="small" color="error" />
+              </ListItemIcon>
               Видалити
             </MenuItem>
           </Menu>
@@ -97,18 +136,37 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography
               variant="subtitle1"
-              sx={{ fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              sx={{
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
             >
               {group.title}
             </Typography>
-            {mock.isBlocked && <Lock sx={{ fontSize: 14, color: 'error.main' }} />}
+            {mock.isBlocked && (
+              <Lock sx={{ fontSize: 14, color: 'error.main' }} />
+            )}
           </Box>
         </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <StatBlock icon={<People sx={{ fontSize: 14 }} />} label="Юзери" value={mock.userCount} />
-          <StatBlock icon={<Gavel sx={{ fontSize: 14 }} />} label="Аукціони" value={group.auctions?.length || 0} />
-          <StatBlock icon={<Sensors sx={{ fontSize: 14 }} />} label="Сесії" value={mock.activeSessions} />
+          <StatBlock
+            icon={<People sx={{ fontSize: 14 }} />}
+            label="Юзери"
+            value={group.users?.length || 0}
+          />
+          <StatBlock
+            icon={<Gavel sx={{ fontSize: 14 }} />}
+            label="Аукціони"
+            value={group.auctions?.length || 0}
+          />
+          <StatBlock
+            icon={<Sensors sx={{ fontSize: 14 }} />}
+            label="Сесії"
+            value={mock.activeSessions}
+          />
         </Box>
       </Box>
 
@@ -116,11 +174,23 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
       <Box>
         <Divider sx={{ mb: 1.5, borderStyle: 'dashed' }} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <AccountCircle sx={{ color: 'primary.main', fontSize: 32, opacity: 0.8 }} />
-          <Box sx={{ overflow: 'hidden', minHeight: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-
+          <AccountCircle
+            sx={{ color: 'primary.main', fontSize: 32, opacity: 0.8 }}
+          />
+          <Box
+            sx={{
+              overflow: 'hidden',
+              minHeight: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
             {isAdminLoading ? (
-              <Typography variant="caption" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+              <Typography
+                variant="caption"
+                sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+              >
                 Завантаження...
               </Typography>
             ) : (
@@ -134,10 +204,12 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    color: admin ? 'text.primary' : 'text.disabled'
+                    color: admin ? 'text.primary' : 'text.disabled',
                   }}
                 >
-                  {admin ? `${admin.firstName} ${admin.lastName}` : "Адмін не призначений"}
+                  {admin
+                    ? `${admin.firstName} ${admin.lastName}`
+                    : 'Адмін не призначений'}
                 </Typography>
 
                 {admin?.email && (
@@ -145,7 +217,12 @@ export default function GroupTabItem({ group, isActive, onSelect, onEdit, onDele
                     <Typography
                       variant="caption"
                       color="text.secondary"
-                      sx={{ display: 'flex', alignItems: 'center', gap: 0.3, fontSize: '10px' }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.3,
+                        fontSize: '10px',
+                      }}
                     >
                       <MailOutline sx={{ fontSize: 10 }} /> {admin.email}
                     </Typography>
@@ -185,7 +262,7 @@ function StatBlock({ icon, label, value }: StatBlockProps) {
 }
 
 interface StatBlockProps {
-  icon: ReactNode,
-  label: string,
-  value: string | number,
+  icon: ReactNode;
+  label: string;
+  value: string | number;
 }

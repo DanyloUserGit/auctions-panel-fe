@@ -7,26 +7,6 @@ export const RIGHTS = ['Read', 'Write', 'All'] as const;
 export type UserRights = (typeof RIGHTS)[number];
 
 export const userSchema = z.object({
-<<<<<<< HEAD
-    id: z.string(),
-    email: z.string().email(),
-    firstName: z.string(),
-    lastName: z.string(),
-    role: z.enum(ROLES),
-    rights: z.enum(RIGHTS),
-    phone: z.string(),
-    city: z.string(),
-    auctionGroupId: z.uuid(),
-    sessionLimit: z.number(),
-    sessionRights: z.enum(RIGHTS),
-    isActive: z.boolean(),
-    isBlocked: z.boolean(),
-    telegramChatId: z.string(),
-    viberId: z.string(),
-    lastLogin: z.date(),
-    lastActivity: z.date(),
-    sessionId: z.string(),
-=======
   id: z.string(),
   email: z.string().email(),
   firstName: z.string(),
@@ -40,7 +20,11 @@ export const userSchema = z.object({
   sessionRights: z.enum(RIGHTS),
   isActive: z.boolean(),
   isBlocked: z.boolean(),
->>>>>>> 35b9de295eaeafde65b69e1c187f3fcfbac357fa
+  telegramChatId: z.string(),
+  viberId: z.string(),
+  lastLogin: z.date(),
+  lastActivity: z.date(),
+  sessionId: z.string(),
 });
 
 export type User = z.infer<typeof userSchema>;

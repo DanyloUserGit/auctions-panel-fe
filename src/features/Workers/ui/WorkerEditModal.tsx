@@ -11,13 +11,23 @@ import {
   Paper,
   Select,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect } from 'react';
-import { Controller, useForm, useWatch, type FieldErrors } from 'react-hook-form';
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type FieldErrors,
+} from 'react-hook-form';
 import BaseModal from '../../../shared/ui/Modal';
 import { useAuth, useUpdateUser } from '../../auth/model/useAuth';
-import { ROLES, updateUserSchema, type UpdateUser, type User } from '../../auth/model/user-schema';
+import {
+  ROLES,
+  updateUserSchema,
+  type UpdateUser,
+  type User,
+} from '../../auth/model/user-schema';
 import type { Group } from '../../groups/model/types';
 import { useGroups } from '../../groups/model/useGroups';
 
@@ -27,12 +37,19 @@ interface CreateUserModalProps {
   onClose: () => void;
 }
 
-export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) => {
+export const WorkerEditModal = ({
+  user,
+  open,
+  onClose,
+}: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
   const { mutate: updateUser, isPending, error } = useUpdateUser();
-  const { items: groups, isLoading: isLoadingGroups } = useGroups()
+  const { items: groups, isLoading: isLoadingGroups } = useGroups();
 
   const isSA = currentUser?.role === 'SuperAdmin';
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   const {
     register,
@@ -40,7 +57,7 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
     control,
     setValue,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<UpdateUser>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -51,63 +68,59 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
       phone: user.phone,
       role: user.role,
       rights: user.rights,
-      auctionGroupId: user.auctionGroupId
-
-
-    }
+      auctionGroupId: user.auctionGroupId,
+    },
   });
-
-
-
 
   const currentGroupId = useWatch({
     control,
-    name: "auctionGroupId",
+    name: 'auctionGroupId',
   });
 
   // 2. ОБЧИСЛЮЄМО об'єкт групи (це і є наш "замінник" стейту)
-  const selectedGroup = groups.find((g: Group) => g.id === currentGroupId) || null;
+  const selectedGroup =
+    groups.find((g: Group) => g.id === currentGroupId) || null;
 
   // 3. Замість useEffect для reset — використовуємо key={user.id} у батьківському компоненті.
   // Але якщо key неможливо додати, використовуй reset тільки для ініціалізації:
   useEffect(() => {
     if (open) {
-      reset({ ...user, auctionGroupId: user.auctionGroupId || "" });
+      reset({ ...user, auctionGroupId: user.auctionGroupId || '' });
     }
   }, [user, open, reset]);
 
   const onInvalid = (errors: FieldErrors<UpdateUser>) => {
-    console.error("Помилки валідації Zod:", errors);
+    console.error('Помилки валідації Zod:', errors);
   };
-
 
   const onSubmit = (data: UpdateUser) => {
-    console.log(data)
+    console.log(data);
     const payload = {
       ...data,
-      auctionGroupId: selectedGroup?.id || null
+      auctionGroupId: selectedGroup?.id || null,
     };
 
-    updateUser({ id: user.id, data: payload }, {
-      onSuccess: () => {
-        reset();
-        onClose();
-      }
-    });
+    updateUser(
+      { id: user.id, data: payload },
+      {
+        onSuccess: () => {
+          reset();
+          onClose();
+        },
+      },
+    );
   };
-
-
-
-
 
   return (
     <BaseModal
       open={open}
-      onClose={() => { reset(); onClose(); }}
+      onClose={() => {
+        reset();
+        onClose();
+      }}
       title="Редагування працівника"
       maxWidth="sm"
     >
-
       <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
         <Grid container spacing={2.5}>
           {error && (
@@ -120,7 +133,7 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
             <TextField
               fullWidth
               label="Ім'я"
-              {...register("firstName")}
+              {...register('firstName')}
               error={!!errors.firstName}
               helperText={errors.firstName?.message}
             />
@@ -129,7 +142,7 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
             <TextField
               fullWidth
               label="Прізвище"
-              {...register("lastName")}
+              {...register('lastName')}
               error={!!errors.lastName}
               helperText={errors.lastName?.message}
             />
@@ -139,19 +152,17 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
             <TextField
               fullWidth
               label="Email"
-              {...register("email")}
+              {...register('email')}
               error={!!errors.email}
               helperText={errors.email?.message}
             />
           </Grid>
 
-
           <Grid size={{ xs: 12, sm: 6 }}>
-
             <TextField
               fullWidth
               label="Місто"
-              {...register("city")}
+              {...register('city')}
               error={!!errors.city}
               helperText={errors.city?.message}
             />
@@ -160,11 +171,10 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
             <TextField
               fullWidth
               label="Телефон"
-              {...register("phone")}
+              {...register('phone')}
               error={!!errors.phone}
               helperText={errors.phone?.message}
             />
-
           </Grid>
           {/* Пошук Групи (тільки для SA) */}
           {isSA && (
@@ -175,9 +185,9 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                 options={groups}
                 loading={isLoadingGroups}
                 onChange={(_, val) => {
-                  setValue("auctionGroupId", val?.id || "");
+                  setValue('auctionGroupId', val?.id || '');
                 }}
-                getOptionLabel={(o) => o.title || ""}
+                getOptionLabel={(o) => o.title || ''}
                 isOptionEqualToValue={(o, v) => o.id === v.id}
                 renderInput={(params) => (
                   <TextField
@@ -187,7 +197,9 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                       ...params.InputProps,
                       endAdornment: (
                         <>
-                          {isLoadingGroups ? <CircularProgress size={20} /> : null}
+                          {isLoadingGroups ? (
+                            <CircularProgress size={20} />
+                          ) : null}
                           {params.InputProps.endAdornment}
                         </>
                       ),
@@ -205,9 +217,13 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter(r => r !== "SuperAdmin" || isSA).map(role => (
-                      <MenuItem key={role} value={role}>{role}</MenuItem>
-                    ))}
+                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
+                      (role) => (
+                        <MenuItem key={role} value={role}>
+                          {role}
+                        </MenuItem>
+                      ),
+                    )}
                   </Select>
                 )}
               />
@@ -215,9 +231,17 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
           </Grid>
 
           <Grid size={12}>
-            <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}>
-              <Typography variant="caption" color="text.secondary">Права доступу:</Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            <Paper
+              variant="outlined"
+              sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
+            >
+              <Typography variant="caption" color="text.secondary">
+                Права доступу:
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 700, color: 'primary.main' }}
+              >
                 Тільки перегляд (Read Only)
               </Typography>
             </Paper>
@@ -230,7 +254,11 @@ export const WorkerEditModal = ({ user, open, onClose }: CreateUserModalProps) =
               variant="contained"
               disabled={isPending}
             >
-              {isPending ? <CircularProgress size={24} /> : "Створити працівника"}
+              {isPending ? (
+                <CircularProgress size={24} />
+              ) : (
+                'Створити працівника'
+              )}
             </Button>
           </Grid>
         </Grid>

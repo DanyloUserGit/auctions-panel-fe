@@ -1,10 +1,10 @@
-import { Grid, Typography } from "@mui/material";
-import AddItemButton from "../../../shared/ui/AddItemButton";
-import { Can } from "../../auth/ui/Can";
-import type { Auction } from "../model/types";
-import AuctionAddModal from "./AuctionAddModal";
-import AuctionItem from "./AuctionItem";
-import { useModal } from "../../../shared/hooks/useModal";
+import { Grid, Typography } from '@mui/material';
+import AddItemButton from '../../../shared/ui/AddItemButton';
+import { Can } from '../../auth/ui/Can';
+import type { Auction } from '../model/types';
+import AuctionAddModal from './AuctionAddModal';
+import AuctionItem from './AuctionItem';
+import { useModal } from '../../../shared/hooks/useModal';
 
 interface Props {
   filteredAuctions: Auction[];
@@ -43,12 +43,11 @@ export default function AuctionsList({
         />
       ))}
 
-      <Can roles={['GroupAdmin', 'SuperAdmin']} fallback={<Typography>Аукціонів ще немає</Typography>}>
-        <AddItemButton
-          type="auction"
-          isEmpty={isEmpty}
-          onClick={open}
-        />
+      <Can
+        roles={['GroupAdmin', 'SuperAdmin']}
+        fallback={<Typography>Аукціонів ще немає</Typography>}
+      >
+        <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />
 
         {/* Модалка */}
         <AuctionAddModal

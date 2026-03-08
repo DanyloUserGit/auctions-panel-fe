@@ -1,7 +1,7 @@
 import { Box, CircularProgress } from '@mui/material';
 import type { FC } from 'react';
 
-export const Loader:FC = () => {
+export const Loader: FC = () => {
   return (
     <Box
       sx={{
@@ -13,13 +13,13 @@ export const Loader:FC = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        bgcolor: 'background.default', 
-        zIndex: 9999, 
+        bgcolor: 'background.default',
+        zIndex: 9999,
       }}
     >
       <CircularProgress
         sx={{
-          color: 'var(--color-primary)', 
+          color: 'var(--color-primary)',
         }}
       />
     </Box>

@@ -7,7 +7,7 @@ import {
 import type { ChangeRole, UpdateUser } from '../../auth/model/user-schema';
 import { authKeys } from '../../auth/model/useAuth';
 
-export const useUpdateProfile = (id:string) => {
+export const useUpdateProfile = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: UpdateUser) => updateProfile(data, id),

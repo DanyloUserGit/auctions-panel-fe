@@ -7,15 +7,16 @@ import {
   Grid,
   IconButton,
   ListItemIcon,
-  Menu, MenuItem,
-  Typography
-} from "@mui/material";
-import { useState } from "react";
-import type { Auction } from "../model/types";
-import AuctionDeleteModal from "./AuctionDeleteModal";
-import AuctionEditModal from "./AuctionEditModal";
-import { useModal } from "../../../shared/hooks/useModal";
-import { Can } from "../../auth/ui/Can";
+  Menu,
+  MenuItem,
+  Typography,
+} from '@mui/material';
+import { useState } from 'react';
+import type { Auction } from '../model/types';
+import AuctionDeleteModal from './AuctionDeleteModal';
+import AuctionEditModal from './AuctionEditModal';
+import { useModal } from '../../../shared/hooks/useModal';
+import { Can } from '../../auth/ui/Can';
 
 interface AuctionItemProps {
   auction: Auction;
@@ -61,15 +62,14 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
           },
         }}
       >
-        <Can roles={["GroupAdmin", "SuperAdmin"]}>
-
-          <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}>
+        <Can roles={['GroupAdmin', 'SuperAdmin']}>
+          <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
             <IconButton
               size="small"
               onClick={handleMenuClick}
               sx={{
-                color: "text.secondary",
-                "&:hover": { bgcolor: "rgba(0,0,0,0.04)" }
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
               }}
             >
               <MoreVert fontSize="small" />
@@ -98,26 +98,35 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
           </Box>
         </Can>
 
-        <AuctionDeleteModal isModalOpen={isDeleteOpen} handleClose={closeDelete} currentAuction={auction} />
-        <AuctionEditModal isModalOpen={isEditOpen} handleClose={closeEdit} currentAuction={auction} />
-
+        <AuctionDeleteModal
+          isModalOpen={isDeleteOpen}
+          handleClose={closeDelete}
+          currentAuction={auction}
+        />
+        <AuctionEditModal
+          isModalOpen={isEditOpen}
+          handleClose={closeEdit}
+          currentAuction={auction}
+        />
 
         <CardActionArea sx={{ p: 2 }} onClick={() => onClick(auction)}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar
               sx={{
                 width: 50,
                 height: 50,
-                bgcolor: "#f0f7ff",
-                color: "var(--color-primary)",
-                fontWeight: "bold",
-                fontSize: "1.1rem"
+                bgcolor: '#f0f7ff',
+                color: 'var(--color-primary)',
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
               }}
             >
               <Gavel sx={{ fontSize: 24 }} />
             </Avatar>
 
-            <Box sx={{ overflow: "hidden", flexGrow: 1, pr: 3 }}> {/* pr: 3 щоб текст не налазив на кнопку */}
+            <Box sx={{ overflow: 'hidden', flexGrow: 1, pr: 3 }}>
+              {' '}
+              {/* pr: 3 щоб текст не налазив на кнопку */}
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -125,7 +134,7 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
                   lineHeight: 1.2,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  textOverflow: 'ellipsis',
                 }}
               >
                 {auction.title}
@@ -137,7 +146,7 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
                   display: 'block',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  textOverflow: 'ellipsis',
                 }}
               >
                 {auction.url}

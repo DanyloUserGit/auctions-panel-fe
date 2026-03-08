@@ -150,33 +150,15 @@ export const useUpdateUser = () => {
       console.error('Помилка при створенні користувача:', error);
     },
   });
-<<<<<<< HEAD
-}
+};
 export const useUserById = (id: string | null) => {
   return useQuery({
     queryKey: [authKeys.users, id],
     queryFn: () => {
-      if (!id) throw new Error("ID is required");
+      if (!id) throw new Error('ID is required');
       return fetchUserById(id);
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
   });
 };
-=======
-};
-export const useUserById = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => fetchUserById(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: authKeys.users,
-      });
-    },
-    onError: (error) => {
-      console.error('Помилка при створенні користувача:', error);
-    },
-  });
-};
->>>>>>> 35b9de295eaeafde65b69e1c187f3fcfbac357fa

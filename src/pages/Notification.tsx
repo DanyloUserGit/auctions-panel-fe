@@ -1,7 +1,5 @@
-import NotificationsPage from '../features/notifications/ui/NotificationsPage'
+import NotificationsPage from '../features/notifications/ui/NotificationsPage';
 
 export default function Notification() {
-    return (
-        <NotificationsPage />
-    )
+  return <NotificationsPage />;
 }

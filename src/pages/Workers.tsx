@@ -1,4 +1,4 @@
-import { Add, Assessment, FilterList, Search } from '@mui/icons-material';
+import { Add, Assessment, Search } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -32,7 +32,6 @@ import { useModal } from '../shared/hooks/useModal';
 import { type ChipProps } from '@mui/material';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 
-// Використовуємо ChipProps['color'] для значень
 const roleColors: Record<UserRole, ChipProps['color']> = {
   SuperAdmin: 'error',
   GroupAdmin: 'primary',
@@ -42,37 +41,53 @@ const roleColors: Record<UserRole, ChipProps['color']> = {
 export default function EmployeesSection() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
-
-  const { users } = useUsers()
+  const [statusFilter, setStatusFilter] = useState('All');
+  const { users } = useUsers();
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
   const filteredUsers = useMemo(() => {
     if (!users) return [];
 
     return users.filter((user) => {
-      // Пошук за ім'ям, прізвищем або email
       const searchTerm = search.toLowerCase();
       const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
       const email = user.email.toLowerCase();
 
-      const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
+      const matchesSearch =
+        fullName.includes(searchTerm) || email.includes(searchTerm);
 
-      const matchesRole = roleFilter === "All" || user.role === roleFilter;
+      const matchesRole = roleFilter === 'All' || user.role === roleFilter;
 
-      return matchesSearch && matchesRole;
+      // 2. Логіка фільтрації за статусом
+      const matchesStatus =
+        statusFilter === 'All' ||
+        (statusFilter === 'Blocked' ? user.isBlocked : !user.isBlocked);
+
+      return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [users, search, roleFilter]);
+  }, [users, search, roleFilter, statusFilter]);
 
-  // 2. Використовуємо цей масив для відображення
   const showUsers = filteredUsers;
-  const effectiveId = selectedWorkerId || users?.[0]?.id || "";
+  const effectiveId = selectedWorkerId || users?.[0]?.id || '';
   const handleChangeWorker = (id: string) => {
-    setSelectedWorkerId(id)
-  }
-  const currentUser = users?.find(u => u.id === effectiveId)
+    setSelectedWorkerId(id);
+  };
+  const currentUser = users?.find((u) => u.id === effectiveId);
 
-  const { isOpen: isControlCardOpen, open: OpenControlCard, close: CloseControlCard } = useModal(false)
-  const { isOpen: isAddUserOpen, open: OpenAddUser, close: CloseAddUser } = useModal(false)
-  const { isOpen: isEditUserOpen, open: OpenEditUser, close: CloseEditUser } = useModal(false)
+  const {
+    isOpen: isControlCardOpen,
+    open: OpenControlCard,
+    close: CloseControlCard,
+  } = useModal(false);
+  const {
+    isOpen: isAddUserOpen,
+    open: OpenAddUser,
+    close: CloseAddUser,
+  } = useModal(false);
+  const {
+    isOpen: isEditUserOpen,
+    open: OpenEditUser,
+    close: CloseEditUser,
+  } = useModal(false);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -98,7 +113,17 @@ export default function EmployeesSection() {
       </Box>
 
       {/* Фільтри та Пошук */}
-      <Paper sx={{ p: 2, mb: 3, borderRadius: "15px", display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+      <Paper
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: '15px',
+          display: 'flex',
+          gap: 2,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
         <TextField
           size="small"
           placeholder="Пошук за іменем або email..."
@@ -113,11 +138,11 @@ export default function EmployeesSection() {
             ),
             endAdornment: search && (
               <InputAdornment position="end">
-                <IconButton size="small" onClick={() => setSearch("")}>
+                <IconButton size="small" onClick={() => setSearch('')}>
                   <Add sx={{ transform: 'rotate(45deg)' }} />
                 </IconButton>
               </InputAdornment>
-            )
+            ),
           }}
         />
 
@@ -135,73 +160,123 @@ export default function EmployeesSection() {
           </Select>
         </FormControl>
 
-        <Button startIcon={<FilterList />}>Фільтри</Button>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Статус</InputLabel>
+          <Select
+            value={statusFilter}
+            label="Статус"
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <MenuItem value="All">Всі статуси</MenuItem>
+            <MenuItem value="Active">Активні</MenuItem>
+            <MenuItem value="Blocked">Заблоковані</MenuItem>
+          </Select>
+        </FormControl>
       </Paper>
 
-      <TableContainer component={Paper} sx={{ borderRadius: "15px", overflow: "hidden" }}>
+      <TableContainer
+        component={Paper}
+        sx={{ borderRadius: '15px', overflow: 'hidden' }}
+      >
         <Table>
-          <TableHead sx={{ bgcolor: "#f8fafc" }}>
+          <TableHead sx={{ bgcolor: '#f8fafc' }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Користувач</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Роль</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Статус</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>Дії</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700 }}>
+                Дії
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-
-            {showUsers && showUsers?.length > 0 ?
+            {showUsers && showUsers?.length > 0 ? (
               showUsers.map((user) => (
                 <TableRow key={user.id} hover>
                   <TableCell>
                     <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{`${user.firstName} ${user.lastName}`}</Typography>
-                      <Typography variant="caption" color="text.secondary">{user.email}</Typography>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: 600 }}
+                      >{`${user.firstName} ${user.lastName}`}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {user.email}
+                      </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Chip
                       label={user.role}
                       size="small"
-                      color={roleColors[user.role] || "default"}
+                      color={roleColors[user.role] || 'default'}
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={user.isBlocked ? "Заблокований" : "Активний"}
+                      label={user.isBlocked ? 'Заблокований' : 'Активний'}
                       size="small"
-                      sx={{ bgcolor: user.isActive ? "#e1f5fe" : "#ffebee", color: user.isActive ? "#01579b" : "#b71c1c" }}
+                      sx={{
+                        bgcolor: user.isActive ? '#e1f5fe' : '#ffebee',
+                        color: user.isActive ? '#01579b' : '#b71c1c',
+                      }}
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
-
-                      <Tooltip title="Картка контролю" onClick={() => { handleChangeWorker(String(user.id)); OpenControlCard() }}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      justifyContent="flex-end"
+                    >
+                      <Tooltip
+                        title="Картка контролю"
+                        onClick={() => {
+                          handleChangeWorker(String(user.id));
+                          OpenControlCard();
+                        }}
+                      >
                         <IconButton size="small" color="primary">
                           <Assessment />
                         </IconButton>
                       </Tooltip>
-                      <UserActionsMenu openEdit={() => { handleChangeWorker(String(user.id)); OpenEditUser() }} user={user} />
+                      <UserActionsMenu
+                        openEdit={() => {
+                          handleChangeWorker(String(user.id));
+                          OpenEditUser();
+                        }}
+                        user={user}
+                      />
                     </Stack>
                   </TableCell>
                 </TableRow>
-              )) : <TableRow>
+              ))
+            ) : (
+              <TableRow>
                 <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
-                  <Typography color="text.secondary">Працівників ще немає</Typography>
+                  <Typography color="text.secondary">
+                    Працівників ще немає
+                  </Typography>
                 </TableCell>
               </TableRow>
-            }
+            )}
           </TableBody>
         </Table>
 
-        <WorkerControlModal id={String(effectiveId)} open={isControlCardOpen} onClose={CloseControlCard} isLoading={false} />
+        <WorkerControlModal
+          id={String(effectiveId)}
+          open={isControlCardOpen}
+          onClose={CloseControlCard}
+          isLoading={false}
+        />
         <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
-        {
-          currentUser &&
-          <WorkerEditModal key={effectiveId} open={isEditUserOpen} onClose={CloseEditUser} user={currentUser} />
-        }
-
+        {currentUser && (
+          <WorkerEditModal
+            key={effectiveId}
+            open={isEditUserOpen}
+            onClose={CloseEditUser}
+            user={currentUser}
+          />
+        )}
       </TableContainer>
     </Box>
   );

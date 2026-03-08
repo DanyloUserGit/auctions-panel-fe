@@ -5,21 +5,18 @@ export interface Group {
   title: string;
   groupAdminId: string;
   auctions: Auction[];
+  users: string[];
 }
 export interface GroupCreate {
-<<<<<<< HEAD
-    title: string;
-    auctions: string[];
-    groupAdminId: string | null;
-=======
   title: string;
   auctions: string[];
-  groupAdminId: string;
->>>>>>> 35b9de295eaeafde65b69e1c187f3fcfbac357fa
+  groupAdminId: string | null;
+  users: string[];
 }
 export interface GroupEdit {
   id?: string;
   title?: string;
   auctions?: string[];
   groupAdminId?: string;
+  users: string[];
 }
