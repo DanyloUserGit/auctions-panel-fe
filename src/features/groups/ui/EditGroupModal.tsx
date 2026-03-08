@@ -1,4 +1,11 @@
-import { Autocomplete, Box, Button, CircularProgress, debounce, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  CircularProgress,
+  debounce,
+  TextField,
+} from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
@@ -11,20 +18,26 @@ interface AddGroupModalProps {
   isModalOpen: boolean;
   handleClose: () => void;
   modal_title: string;
-  current_group: Group
+  current_group: Group;
 }
 
-export default function EditGroupModal({ current_group, isModalOpen, handleClose, modal_title }: AddGroupModalProps) {
+export default function EditGroupModal({
+  current_group,
+  isModalOpen,
+  handleClose,
+  modal_title,
+}: AddGroupModalProps) {
   const { EditGroupMutation } = useGroups();
 
   const [title, setTitle] = useState<string>(current_group?.title ?? '');
-  const [addedAuctions, setAddedAuctions] = useState<Auction[]>(current_group?.auctions ?? []);
-  const [groupAdmin, setGroupAdmin] = useState<User | null>(null)
+  const [addedAuctions, setAddedAuctions] = useState<Auction[]>(
+    current_group?.auctions ?? [],
+  );
+  const [groupAdmin, setGroupAdmin] = useState<User | null>(null);
 
   const [adminOptions, setAdminOptions] = useState<User[]>([]);
-  const [adminInput, setAdminInput] = useState("");
+  const [adminInput, setAdminInput] = useState('');
   const [isAdminsLoading, setIsAdminsLoading] = useState(false);
-
 
   useEffect(() => {
     if (!current_group?.groupAdminId || !isModalOpen) {
@@ -40,13 +53,13 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
         if (active && user) {
           setGroupAdmin(user);
           setAdminOptions((prev) => {
-            const exists = prev.find(opt => opt.id === user.id);
+            const exists = prev.find((opt) => opt.id === user.id);
             return exists ? prev : [user, ...prev];
           });
         }
       })
       .catch((error) => {
-        console.error("Помилка завантаження адміна:", error);
+        console.error('Помилка завантаження адміна:', error);
       })
       .finally(() => {
         if (active) setIsAdminsLoading(false);
@@ -60,7 +73,15 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
   const [options, setOptions] = useState<Auction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+<<<<<<< HEAD
 
+=======
+  useEffect(() => {
+    console.log(current_group);
+  }, [current_group]);
+
+  useEffect(() => {}, [current_group]);
+>>>>>>> 35b9de295eaeafde65b69e1c187f3fcfbac357fa
 
   const debouncedFetch = useMemo(
     () =>
@@ -74,16 +95,17 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
         try {
           const results = await fetchAuctionsByQuery(query);
           const combined = [...addedAuctions, ...(results || [])];
-          const uniqueOptions = Array.from(new Map(combined.map(item => [item.id, item])).values());
+          const uniqueOptions = Array.from(
+            new Map(combined.map((item) => [item.id, item])).values(),
+          );
 
           setOptions(uniqueOptions);
         } finally {
           setIsLoading(false);
         }
       }, 400),
-    [addedAuctions]
+    [addedAuctions],
   );
-
 
   useEffect(() => {
     let active = true;
@@ -92,36 +114,42 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
       return;
     }
     setIsAdminsLoading(true);
-    fetchUsersByQuery(adminInput).then((results) => {
-      if (active) {
-        setAdminOptions(results.data || []);
-        setIsAdminsLoading(false);
-      }
-    }).catch(() => {
-      if (active) setAdminOptions([])
-    });
-    return () => { active = false; };
+    fetchUsersByQuery(adminInput)
+      .then((results) => {
+        if (active) {
+          setAdminOptions(results.data || []);
+          setIsAdminsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setAdminOptions([]);
+      });
+    return () => {
+      active = false;
+    };
   }, [adminInput]);
   const handleSubmit = () => {
     if (!title.trim()) return;
 
-    EditGroupMutation.mutate({
-      id: current_group.id,
-      group: {
-        groupAdminId: groupAdmin?.id,
-        title,
-        auctions: addedAuctions.map(a => a.id)
-      }
-    }, {
-      onSuccess: () => {
-        setTitle("");
-        setAddedAuctions([]);
-        setGroupAdmin(null)
-        handleClose();
-      }
-    });
+    EditGroupMutation.mutate(
+      {
+        id: current_group.id,
+        group: {
+          groupAdminId: groupAdmin?.id,
+          title,
+          auctions: addedAuctions.map((a) => a.id),
+        },
+      },
+      {
+        onSuccess: () => {
+          setTitle('');
+          setAddedAuctions([]);
+          setGroupAdmin(null);
+          handleClose();
+        },
+      },
+    );
   };
-
 
   return (
     <BaseModal
@@ -130,13 +158,19 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
       title={modal_title}
       actions={
         <>
-          <Button onClick={handleClose} color="inherit">Скасувати</Button>
+          <Button onClick={handleClose} color="inherit">
+            Скасувати
+          </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"
             disabled={!title.trim() || EditGroupMutation.isPending}
           >
-            {EditGroupMutation.isPending ? <CircularProgress size={24} /> : "Редагувати"}
+            {EditGroupMutation.isPending ? (
+              <CircularProgress size={24} />
+            ) : (
+              'Редагувати'
+            )}
           </Button>
         </>
       }
@@ -161,9 +195,11 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
           }}
           onChange={(_, newValue) => {
             setAddedAuctions(newValue);
-            setOptions(prev => {
+            setOptions((prev) => {
               const combined = [...newValue, ...prev];
-              return Array.from(new Map(combined.map(item => [item.id, item])).values());
+              return Array.from(
+                new Map(combined.map((item) => [item.id, item])).values(),
+              );
             });
           }}
           getOptionLabel={(option) => option.title}
@@ -177,7 +213,9 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
                 ...params.InputProps,
                 endAdornment: (
                   <>
-                    {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {isLoading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
                     {params.InputProps.endAdornment}
                   </>
                 ),
@@ -192,8 +230,8 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
           onInputChange={(_, val) => setAdminInput(val)}
           onChange={(_, val) => setGroupAdmin(val)}
           getOptionLabel={(o) => {
-            if (!o) return "";
-            return `${o.firstName || ""} ${o.lastName || ""} (${o.email || ""})`;
+            if (!o) return '';
+            return `${o.firstName || ''} ${o.lastName || ''} (${o.email || ''})`;
           }}
           isOptionEqualToValue={(o, v) => o?.id === v?.id}
           renderInput={(params) => (
@@ -205,7 +243,9 @@ export default function EditGroupModal({ current_group, isModalOpen, handleClose
                 ...params.InputProps,
                 endAdornment: (
                   <>
-                    {isAdminsLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {isAdminsLoading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
                     {params.InputProps.endAdornment}
                   </>
                 ),

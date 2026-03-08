@@ -1,6 +1,10 @@
-import { DeleteOutline, Edit, Gavel, MoreVert } from "@mui/icons-material";
+import { DeleteOutline, Edit, Gavel, MoreVert } from '@mui/icons-material';
 import {
-  Avatar, Box, Card, CardActionArea, Grid,
+  Avatar,
+  Box,
+  Card,
+  CardActionArea,
+  Grid,
   IconButton,
   ListItemIcon,
   Menu, MenuItem,
@@ -14,13 +18,10 @@ import { useModal } from "../../../shared/hooks/useModal";
 import { Can } from "../../auth/ui/Can";
 
 interface AuctionItemProps {
-  auction: Auction,
-  onClick: (auction: Auction) => void
+  auction: Auction;
+  onClick: (auction: Auction) => void;
 }
-export default function AuctionItem({
-  onClick,
-  auction
-}: AuctionItemProps) {
+export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -34,23 +35,30 @@ export default function AuctionItem({
     setAnchorEl(null);
   };
 
-  const { isOpen: isDeleteOpen, open: openDelete, close: closeDelete } = useModal(false)
-  const { isOpen: isEditOpen, open: openEdit, close: closeEdit } = useModal(false)
-
+  const {
+    isOpen: isDeleteOpen,
+    open: openDelete,
+    close: closeDelete,
+  } = useModal(false);
+  const {
+    isOpen: isEditOpen,
+    open: openEdit,
+    close: closeEdit,
+  } = useModal(false);
 
   return (
     <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
       <Card
         sx={{
-          borderRadius: "12px",
-          border: "1px solid #e0e0e0",
-          boxShadow: "none",
-          transition: "0.2s",
-          position: "relative",
-          "&:hover": {
-            borderColor: "var(--color-primary)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
-          }
+          borderRadius: '12px',
+          border: '1px solid #e0e0e0',
+          boxShadow: 'none',
+          transition: '0.2s',
+          position: 'relative',
+          '&:hover': {
+            borderColor: 'var(--color-primary)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          },
         }}
       >
         <Can roles={["GroupAdmin", "SuperAdmin"]}>

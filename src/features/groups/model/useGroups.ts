@@ -1,14 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createGroup, deleteGroup, editGroup, fetchGroupByid, fetchGroupByQuery, fetchGroups } from './api-groups';
+import {
+  createGroup,
+  deleteGroup,
+  editGroup,
+  fetchGroupByid,
+  fetchGroupByQuery,
+  fetchGroups,
+} from './api-groups';
 import type { GroupCreate, GroupEdit } from './types';
 export const groupsKeys = {
-  key: ["groups"] as const,
+  key: ['groups'] as const,
   detail: (id: string) => [...groupsKeys.key, id] as const,
 };
 
-
 export function useGroups(groupId?: string) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const {
     data = [],
@@ -21,24 +27,21 @@ export function useGroups(groupId?: string) {
     staleTime: 5 * 60 * 1000,
   });
   const groupDetailQuery = useQuery({
-    queryKey: groupsKeys.detail(groupId || ""),
-    queryFn: () => fetchGroupByid(groupId || ""),
+    queryKey: groupsKeys.detail(groupId || ''),
+    queryFn: () => fetchGroupByid(groupId || ''),
     staleTime: 5 * 60 * 1000,
-
-  })
+  });
 
   const GroupCreation = useMutation({
     mutationFn: (newGroup: GroupCreate) => { console.log(newGroup); return createGroup(newGroup) },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
     },
-  })
-
-
-
+  });
 
   const EditGroupMutation = useMutation({
-    mutationFn: ({ id, group }: { id: string, group: GroupEdit }) => editGroup({ id, group }),
+    mutationFn: ({ id, group }: { id: string; group: GroupEdit }) =>
+      editGroup({ id, group }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
@@ -51,13 +54,22 @@ export function useGroups(groupId?: string) {
       queryClient.removeQueries({ queryKey: groupsKeys.detail(deletedId) });
       // Оновлюємо список
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
-    }
-  })
+    },
+  });
 
-
-  return { items: data, isLoading, isError, error: error ?? null, groupDetail: groupDetailQuery.data, isLoadingDetail: groupDetailQuery.isLoading, GroupCreation, EditGroupMutation, DeleteGroupMutation };
+  return {
+    items: data,
+    isLoading,
+    isError,
+    error: error ?? null,
+    groupDetail: groupDetailQuery.data,
+    isLoadingDetail: groupDetailQuery.isLoading,
+    GroupCreation,
+    EditGroupMutation,
+    DeleteGroupMutation,
+  };
 }
-export function useGroupByQuery(searchTerm: string = "") {
+export function useGroupByQuery(searchTerm: string = '') {
   const {
     data = [],
     isLoading,
@@ -68,7 +80,6 @@ export function useGroupByQuery(searchTerm: string = "") {
     queryFn: () => fetchGroupByQuery(searchTerm),
     staleTime: 5 * 60 * 1000,
     enabled: searchTerm.length >= 2 || searchTerm.length === 0,
-
   });
 
   return { data, isLoading, isError, error };

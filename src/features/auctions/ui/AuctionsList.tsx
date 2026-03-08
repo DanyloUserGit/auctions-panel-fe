@@ -12,9 +12,12 @@ interface Props {
   currentGroupId: string;
 }
 
-export default function AuctionsList({ filteredAuctions, onAuctionClick, currentGroupId }: Props) {
-  const { isOpen, open, close } = useModal(false)
-
+export default function AuctionsList({
+  filteredAuctions,
+  onAuctionClick,
+  currentGroupId,
+}: Props) {
+  const { isOpen, open, close } = useModal(false);
 
   const isEmpty = filteredAuctions.length === 0;
 
@@ -27,8 +30,8 @@ export default function AuctionsList({ filteredAuctions, onAuctionClick, current
         margin: 0, // Скидаємо марджини, які створює spacing
         '& > .MuiGrid-item': {
           paddingTop: 3, // Повертаємо відступи вручну, якщо вони зникли
-          paddingLeft: 3
-        }
+          paddingLeft: 3,
+        },
       }}
     >
       {/* 1. Рендеримо аукціони, якщо вони є */}

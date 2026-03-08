@@ -1,7 +1,9 @@
-import { SessionContainer } from "../features/sessions/ui/SessionContainer";
+import { SessionContainer } from '../features/sessions/ui/SessionContainer';
 
 export default function SessionPage() {
-    return (<>
-        <SessionContainer />
-    </>)
+  return (
+    <>
+      <SessionContainer />
+    </>
+  );
 }

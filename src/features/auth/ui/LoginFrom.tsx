@@ -1,4 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Alert,
   Button,
@@ -6,13 +6,13 @@ import {
   Paper,
   TextField,
   Typography,
-} from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { api } from "../../../shared/http";
-import { authKeys } from "../model/useAuth";
-import { loginSchema, type LoginInput } from "../model/login-schema";
+} from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { api } from '../../../shared/http';
+import { authKeys } from '../model/useAuth';
+import { loginSchema, type LoginInput } from '../model/login-schema';
 
 export default function LoginForm() {
   const {
@@ -27,21 +27,17 @@ export default function LoginForm() {
 
   const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
-      const response = await api.post(
-        "/auth/login",
-        data,
-        {
-          withCredentials: true,
-        },
-      );
-      console.log("Успішний вхід:", response);
+      const response = await api.post('/auth/login', data, {
+        withCredentials: true,
+      });
+      console.log('Успішний вхід:', response);
       await queryClient.invalidateQueries({ queryKey: authKeys.me });
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.error("Axios Error:", error.message);
-        setError("root", {
-          type: "server",
-          message: "Користувача не знайдено",
+        console.error('Axios Error:', error.message);
+        setError('root', {
+          type: 'server',
+          message: 'Користувача не знайдено',
         });
       }
     }
@@ -54,7 +50,7 @@ export default function LoginForm() {
           variant="h5"
           component="h1"
           gutterBottom
-          sx={{ color: "var(--color-primary)", fontWeight: "bold" }}
+          sx={{ color: 'var(--color-primary)', fontWeight: 'bold' }}
         >
           Вхід
         </Typography>
@@ -69,7 +65,7 @@ export default function LoginForm() {
             label="Пошта"
             type="email"
             variant="outlined"
-            {...register("email")}
+            {...register('email')}
             error={!!errors.email}
             helperText={errors.email?.message}
           />
@@ -79,7 +75,7 @@ export default function LoginForm() {
             label="Пароль"
             type="password"
             variant="outlined"
-            {...register("password")}
+            {...register('password')}
             error={!!errors.password}
             helperText={errors.password?.message}
           />
@@ -97,12 +93,12 @@ export default function LoginForm() {
             size="large"
             sx={{
               mt: 2,
-              backgroundColor: "var(--color-primary)",
-              "&:hover": { backgroundColor: "var(--color-accent)" },
+              backgroundColor: 'var(--color-primary)',
+              '&:hover': { backgroundColor: 'var(--color-accent)' },
               py: 1.5,
             }}
           >
-            {isSubmitting ? "Обробка..." : "Увійти"}
+            {isSubmitting ? 'Обробка...' : 'Увійти'}
           </Button>
         </form>
       </Paper>

@@ -10,8 +10,8 @@ import { useGroups } from '../model/useGroups';
 
 
 interface AddGroupModalProps {
-  isModalOpen: boolean;
   handleClose: () => void;
+  isModalOpen: boolean;
   modal_title: string;
 }
 

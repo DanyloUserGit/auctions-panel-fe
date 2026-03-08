@@ -4,41 +4,47 @@ import type { Account } from '../model/types';
 import { useDeleteAcount } from '../model/useAcounts';
 
 interface DeleteAccountModalProps {
-    isModalOpen: boolean;
-    handleClose: () => void;
-    currentAccount: Account
+  isModalOpen: boolean;
+  handleClose: () => void;
+  currentAccount: Account;
 }
 
-export default function ConfirmDeleteAccountModal({ isModalOpen, handleClose, currentAccount }: DeleteAccountModalProps) {
-    const { mutate, isPending } = useDeleteAcount()
+export default function ConfirmDeleteAccountModal({
+  isModalOpen,
+  handleClose,
+  currentAccount,
+}: DeleteAccountModalProps) {
+  const { mutate, isPending } = useDeleteAcount();
 
-    const handleSubmit = async () => {
-        console.log(currentAccount)
-        await mutate(currentAccount.id);
-        handleClose()
-    }
-    if (!currentAccount) handleClose()
+  const handleSubmit = async () => {
+    console.log(currentAccount);
+    await mutate(currentAccount.id);
+    handleClose();
+  };
+  if (!currentAccount) handleClose();
 
-    return (
-        <BaseModal
-            open={isModalOpen}
-            onClose={handleClose}
-            title="Підвердіть видалення"
-            actions={
-                <>
-                    <Button onClick={handleClose} color="inherit">Скасувати</Button>
-                    <Button
-                        onClick={handleSubmit}
-                        color='error'
-                        variant="contained"
-                        disabled={isPending}
-                    >
-                        {isPending ? <CircularProgress size={24} /> : "Видалити"}
-                    </Button>
-                </>
-            }
-        >
-            <Typography color='error'>{`Ви впевнені що хочете видалити групу: ${currentAccount?.email}`}</Typography>
-        </BaseModal>
-    )
+  return (
+    <BaseModal
+      open={isModalOpen}
+      onClose={handleClose}
+      title="Підвердіть видалення"
+      actions={
+        <>
+          <Button onClick={handleClose} color="inherit">
+            Скасувати
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            color="error"
+            variant="contained"
+            disabled={isPending}
+          >
+            {isPending ? <CircularProgress size={24} /> : 'Видалити'}
+          </Button>
+        </>
+      }
+    >
+      <Typography color="error">{`Ви впевнені що хочете видалити групу: ${currentAccount?.email}`}</Typography>
+    </BaseModal>
+  );
 }
