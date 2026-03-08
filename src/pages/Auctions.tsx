@@ -145,7 +145,7 @@ export default function AuctionsPage() {
           </Typography>
         </Box>
 
-        <GroupSearch onSearch={(val) => setSearch(val)} />
+        {view === 'auctions' && <GroupSearch onSearch={(val) => setSearch(val)} />}
         <Tooltip
           title={isAlphabetical ? 'Скинути сортування' : 'Сортувати А-Я'}
         >

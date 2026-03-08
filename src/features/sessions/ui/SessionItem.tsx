@@ -1,16 +1,15 @@
-import { MoreVert, PowerSettingsNew, Hub } from '@mui/icons-material';
+import { Hub, MoreVert, PowerSettingsNew } from '@mui/icons-material';
 import {
   Avatar,
   Box,
   Card,
   CardActionArea,
-  Grid,
+  Chip,
   IconButton,
   ListItemIcon,
   Menu,
   MenuItem,
-  Typography,
-  Chip,
+  Typography
 } from '@mui/material';
 import { useState } from 'react';
 import type { Session } from '../model/types';
@@ -47,7 +46,6 @@ export default function SessionItem({ session, onClick }: SessionItemProps) {
   const isExpired = new Date(session.expiresAt) < new Date();
 
   return (
-    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
       <Card
         sx={{
           borderRadius: '12px',
@@ -171,6 +169,5 @@ export default function SessionItem({ session, onClick }: SessionItemProps) {
           </Box>
         </CardActionArea>
       </Card>
-    </Grid>
   );
 }

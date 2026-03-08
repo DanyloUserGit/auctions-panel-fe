@@ -25,7 +25,6 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 export const updateUserSchema = z.object({
-  // id: z.string({ message: 'Id має бути типом uuid' }),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   email: z.string().optional(),

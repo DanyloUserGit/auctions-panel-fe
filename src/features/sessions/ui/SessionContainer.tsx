@@ -2,9 +2,7 @@ import {
   useEffect,
   useRef,
   useState,
-  type FC,
-  type KeyboardEvent,
-  type MouseEvent,
+  type FC
 } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { socket } from '../../../shared/http';
@@ -17,6 +15,7 @@ import {
 } from '../model/sockets';
 import { useSession } from '../model/store';
 import type { SessionConnectData } from '../model/types';
+import { Loader } from '../../../shared/ui/Loader';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -31,9 +30,7 @@ export const SessionContainer: FC = () => {
   const iceCandidatesQueue = useRef<RTCIceCandidateInit[]>([]);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
 
-  const [status, setStatus] = useState<string>(() =>
-    sessionId ? 'Підключення до сесії...' : 'Створення нової сесії...',
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -61,7 +58,6 @@ export const SessionContainer: FC = () => {
       },
 
       onSessionReady: async (data) => {
-        setStatus("Налаштування відеозв'язку...");
 
         if (!sessionId && data.sessionId) {
           window.history.replaceState(null, '', `/session/${data.sessionId}`);
@@ -74,8 +70,6 @@ export const SessionContainer: FC = () => {
 
         pc.oniceconnectionstatechange = () => {
           console.log('📍 ICE стан:', pc.iceConnectionState);
-          if (pc.iceConnectionState === 'failed')
-            setStatus('Помилка мережі (ICE Failed)');
         };
 
         pc.addTransceiver('video', { direction: 'recvonly' });
@@ -103,8 +97,7 @@ export const SessionContainer: FC = () => {
 
           // 2. Чекаємо, коли реально підуть дані
           track.onunmute = () => {
-            console.log('🎉 Дані відео почали надходити!');
-            setStatus('Активна сесія 🟢');
+            setIsLoading(false)
 
             // 3. Запускаємо відтворення ТІЛЬКИ ТУТ, коли відео розблоковано
             if (videoRef.current) {
@@ -185,7 +178,7 @@ export const SessionContainer: FC = () => {
       },
 
       onError: (err) => {
-        setStatus(`Помилка: ${err.message}`);
+        console.log(`Помилка: ${err.message}`);
       },
     });
 
@@ -199,49 +192,79 @@ export const SessionContainer: FC = () => {
         peerConnectionRef.current.close();
         peerConnectionRef.current = null;
       }
+
+      if (socket.connected && sessionId) {
+        socket.emit('leave_auction', { sessionId });
+      }
     };
   }, [user?.id, sessionId, sessionConnect, navigate]);
 
   const sendInteraction = (action: object) => {
-    if (
-      dataChannelRef.current &&
-      dataChannelRef.current.readyState === 'open'
-    ) {
+    if (dataChannelRef.current?.readyState === 'open') {
       dataChannelRef.current.send(JSON.stringify(action));
     }
   };
 
-  const handleMouseClick = (e: MouseEvent<HTMLVideoElement>) => {
+  // Універсальна функція для обчислення координат (повертає від 0 до 1)
+  const getCoordinates = (e: React.MouseEvent | React.WheelEvent) => {
     const rect = videoRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    if (!rect) return { x: 0, y: 0 };
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    sendInteraction({ type: 'click', x, y });
+    // x та y будуть від 0.0 до 1.0
+    return {
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    };
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLVideoElement>) => {
+    sendInteraction({ type: 'mousemove', ...getCoordinates(e) });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLVideoElement>) => {
+    sendInteraction({ type: 'mousedown', ...getCoordinates(e), button: e.button });
+    videoRef.current?.focus()
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLVideoElement>) => {
+    sendInteraction({ type: 'mouseup', ...getCoordinates(e), button: e.button });
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLVideoElement>) => {
+    sendInteraction({ type: 'wheel', deltaX: e.deltaX, deltaY: e.deltaY });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Відключаємо стандартну поведінку (наприклад, скрол сторінки пробілом)
+    e.preventDefault();
     sendInteraction({ type: 'keydown', key: e.key });
   };
 
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    sendInteraction({ type: 'keyup', key: e.key });
+  };
+  if(isLoading) return <Loader />
   return (
     <div
       className="relative w-full h-full bg-black min-h-screen outline-none"
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
     >
-      <div className="absolute top-2 left-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-        {status}
-      </div>
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
         controls={false}
-        onClick={handleMouseClick}
-        className="w-full h-full object-contain cursor-crosshair"
+        
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onWheel={handleWheel}
+
+        className="w-full h-full object-contain cursor-none"
       />
     </div>
   );

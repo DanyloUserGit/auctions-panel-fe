@@ -37,11 +37,10 @@ export default function ProfileEdit() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { mutate: updateUserMutation, isPending: isPendingProfile } =
-    useUpdateProfile();
+const { mutate: updateUserMutation, isPending: isPendingProfile } = 
+  useUpdateProfile(user?.id ?? '');
   const { mutate: changeRoleMutation, isPending: isPendingRole } =
     useChangeRole();
-  // Додай це всередині ProfileEdit
 
   const [formData, setFormData] = useState<UpdateUser>({
     firstName: user?.firstName || '',
@@ -61,7 +60,6 @@ export default function ProfileEdit() {
 
   const handleChangePassword = async () => {
     await sendResetLink();
-    console.log('Лист було надіслано');
   };
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
     setFormData((prev) => ({ ...prev, role: e.target.value as UserRole }));
@@ -77,7 +75,6 @@ export default function ProfileEdit() {
         role: formData.role as UserRole,
         rights: formData.rights as UserRights,
       });
-    navigate('/');
   };
 
   return (
@@ -107,7 +104,6 @@ export default function ProfileEdit() {
         }}
       >
         <Grid container spacing={4}>
-          {/* Секція: Особисті дані */}
           <Grid size={{ xs: 12 }}>
             <Box
               sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}
@@ -237,42 +233,44 @@ export default function ProfileEdit() {
         </Grid>
 
         <Box
-          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 6 }}
+          sx={{
+            display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 6, alignItems: "center", '@media (max-width: 500px)': {
+              flexDirection: 'column',
+              alignItems: 'stretch',
+            },
+          }}
         >
-          <Button
-            type="submit"
-            variant="outlined"
-            size="medium"
-            onClick={() => navigate(-1)}
-            sx={{
-              mt: 2,
-              mb: 3,
-              backgroundColor: 'var(--color-primary)',
-              '&:hover': { backgroundColor: 'var(--color-accent)' },
-              py: 1.5,
-              color: 'white',
-              borderColor: 'divider',
-            }}
-          >
-            Скасувати
-          </Button>
-
           <Button
             type="submit"
             variant="contained"
             size="medium"
             onClick={handleSave}
             sx={{
-              mt: 2,
-              mb: 3,
               backgroundColor: 'var(--color-primary)',
               '&:hover': { backgroundColor: 'var(--color-accent)' },
+              maxHeight: "fit-content",
               py: 1.5,
               px: 4,
             }}
           >
             Зберегти зміни
           </Button>
+          <Button
+            type='reset'
+            variant="outlined"
+            size="medium"
+            onClick={() => navigate(-1)}
+            sx={{
+              color: "red",
+              '&:hover': { backgroundColor: 'red', color: "white" },
+              py: 1.5,
+              maxHeight: "fit-content",
+              borderColor: 'divider',
+            }}
+          >
+            Скасувати
+          </Button>
+
         </Box>
       </Paper>
     </Box>
