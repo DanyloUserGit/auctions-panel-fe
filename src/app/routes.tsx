@@ -72,6 +72,6 @@ export default function AppRouter() {
   useEffect(() => {
     sessionConnect.setWidth(width);
     sessionConnect.setHeight(height);
-  }, [height, sessionConnect, width]);
+  }, []);
   return <RouterProvider router={router} />;
 }

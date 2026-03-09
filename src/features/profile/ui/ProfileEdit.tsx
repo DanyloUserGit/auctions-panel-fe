@@ -37,8 +37,8 @@ export default function ProfileEdit() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-const { mutate: updateUserMutation, isPending: isPendingProfile } = 
-  useUpdateProfile(user?.id ?? '');
+  const { mutate: updateUserMutation, isPending: isPendingProfile } =
+    useUpdateProfile(user?.id ?? '');
   const { mutate: changeRoleMutation, isPending: isPendingRole } =
     useChangeRole();
 
@@ -234,7 +234,12 @@ const { mutate: updateUserMutation, isPending: isPendingProfile } =
 
         <Box
           sx={{
-            display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 6, alignItems: "center", '@media (max-width: 500px)': {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 2,
+            mt: 6,
+            alignItems: 'center',
+            '@media (max-width: 500px)': {
               flexDirection: 'column',
               alignItems: 'stretch',
             },
@@ -248,7 +253,7 @@ const { mutate: updateUserMutation, isPending: isPendingProfile } =
             sx={{
               backgroundColor: 'var(--color-primary)',
               '&:hover': { backgroundColor: 'var(--color-accent)' },
-              maxHeight: "fit-content",
+              maxHeight: 'fit-content',
               py: 1.5,
               px: 4,
             }}
@@ -256,21 +261,20 @@ const { mutate: updateUserMutation, isPending: isPendingProfile } =
             Зберегти зміни
           </Button>
           <Button
-            type='reset'
+            type="reset"
             variant="outlined"
             size="medium"
             onClick={() => navigate(-1)}
             sx={{
-              color: "red",
-              '&:hover': { backgroundColor: 'red', color: "white" },
+              color: 'red',
+              '&:hover': { backgroundColor: 'red', color: 'white' },
               py: 1.5,
-              maxHeight: "fit-content",
+              maxHeight: 'fit-content',
               borderColor: 'divider',
             }}
           >
             Скасувати
           </Button>
-
         </Box>
       </Paper>
     </Box>

@@ -24,8 +24,8 @@ export const fetchUserById = async (id: string): Promise<User> => {
   const responce = await api.get(`/users/${id}`);
   return responce.data;
 };
-export const updateProfile = async (data: UpdateUser, id:string) => {
-  const responce = await api.patch(`/profile/edit`, {...data, id});
+export const updateProfile = async (data: UpdateUser, id: string) => {
+  const responce = await api.patch(`/profile/edit`, { ...data, id });
   return responce.data;
 };
 export const updateRole = async (data: ChangeRole) => {
