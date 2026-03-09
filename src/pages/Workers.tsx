@@ -1,4 +1,4 @@
-import { Add, Assessment, FilterList, Search } from '@mui/icons-material';
+import { Add, Assessment, Search } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -21,7 +21,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useUsers } from '../features/auth/model/useAuth';
 import { ROLES, type UserRole } from '../features/auth/model/user-schema';
 import { UserActionsMenu } from '../features/Workers/ui/UserActionsMenu';
@@ -32,7 +32,6 @@ import { useModal } from '../shared/hooks/useModal';
 import { type ChipProps } from '@mui/material';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 
-// Використовуємо ChipProps['color'] для значень
 const roleColors: Record<UserRole, ChipProps['color']> = {
   SuperAdmin: 'error',
   GroupAdmin: 'primary',
@@ -42,15 +41,35 @@ const roleColors: Record<UserRole, ChipProps['color']> = {
 export default function EmployeesSection() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
-
+  const [statusFilter, setStatusFilter] = useState('All');
   const { users } = useUsers();
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
-  const showUsers =
-    roleFilter === 'All' ? users : users?.filter((u) => u.role === roleFilter);
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+
+    return users.filter((user) => {
+      const searchTerm = search.toLowerCase();
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const email = user.email.toLowerCase();
+
+      const matchesSearch =
+        fullName.includes(searchTerm) || email.includes(searchTerm);
+
+      const matchesRole = roleFilter === 'All' || user.role === roleFilter;
+
+      // 2. Логіка фільтрації за статусом
+      const matchesStatus =
+        statusFilter === 'All' ||
+        (statusFilter === 'Blocked' ? user.isBlocked : !user.isBlocked);
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [users, search, roleFilter, statusFilter]);
+
+  const showUsers = filteredUsers;
   const effectiveId = selectedWorkerId || users?.[0]?.id || '';
   const handleChangeWorker = (id: string) => {
     setSelectedWorkerId(id);
-    OpenControlCard();
   };
   const currentUser = users?.find((u) => u.id === effectiveId);
 
@@ -117,6 +136,13 @@ export default function EmployeesSection() {
                 <Search fontSize="small" />
               </InputAdornment>
             ),
+            endAdornment: search && (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={() => setSearch('')}>
+                  <Add sx={{ transform: 'rotate(45deg)' }} />
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
         />
 
@@ -134,7 +160,18 @@ export default function EmployeesSection() {
           </Select>
         </FormControl>
 
-        <Button startIcon={<FilterList />}>Фільтри</Button>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Статус</InputLabel>
+          <Select
+            value={statusFilter}
+            label="Статус"
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <MenuItem value="All">Всі статуси</MenuItem>
+            <MenuItem value="Active">Активні</MenuItem>
+            <MenuItem value="Blocked">Заблоковані</MenuItem>
+          </Select>
+        </FormControl>
       </Paper>
 
       <TableContainer
@@ -193,13 +230,22 @@ export default function EmployeesSection() {
                     >
                       <Tooltip
                         title="Картка контролю"
-                        onClick={() => handleChangeWorker(String(user.id))}
+                        onClick={() => {
+                          handleChangeWorker(String(user.id));
+                          OpenControlCard();
+                        }}
                       >
                         <IconButton size="small" color="primary">
                           <Assessment />
                         </IconButton>
                       </Tooltip>
-                      <UserActionsMenu openEdit={OpenEditUser} user={user} />
+                      <UserActionsMenu
+                        openEdit={() => {
+                          handleChangeWorker(String(user.id));
+                          OpenEditUser();
+                        }}
+                        user={user}
+                      />
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -225,6 +271,7 @@ export default function EmployeesSection() {
         <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
         {currentUser && (
           <WorkerEditModal
+            key={effectiveId}
             open={isEditUserOpen}
             onClose={CloseEditUser}
             user={currentUser}

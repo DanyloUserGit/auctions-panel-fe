@@ -58,9 +58,7 @@ export const createUser = async (data: CreateUser) => {
   return responce.data;
 };
 export const updateUser = async (id: string, data: UpdateUser) => {
-  console.log(data);
   const responce = await api.patch(`users/${id}`, data);
-  console.log(responce.data);
   return responce.data;
 };
 export const handleBlockUser = async (user: User) => {
