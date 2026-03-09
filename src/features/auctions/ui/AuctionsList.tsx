@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import AddItemButton from '../../../shared/ui/AddItemButton';
 import { Can } from '../../auth/ui/Can';
 import type { Auction } from '../model/types';
@@ -43,7 +43,10 @@ export default function AuctionsList({
         />
       ))}
 
-      <Can roles={['GroupAdmin', 'SuperAdmin']}>
+      <Can
+        roles={['GroupAdmin', 'SuperAdmin']}
+        fallback={<Typography>Аукціонів ще немає</Typography>}
+      >
         <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />
 
         {/* Модалка */}

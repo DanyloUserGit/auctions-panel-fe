@@ -3,7 +3,6 @@ import type { GroupCreate, GroupEdit } from './types';
 
 export const fetchGroups = async () => {
   const responce = await api.get('/auction-groups');
-  console.log(responce.data);
   return responce.data;
 };
 export const fetchGroupByQuery = async (query: string) => {
@@ -16,13 +15,13 @@ export const fetchGroupByQuery = async (query: string) => {
 export const fetchGroupByid = async (id: string) => {
   if (!id) return {};
   const responce = await api.get(`/auction-groups/${id}`);
-  console.log(responce.data);
   return responce.data;
 };
 export const createGroup = async (newGroup: GroupCreate) => {
   console.log(newGroup);
-  const data = await api.post('/auction-groups', newGroup);
-  return data;
+  const responce = await api.post('/auction-groups', newGroup);
+  console.log(responce.data);
+  return responce.data;
 };
 export const editGroup = async ({
   id,

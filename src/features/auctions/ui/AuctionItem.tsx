@@ -16,6 +16,7 @@ import type { Auction } from '../model/types';
 import AuctionDeleteModal from './AuctionDeleteModal';
 import AuctionEditModal from './AuctionEditModal';
 import { useModal } from '../../../shared/hooks/useModal';
+import { Can } from '../../auth/ui/Can';
 
 interface AuctionItemProps {
   auction: Auction;
@@ -61,39 +62,41 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
           },
         }}
       >
-        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
-          <IconButton
-            size="small"
-            onClick={handleMenuClick}
-            sx={{
-              color: 'text.secondary',
-              '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
-            }}
-          >
-            <MoreVert fontSize="small" />
-          </IconButton>
+        <Can roles={['GroupAdmin', 'SuperAdmin']}>
+          <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
+            <IconButton
+              size="small"
+              onClick={handleMenuClick}
+              sx={{
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
+              }}
+            >
+              <MoreVert fontSize="small" />
+            </IconButton>
 
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          >
-            <MenuItem onClick={openEdit}>
-              <ListItemIcon>
-                <Edit fontSize="small" />
-              </ListItemIcon>
-              <Typography variant="inherit">Редагувати</Typography>
-            </MenuItem>
-            <MenuItem onClick={openDelete} sx={{ color: 'error.main' }}>
-              <ListItemIcon>
-                <DeleteOutline fontSize="small" color="error" />
-              </ListItemIcon>
-              <Typography variant="inherit">Видалити</Typography>
-            </MenuItem>
-          </Menu>
-        </Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={openEdit}>
+                <ListItemIcon>
+                  <Edit fontSize="small" />
+                </ListItemIcon>
+                <Typography variant="inherit">Редагувати</Typography>
+              </MenuItem>
+              <MenuItem onClick={openDelete} sx={{ color: 'error.main' }}>
+                <ListItemIcon>
+                  <DeleteOutline fontSize="small" color="error" />
+                </ListItemIcon>
+                <Typography variant="inherit">Видалити</Typography>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Can>
 
         <AuctionDeleteModal
           isModalOpen={isDeleteOpen}

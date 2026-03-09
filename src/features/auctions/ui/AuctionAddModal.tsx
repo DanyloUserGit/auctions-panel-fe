@@ -3,10 +3,10 @@ import {
   Box,
   Button,
   CircularProgress,
-  debounce,
   TextField,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchUsersByQuery } from '../../auth/model/api-user';
 import type { User } from '../../auth/model/user-schema';
@@ -36,36 +36,15 @@ export default function AuctionAddModal({
   const [url, setUrl] = useState<string>('');
   const [addedAcounts, setAddedAcounts] = useState<User[]>([]);
 
-  const [options, setOptions] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const debouncedFetch = useMemo(
-    () =>
-      debounce(async (query: string) => {
-        if (!query) {
-          setOptions(addedAcounts);
-          return;
-        }
-
-        setIsLoading(true);
-        try {
-          const { data: results } = await fetchUsersByQuery(query);
-          const combined = [...addedAcounts, ...(results || [])];
-          const uniqueOptions = Array.from(
-            new Map(combined.map((item) => [item.id, item])).values(),
-          );
-
-          setOptions(uniqueOptions);
-        } finally {
-          setIsLoading(false);
-        }
-      }, 400),
-    [addedAcounts],
-  );
+  const { isLoading, options, setOptions, debouncedFetch } =
+    useAutoComplete<User>({
+      fetchFn: fetchUsersByQuery,
+    });
 
   const handleSubmit = () => {
     if (!title.trim()) return;
 
+    console.log(addedAcounts);
     mutate(
       {
         title,
@@ -126,9 +105,10 @@ export default function AuctionAddModal({
           options={options}
           loading={isLoading}
           onInputChange={(_, newInputValue) => {
-            debouncedFetch(newInputValue);
+            debouncedFetch(newInputValue, addedAcounts);
           }}
           onChange={(_, newValue) => {
+            setAddedAcounts(newValue);
             setOptions((prev) => {
               const combined = [...newValue, ...prev];
               return Array.from(

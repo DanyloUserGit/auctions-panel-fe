@@ -22,15 +22,15 @@ export default function AddItemButton({ isEmpty, onClick, type }: Props) {
     <Button
       onClick={onClick}
       sx={{
-        maxWidth: "fit-content",
-        height: "auto",
+        maxWidth: 'fit-content',
+        height: 'auto',
         display: 'flex',
         borderRadius: '12px',
         border: '2px dashed',
         borderColor: 'divider',
         bgcolor: 'transparent',
         transition: '0.2s',
-        padding: "20px",
+        padding: '20px',
         width: '100%',
         '&:hover': {
           borderColor: 'primary.main',
