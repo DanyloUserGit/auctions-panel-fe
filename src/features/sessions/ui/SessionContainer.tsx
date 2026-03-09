@@ -253,9 +253,7 @@ export const SessionContainer: FC = () => {
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
-      {isLoading && 
-          <Loader />
-      }
+      {isLoading && <Loader />}
 
       <video
         ref={videoRef}
