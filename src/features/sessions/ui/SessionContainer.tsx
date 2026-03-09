@@ -246,7 +246,6 @@ export const SessionContainer: FC = () => {
     e.preventDefault();
     sendInteraction({ type: 'keyup', key: e.key });
   };
-  if (isLoading) return <Loader />;
   return (
     <div
       className="relative w-full h-full bg-black min-h-screen outline-none"
@@ -254,6 +253,8 @@ export const SessionContainer: FC = () => {
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
+      {isLoading && <Loader />}
+
       <video
         ref={videoRef}
         autoPlay
@@ -264,7 +265,7 @@ export const SessionContainer: FC = () => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onWheel={handleWheel}
-        className="w-full h-full object-contain cursor-none"
+        className={`w-full h-full object-contain cursor-none ${isLoading ? 'opacity-0' : 'opacity-100'}`}
       />
     </div>
   );
