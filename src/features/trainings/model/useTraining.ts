@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTraining, fetchTraining } from './api'; // Переконайтеся, що ці функції експортуються з api.ts
+import { createInfo, fetchInfo, fetchInfoBySlug } from '../../information/model/api';
+import type { CreateInfo } from '../../information/model/schemas';
+import { createTraining, fetchTraining, publishMaterial } from './api';
 import type { CreateTraining } from './types';
 
 export const trainingKeys = {
@@ -10,7 +12,7 @@ export const trainingKeys = {
   infoDetail: (slug: string) => [...trainingKeys.info(), slug] as const,
 };
 
-export function useTraining() {
+export function useTraining(query: string) {
   const {
     data = [],
     isLoading,
@@ -18,14 +20,14 @@ export function useTraining() {
     error,
   } = useQuery({
     queryKey: trainingKeys.materials(),
-    queryFn: () => fetchTraining(),
+    queryFn: () => fetchTraining(query),
     staleTime: 5 * 60 * 1000,
+    enabled: query.length >= 2 || query.length === 0,
   });
 
   return { items: data, isLoading, isError, error: error ?? null };
 }
 
-// Створення матеріалу
 export function useCreateTraining() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -36,45 +38,60 @@ export function useCreateTraining() {
   });
 }
 
-// // Зміна статусу публікації (Published/Draft)
-// export function usePublishTraining() {
-//     const queryClient = useQueryClient();
-//     return useMutation({
-//         mutationFn: ({ id, isPublished }: { id: string; isPublished: boolean }) =>
-//             publishMaterial(id, isPublished),
-//         onSuccess: (_, variables) => {
-//             queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
-//             queryClient.invalidateQueries({ queryKey: trainingKeys.detail(variables.id) });
-//         },
-//     });
-// }
+// Зміна статусу публікації (Published/Draft)
+export function usePublishTraining() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isPublished }: { id: string; isPublished: boolean }) =>
+      publishMaterial(id, isPublished),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
+      queryClient.invalidateQueries({ queryKey: trainingKeys.detail(variables.id) });
+    },
+  });
+}
 
-// // Видалення матеріалу
+// Видалення матеріалу
 // export function useDeleteTraining() {
-//     const queryClient = useQueryClient();
-//     return useMutation({
-//         mutationFn: (id: string) => deleteTraining(id),
-//         onSuccess: () => {
-//             queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
-//         },
-//     });
+//   const queryClient = useQueryClient();
+//   return useMutation({
+//     mutationFn: (id: string) => deleteTraining(id),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
+//     },
+//   });
 // }
 
 // // ХУКИ ДЛЯ ІНФОРМАЦІЙНИХ СТОРІНОК (FAQ/Правила)
 
-// export function useInfoPages() {
-//     return useQuery({
-//         queryKey: trainingKeys.info(),
-//         queryFn: () => fetchInfoPages(),
-//         staleTime: 10 * 60 * 1000,
-//     });
-// }
+export function useInfoPages() {
+  return useQuery({
+    queryKey: trainingKeys.info(),
+    queryFn: () => fetchInfo(),
+    staleTime: 10 * 60 * 1000,
+  });
+}
 
-// export function useInfoPageDetail(slug: string) {
-//     return useQuery({
-//         queryKey: trainingKeys.infoDetail(slug),
-//         queryFn: () => fetchInfoPageBySlug(slug),
-//         enabled: !!slug,
-//         staleTime: 10 * 60 * 1000,
-//     });
-// }
+export function useInfoPageDetail(slug: string) {
+  return useQuery({
+    queryKey: trainingKeys.infoDetail(slug),
+    queryFn: () => fetchInfoBySlug(slug),
+    enabled: !!slug,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useCreateInfo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateInfo) => createInfo(data),
+    mutationKey: trainingKeys.info(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: trainingKeys.info() });
+    },
+    onError: (error) => {
+      console.error("Помилка при створенні інформаційної сторінки:", error);
+    }
+  });
+}
