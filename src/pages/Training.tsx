@@ -1,30 +1,34 @@
-import { Add, HelpOutline, School, Search } from '@mui/icons-material';
+import { Add, Search } from '@mui/icons-material';
 import {
   Box,
   Button,
   InputAdornment,
-  Tab,
-  Tabs,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { TrainingList } from '../features/trainings/ui/TrainingList';
 import { MaterialEditorModal } from '../features/trainings/ui/MaterialEditorModal';
-import InfoFaqUI from '../features/trainings/ui/InfoSection';
+import { TrainingList } from '../features/trainings/ui/TrainingList';
+import { Can } from '../features/auth/ui/Can';
 import { useTraining } from '../features/trainings/model/useTraining';
 
 export default function TrainingPage() {
-  const [tabValue, setTabValue] = useState(0);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const { items: training } = useTraining();
 
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Дебаунс для пошуку
   useEffect(() => {
-    console.log(training);
-  }, [training]);
+    const handler = setTimeout(() => setDebouncedSearch(search), 500);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+
+  const { items: training } = useTraining(debouncedSearch)
+  useEffect(() => { console.log(training) }, [training])
   return (
     <Box sx={{ p: 3 }}>
-      {/* Заголовок та кнопка створення (тільки для адмінів) */}
       <Box
         sx={{
           display: 'flex',
@@ -37,34 +41,23 @@ export default function TrainingPage() {
           Навчальний центр
         </Typography>
 
-        {/* Компонент Can перевіряє ролі SuperAdmin або GroupAdmin */}
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => setIsEditorOpen(true)}
-        >
-          Створити матеріал
-        </Button>
+        <Can roles={["GroupAdmin", "SuperAdmin"]}>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setIsEditorOpen(true)}
+          >
+            Створити матеріал
+          </Button>
+        </Can>
       </Box>
 
-      {/* Вкладки для розділення Інформації та Навчання */}
-      <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ mb: 3 }}>
-        <Tab
-          icon={<School fontSize="small" />}
-          iconPosition="start"
-          label="Навчальні матеріали"
-        />
-        <Tab
-          icon={<HelpOutline fontSize="small" />}
-          iconPosition="start"
-          label="Інформація (FAQ)"
-        />
-      </Tabs>
 
-      {/* Пошук */}
       <TextField
         fullWidth
+        value={search}
         size="small"
+        onChange={(e) => setSearch(e.target.value)}
         placeholder="Пошук по базі знань..."
         sx={{ mb: 4, bgcolor: 'background.paper', borderRadius: '10px' }}
         InputProps={{
@@ -75,7 +68,7 @@ export default function TrainingPage() {
           ),
         }}
       />
-      {tabValue === 0 ? <TrainingList materials={training} /> : <InfoFaqUI />}
+      <TrainingList materials={training} />
 
       <MaterialEditorModal
         open={isEditorOpen}

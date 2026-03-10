@@ -50,7 +50,6 @@ export function useGroups(groupId?: string) {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.key });
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
-
       queryClient.invalidateQueries({ queryKey: authKeys.users });
 
       if (variables.group.groupAdminId) {
