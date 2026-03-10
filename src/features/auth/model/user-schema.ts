@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const ROLES = ['GroupAdmin', 'User', 'SuperAdmin'] as const;
+export const ROLES = ['Admin', 'User', 'SuperAdmin'] as const;
 export type UserRole = (typeof ROLES)[number];
 
 export const RIGHTS = ['Read', 'Write', 'All'] as const;
@@ -34,7 +34,10 @@ export const updateUserSchema = z.object({
   lastName: z.string().optional(),
   email: z.string().optional(),
   password: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z.string()
+    .regex(/^(?:\\+38)?(?:\\(0\\d{2}\\)|0\\d{2})[ -]?\\d{3}[ -]?\\d{2}[ -]?\\d{2}$/)
+    .optional()
+    .or(z.literal('')),
   city: z.string().optional(),
   role: z.enum(ROLES).optional(),
   rights: z.enum(RIGHTS).optional(),
