@@ -1,25 +1,8 @@
 import { api } from '../../../shared/http';
 import type { CreateTraining } from './types';
 
-export const fetchTraining = async () => {
-  const responce = await api.get('/training/info');
-  return responce.data;
-};
-export const createTraining = async (data: CreateTraining) => {
-  console.log(data);
-  const responce = await api.post('/training/info', data);
-  return responce.data;
-};
 
-export const fetchTrainingBySlug = async (slug: string) => {
-  const responce = await api.get('/training/info', {
-    params: {
-      q: slug,
-    },
-  });
-  return responce.data;
-};
-export const fetchMaterials = async (search: string) => {
+export const fetchTraining = async (search: string) => {
   const responce = await api.get('/training/materials', {
     params: {
       search,
@@ -27,21 +10,15 @@ export const fetchMaterials = async (search: string) => {
   });
   return responce.data;
 };
-export const createMaterials = async (data: CreateTraining) => {
+export const createTraining = async (data: CreateTraining) => {
   const responce = await api.post('/training/materials', data);
   return responce.data;
 };
-export const fetchMaterialsById = async (id: string) => {
+export const fetchTrainingById = async (id: string) => {
   const responce = await api.get(`/training/materials/${id}`);
   return responce.data;
 };
-export const changeMaterialStatus = async ({
-  id,
-  isPublished,
-}: {
-  id: string;
-  isPublished: boolean;
-}) => {
+export const publishMaterial = async (id: string, isPublished: boolean) => {
   const responce = await api.patch(`/training/materials/${id}/publish`, {
     isPublished,
   });

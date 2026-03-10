@@ -30,7 +30,7 @@ export function MaterialEditorModal({
   open,
   onClose,
 }: MaterialEditorModalProps) {
-  const { mutate } = useCreateTraining();
+  const { mutate } = useCreateTraining()
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   // const [imageUrl, setImageUrl] = useState('');
@@ -47,13 +47,24 @@ export function MaterialEditorModal({
     const payload = {
       title,
       content,
+      allowedRoles,
+      visibility, // Тепер використовується стейт з типом MaterialVisibilityType
+      groupId: selectedGroup?.id || '',
+      isPublished,
     };
+
     console.log('Відправка матеріалу:', payload);
 
-    mutate(payload);
-    // Тут буде виклик вашої мутації
+    mutate(payload, {
+      onSuccess: () => {
+        setTitle('');
+        setContent('');
+        setAllowedRoles([]);
+        setSelectedGroup(null);
+        onClose();
+      }
+    });
   };
-
   return (
     <BaseModal
       open={open}
