@@ -21,6 +21,7 @@ import Profile from '../pages/Profile';
 import Workers from '../pages/Workers';
 import NotificationsPage from '../pages/Notification';
 import TrainingPage from '../pages/Training';
+import Information from '../pages/Information';
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,8 @@ const router = createBrowserRouter([
           { path: 'workers', element: <Workers /> },
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'learning', element: <TrainingPage /> },
+          { path: 'info', element: <Information /> },
+
         ],
       },
     ],

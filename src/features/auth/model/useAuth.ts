@@ -12,6 +12,7 @@ import {
   updateUser,
 } from './api-user';
 import type { CreateUser, UpdateUser, User } from './user-schema';
+import { groupsKeys } from '../../groups/model/useGroups';
 
 export const authKeys = {
   me: ['auth', 'me'] as const,
@@ -113,9 +114,8 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: (data: CreateUser) => createUser(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: authKeys.users,
-      });
+      queryClient.invalidateQueries({ queryKey: authKeys.users, });
+
     },
     onError: (error) => {
       console.error('Помилка при створенні користувача:', error);
@@ -145,6 +145,8 @@ export const useUpdateUser = () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,
       });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.key, });
+
     },
     onError: (error) => {
       console.error('Помилка при створенні користувача:', error);
@@ -153,7 +155,7 @@ export const useUpdateUser = () => {
 };
 export const useUserById = (id: string | null) => {
   return useQuery({
-    queryKey: [authKeys.users, id],
+    queryKey: [...authKeys.users, id],
     queryFn: () => {
       if (!id) throw new Error('ID is required');
       return fetchUserById(id);
