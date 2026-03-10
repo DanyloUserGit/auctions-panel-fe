@@ -14,11 +14,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  MenuItem,
   Typography,
 } from '@mui/material';
 import { useAuth } from '../../features/auth/model/useAuth';
 import { useNavigate } from 'react-router';
+import { Fragment } from 'react/jsx-runtime';
 
 interface Props {
   isOpen: boolean;
@@ -111,81 +111,118 @@ export default function DrawerContent({
         }}
       >
         {menuItems.map((group) => (
-          <Box key={group.group} sx={{ mb: 2 }}>
-            {(isOpen || isMobile) && (
-              <Typography
-                variant="caption"
-                sx={{
-                  px: 3,
-                  fontWeight: 'bold',
-                  color: 'text.disabled',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {group.group}
-              </Typography>
-            )}
-            <List sx={{ px: 1 }}>
-              {group.items.map((item) => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <ListItem
-                    key={item.text}
-                    disablePadding
-                    sx={{ display: 'block' }}
-                  >
-                    <ListItemButton
-                      onClick={() => handleNavigation(item.path)}
-                      sx={{
-                        minHeight: 48,
-                        justifyContent:
-                          isOpen || isMobile ? 'initial' : 'center',
-                        backgroundColor: isActive
-                          ? 'rgba(25, 118, 210, 0.08)'
-                          : 'transparent',
-                        color: isActive ? 'primary.main' : 'inherit',
-                        borderRadius: 1.5,
-                        px: 2.5,
-                        mb: 0.5,
-                      }}
+          <Fragment key={group.group}>
+            <Box sx={{ mb: 2 }}>
+              {(isOpen || isMobile) && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    px: 3,
+                    fontWeight: 'bold',
+                    color: 'text.disabled',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {group.group}
+                </Typography>
+              )}
+              <List sx={{ px: 1 }}>
+                {group.items.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <ListItem
+                      key={item.text}
+                      disablePadding
+                      sx={{ display: 'block' }}
                     >
-                      <ListItemIcon
+                      <ListItemButton
+                        onClick={() => handleNavigation(item.path)}
                         sx={{
-                          minWidth: 0,
-                          mr: isOpen || isMobile ? 2 : 'auto',
-                          justifyContent: 'center',
-                          color: isActive ? 'primary.main' : 'text.secondary',
+                          minHeight: 48,
+                          justifyContent:
+                            isOpen || isMobile ? 'initial' : 'center',
+                          backgroundColor: isActive
+                            ? 'rgba(25, 118, 210, 0.08)'
+                            : 'transparent',
+                          color: isActive ? 'primary.main' : 'inherit',
+                          borderRadius: 1.5,
+                          px: 2.5,
+                          mb: 0.5,
                         }}
                       >
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={item.text}
-                        sx={{
-                          opacity: isOpen || isMobile ? 1 : 0,
-                          display: isOpen || isMobile ? 'block' : 'none',
-                        }}
-                        primaryTypographyProps={{
-                          variant: 'body2',
-                          fontWeight: isActive ? 700 : 500,
-                        }}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              })}
-            </List>
-          </Box>
+                        <ListItemIcon
+                          sx={{
+                            minWidth: 0,
+                            mr: isOpen || isMobile ? 2 : 'auto',
+                            justifyContent: 'center',
+                            color: isActive ? 'primary.main' : 'text.secondary',
+                          }}
+                        >
+                          {item.icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.text}
+                          sx={{
+                            opacity: isOpen || isMobile ? 1 : 0,
+                            display: isOpen || isMobile ? 'block' : 'none',
+                          }}
+                          primaryTypographyProps={{
+                            variant: 'body2',
+                            fontWeight: isActive ? 700 : 500,
+                          }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+
+          </Fragment>
+
         ))}
-        <MenuItem
-          onClick={logout}
-          sx={{ color: 'error.main', fontWeight: 600 }}
-        >
-          <ListItemIcon>
-            <Logout fontSize="small" color="error" />
-          </ListItemIcon>
-          Вийти з акаунта
-        </MenuItem>
+
+
+        <Box sx={{ mt: 'auto', px: 1, pb: 2 }}>
+          <Divider sx={{ mb: 1, mx: 1 }} />
+          <ListItem disablePadding sx={{ display: 'block' }}>
+            <ListItemButton
+              onClick={logout}
+              sx={{
+                minHeight: 48,
+                justifyContent: isOpen || isMobile ? 'initial' : 'center',
+                borderRadius: 1.5,
+                px: 2.5,
+                color: 'error.main',
+                '&:hover': {
+                  backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                }
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: isOpen || isMobile ? 2 : 'auto',
+                  justifyContent: 'center',
+                  color: 'error.main',
+                }}
+              >
+                <Logout fontSize="small" />
+              </ListItemIcon>
+              <ListItemText
+                primary="Вийти з акаунта"
+                sx={{
+                  opacity: isOpen || isMobile ? 1 : 0,
+                  display: isOpen || isMobile ? 'block' : 'none',
+                }}
+                primaryTypographyProps={{
+                  variant: 'body2',
+                  fontWeight: 600,
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </Box>
       </Box>
     </Box>
   );

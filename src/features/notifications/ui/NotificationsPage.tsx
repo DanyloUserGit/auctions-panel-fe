@@ -71,7 +71,7 @@ export default function NotificationsPage() {
         Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
       </Typography>
 
-      <Can roles={['GroupAdmin', 'SuperAdmin']}>
+      <Can roles={['Admin', 'SuperAdmin']}>
         <Paper
           sx={{
             p: 2,
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
                   Telegram
                 </Typography>
               </TableCell>
-              <Can roles={['GroupAdmin', 'SuperAdmin']}>
+              <Can roles={['Admin', 'SuperAdmin']}>
                 <TableCell
                   align="center"
                   sx={{ fontWeight: 700, color: 'primary.main' }}
@@ -187,7 +187,7 @@ export default function NotificationsPage() {
                   />
                 </TableCell>
 
-                <Can roles={['GroupAdmin', 'SuperAdmin']}>
+                <Can roles={['Admin', 'SuperAdmin']}>
                   <TableCell align="center">
                     <Checkbox
                       color="primary"

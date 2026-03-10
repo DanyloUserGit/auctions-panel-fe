@@ -114,8 +114,7 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: (data: CreateUser) => createUser(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: authKeys.users, });
-
+      queryClient.invalidateQueries({ queryKey: authKeys.users });
     },
     onError: (error) => {
       console.error('Помилка при створенні користувача:', error);
@@ -145,8 +144,7 @@ export const useUpdateUser = () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,
       });
-      queryClient.invalidateQueries({ queryKey: groupsKeys.key, });
-
+      queryClient.invalidateQueries({ queryKey: groupsKeys.key });
     },
     onError: (error) => {
       console.error('Помилка при створенні користувача:', error);

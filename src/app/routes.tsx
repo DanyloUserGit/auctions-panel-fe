@@ -42,7 +42,6 @@ const router = createBrowserRouter([
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
-
         ],
       },
     ],

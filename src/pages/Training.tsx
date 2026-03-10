@@ -4,10 +4,10 @@ import {
   Button,
   InputAdornment,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { MaterialEditorModal } from '../features/trainings/ui/MaterialEditorModal';
+import { MaterialCreateModal } from '../features/trainings/ui/TrainingCreateModal';
 import { TrainingList } from '../features/trainings/ui/TrainingList';
 import { Can } from '../features/auth/ui/Can';
 import { useTraining } from '../features/trainings/model/useTraining';
@@ -15,18 +15,20 @@ import { useTraining } from '../features/trainings/model/useTraining';
 export default function TrainingPage() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState('');
 
-  // Дебаунс для пошуку
+
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedSearch(search), 500);
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
     return () => clearTimeout(handler);
   }, [search]);
 
+  const { items: training } = useTraining(debouncedSearch);
 
-  const { items: training } = useTraining(debouncedSearch)
-  useEffect(() => { console.log(training) }, [training])
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -41,7 +43,7 @@ export default function TrainingPage() {
           Навчальний центр
         </Typography>
 
-        <Can roles={["GroupAdmin", "SuperAdmin"]}>
+        <Can roles={['Admin', 'SuperAdmin']}>
           <Button
             variant="contained"
             startIcon={<Add />}
@@ -51,7 +53,6 @@ export default function TrainingPage() {
           </Button>
         </Can>
       </Box>
-
 
       <TextField
         fullWidth
@@ -70,7 +71,7 @@ export default function TrainingPage() {
       />
       <TrainingList materials={training} />
 
-      <MaterialEditorModal
+      <MaterialCreateModal
         open={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}
       />
