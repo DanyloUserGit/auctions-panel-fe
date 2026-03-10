@@ -31,7 +31,7 @@ export default function SessionList({ sessions }: Props) {
         />
       ))}
 
-      <Can roles={['GroupAdmin', 'SuperAdmin', 'User']}>
+      <Can roles={['Admin', 'SuperAdmin', 'User']}>
         <AddItemButton
           type="session"
           isEmpty={isEmpty}

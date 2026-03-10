@@ -1,8 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createInfo, fetchInfo, fetchInfoBySlug } from '../../information/model/api';
+import {
+  createInfo,
+  fetchInfo,
+  fetchInfoBySlug,
+} from '../../information/model/api';
 import type { CreateInfo } from '../../information/model/schemas';
-import { createTraining, fetchTraining, publishMaterial } from './api';
-import type { CreateTraining } from './types';
+import { createTraining, fetchTraining, publishMaterial, updateTraining, uploadTrainingImage } from './api';
+import type { CreateTraining, EditTraining } from './types';
 
 export const trainingKeys = {
   all: ['training'] as const,
@@ -19,7 +23,7 @@ export function useTraining(query: string) {
     isError,
     error,
   } = useQuery({
-    queryKey: trainingKeys.materials(),
+    queryKey: [...trainingKeys.materials(), query],
     queryFn: () => fetchTraining(query),
     staleTime: 5 * 60 * 1000,
     enabled: query.length >= 2 || query.length === 0,
@@ -27,6 +31,9 @@ export function useTraining(query: string) {
 
   return { items: data, isLoading, isError, error: error ?? null };
 }
+
+
+
 
 export function useCreateTraining() {
   const queryClient = useQueryClient();
@@ -37,7 +44,15 @@ export function useCreateTraining() {
     },
   });
 }
-
+export function useUpdateTraining() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string, data: EditTraining }) => updateTraining(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
+    },
+  });
+}
 // Зміна статусу публікації (Published/Draft)
 export function usePublishTraining() {
   const queryClient = useQueryClient();
@@ -46,10 +61,31 @@ export function usePublishTraining() {
       publishMaterial(id, isPublished),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
-      queryClient.invalidateQueries({ queryKey: trainingKeys.detail(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: trainingKeys.detail(variables.id),
+      });
     },
   });
 }
+
+export interface UploadImagePayload {
+  id: string,
+  file: File,
+}
+export function useUploadMaterialImage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }: UploadImagePayload) => uploadTrainingImage(id, file),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
+      queryClient.invalidateQueries({
+        queryKey: trainingKeys.detail(variables.id),
+      });
+    },
+  });
+}
+
+
 
 // Видалення матеріалу
 // export function useDeleteTraining() {
@@ -91,7 +127,7 @@ export function useCreateInfo() {
       queryClient.invalidateQueries({ queryKey: trainingKeys.info() });
     },
     onError: (error) => {
-      console.error("Помилка при створенні інформаційної сторінки:", error);
-    }
+      console.error('Помилка при створенні інформаційної сторінки:', error);
+    },
   });
 }

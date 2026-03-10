@@ -34,7 +34,7 @@ import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 
 const roleColors: Record<UserRole, ChipProps['color']> = {
   SuperAdmin: 'error',
-  GroupAdmin: 'primary',
+  Admin: 'primary',
   User: 'default',
 };
 
