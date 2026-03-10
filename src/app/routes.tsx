@@ -70,7 +70,6 @@ const router = createBrowserRouter([
   },
 ]);
 
-// src/app/routes.tsx
 export default function AppRouter() {
   const { width, height } = useWindowSize();
   const setWidth = useSession((state) => state.setWidth);
