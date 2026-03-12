@@ -147,7 +147,7 @@ export function MaterialEditorModal({
         </Stack>
 
         {/* Вибір групи через ваш useAutoComplete */}
-        {visibility === 'Groups' && (
+        {visibility === 'Group' && (
           <Autocomplete
             options={groupsSearch.getFilteredOptions(selectedGroup)}
             loading={groupsSearch.isLoading}

@@ -1,47 +1,48 @@
 import {
   Add,
   DescriptionOutlined,
-  ExpandMore,
-  InfoOutlined,
+  InfoOutlined
 } from '@mui/icons-material';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Button,
-  Divider,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { useModal } from '../../../shared/hooks/useModal';
 import { Can } from '../../auth/ui/Can';
-import type { InfoPage } from '../../trainings/model/types';
 import { useInfoPages } from '../../trainings/model/useTraining';
+import { fetchInfoBySlug } from '../model/api';
+import type { Info } from '../model/schemas';
 import { InfoCreateModal } from './InfoCreateModal';
+import InfoItem from './InfoItem';
 
 export default function InfoFaqUI() {
   const { data: infoPages } = useInfoPages();
 
   const { isOpen, open, close } = useModal(false);
 
-  // if (isLoading) {
-  //   return (
-  //     <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-  //       <CircularProgress />
-  //     </Box>
-  //   );
-  // }
+  const [loadedContent, setLoadedContent] = useState<Record<string, string>>({});
+  const [loadingSlugs, setLoadingSlugs] = useState<Record<string, boolean>>({});
 
-  // if (isError) {
-  //   return (
-  //     <Typography color="error" textAlign="center">
-  //       Помилка завантаження інформаційних сторінок.
-  //     </Typography>
-  //   );
-  // }
+  const handleAccordionChange = (slug: string) => async (_: React.SyntheticEvent, isExpanded: boolean) => {
+    if (!isExpanded || loadedContent[slug]) return;
+
+    try {
+      setLoadingSlugs((prev) => ({ ...prev, [slug]: true }));
+      const response = await fetchInfoBySlug(slug);
+
+      // Припускаємо, що response має поле content
+      setLoadedContent((prev) => ({ ...prev, [slug]: response.content }));
+    } catch (error) {
+      console.error("Помилка при завантаженні контенту:", error);
+    } finally {
+      setLoadingSlugs((prev) => ({ ...prev, [slug]: false }));
+    }
+  };
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
@@ -101,41 +102,8 @@ export default function InfoFaqUI() {
           </Can>
         </Stack>
 
-        {/* Рендер динамічних сторінок InfoPage */}
-        {[
-          {
-            title: 'title',
-            slug: 'slug-slug-123',
-            content: 'vnjkdsnvsndvndsvlsnv',
-          },
-        ]?.map((page: InfoPage) => (
-          <Accordion
-            key={page.slug}
-            elevation={0}
-            sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              mb: 1,
-              borderRadius: '10px !important',
-              '&:before': { display: 'none' },
-            }}
-          >
-            <AccordionSummary expandIcon={<ExpandMore />}>
-              <Typography sx={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                {page.title}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Divider sx={{ mb: 2, borderStyle: 'dashed' }} />
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ lineHeight: 1.6 }}
-                component="div"
-                dangerouslySetInnerHTML={{ __html: page.content }}
-              />
-            </AccordionDetails>
-          </Accordion>
+        {infoPages?.map((page: Info) => (
+          <InfoItem key={page.id} page={page} loadedContent={loadedContent} loadingSlugs={loadingSlugs} handleAccordionChange={handleAccordionChange} />
         ))}
 
         {infoPages?.length === 0 && (
@@ -146,6 +114,6 @@ export default function InfoFaqUI() {
       </Box>
 
       <InfoCreateModal isModalOpen={isOpen} handleClose={close} />
-    </Box>
+    </Box >
   );
 }

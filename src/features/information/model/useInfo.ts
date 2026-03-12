@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createInfo, fetchInfo, fetchInfoBySlug } from './api';
+import { createInfo, editInfo, fetchInfo, fetchInfoBySlug } from './api';
 import type { CreateInfo } from './schemas';
+import type { EditInfo } from './types';
 export const infoKeys = {
   all: ['info'] as const,
   bySlug: (slug: string) => ['info', slug] as const,
@@ -25,6 +26,20 @@ export function useCreateInfo() {
 
   return useMutation({
     mutationFn: (data: CreateInfo) => createInfo(data),
+    mutationKey: infoKeys.all,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: infoKeys.all });
+    },
+    onError: (error) => {
+      console.error('Помилка при створенні інформаційної сторінки:', error);
+    },
+  });
+}
+export function useUpdateInfo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string, data: EditInfo }) => editInfo(id, data),
     mutationKey: infoKeys.all,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: infoKeys.all });
