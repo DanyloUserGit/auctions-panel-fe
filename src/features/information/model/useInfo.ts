@@ -39,7 +39,8 @@ export function useUpdateInfo() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string, data: EditInfo }) => editInfo(id, data),
+    mutationFn: ({ id, data }: { id: string; data: EditInfo }) =>
+      editInfo(id, data),
     mutationKey: infoKeys.all,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: infoKeys.all });

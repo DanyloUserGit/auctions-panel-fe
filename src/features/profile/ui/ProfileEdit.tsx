@@ -44,7 +44,6 @@
 //     useChangeRole();
 //   const isAdmin = user?.role === 'SuperAdmin';
 
-
 //   const { register, handleSubmit, control, reset } = useForm<UpdateUser>({
 //     defaultValues: {
 //       firstName: user?.firstName || '',
@@ -57,8 +56,6 @@
 //         : user?.rights) as UserRights,
 //     }
 //   })
-
-
 
 //   const handleChangePassword = async () => {
 //     await sendResetLink();

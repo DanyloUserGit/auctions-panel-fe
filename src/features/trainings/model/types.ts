@@ -10,7 +10,7 @@ export interface Training {
   visibility: MaterialVisibilityType;
   allowedRoles: UserRole[];
   groupId: string;
-  isPublished: boolean
+  isPublished: boolean;
 }
 
 export interface CreateTraining {
@@ -37,4 +37,3 @@ export interface InfoPage {
 
 export const MaterialVisibility = ['Group', 'All'] as const;
 export type MaterialVisibilityType = (typeof MaterialVisibility)[number];
-

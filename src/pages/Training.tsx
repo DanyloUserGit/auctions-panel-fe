@@ -17,7 +17,6 @@ export default function TrainingPage() {
 
   const [search, setSearch] = useState('');
 
-
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   useEffect(() => {
