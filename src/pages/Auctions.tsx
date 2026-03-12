@@ -176,9 +176,9 @@ export default function AuctionsPage() {
           </Tooltip>
         </Box>
 
-        <Can roles={['GroupAdmin', 'SuperAdmin']}>
+        <Can roles={['Admin', 'SuperAdmin']}>
           {view === 'auctions' && (
-            <Can roles={['GroupAdmin', 'SuperAdmin']}>
+            <Can roles={['Admin', 'SuperAdmin']}>
               <ButtonUI
                 onClick={handleOpenCreateGroup}
                 styles={{ width: { xs: '100%', sm: 'auto' } }}

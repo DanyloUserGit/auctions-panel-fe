@@ -52,9 +52,9 @@ export function useGroups(groupId?: string) {
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
       queryClient.invalidateQueries({ queryKey: authKeys.users });
 
-      if (variables.group.groupAdminId) {
+      if (variables.group.AdminId) {
         queryClient.invalidateQueries({
-          queryKey: authKeys.controlCard(variables.group.groupAdminId),
+          queryKey: authKeys.controlCard(variables.group.AdminId),
         });
       }
     },

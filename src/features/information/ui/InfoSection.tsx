@@ -87,7 +87,7 @@ export default function InfoFaqUI() {
             Довідкова інформація
           </Typography>
 
-          <Can roles={['SuperAdmin', 'GroupAdmin']}>
+          <Can roles={['SuperAdmin', 'Admin']}>
             <Stack direction="row" spacing={1}>
               <Button
                 size="small"

@@ -34,7 +34,7 @@ export const editGroup = async ({
   const { data } = await api.patch(`/auction-groups/${id}`, {
     title: group.title,
     auctions: group.auctions,
-    groupAdmin: group.groupAdminId,
+    Admin: group.AdminId,
   });
   return data;
 };

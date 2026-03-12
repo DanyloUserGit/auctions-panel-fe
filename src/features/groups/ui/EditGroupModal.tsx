@@ -38,7 +38,7 @@ export default function EditGroupModal({
   const [addedAuctions, setAddedAuctions] = useState<Auction[]>(
     current_group?.auctions ?? [],
   );
-  const [groupAdmin, setGroupAdmin] = useState<User | null>(null);
+  const [Admin, setAdmin] = useState<User | null>(null);
   const [addedWorkers, setAddedWorkers] = useState<User[]>([]);
 
   // Ефект для підтягування повних даних профілів при відкритті модалки
@@ -49,9 +49,9 @@ export default function EditGroupModal({
       setIsInitialLoading(true);
       try {
         // 1. Завантажуємо адміна за ID
-        if (current_group.groupAdminId) {
-          const adminData = await fetchUserById(current_group.groupAdminId);
-          setGroupAdmin(adminData);
+        if (current_group.AdminId) {
+          const adminData = await fetchUserById(current_group.AdminId);
+          setAdmin(adminData);
         }
 
         // 2. Завантажуємо учасників за їхніми ID (якщо в моделі Group.users лежать рядки)
@@ -79,9 +79,9 @@ export default function EditGroupModal({
     initialSelected: addedAuctions,
   });
 
-  const groupAdminSearch = useAutoComplete<User>({
+  const AdminSearch = useAutoComplete<User>({
     fetchFn: fetchUsersByQuery,
-    initialSelected: groupAdmin || [], // хук очікує масив або об'єкт
+    initialSelected: Admin || [], // хук очікує масив або об'єкт
   });
 
   const workersSearch = useAutoComplete<User>({
@@ -97,7 +97,7 @@ export default function EditGroupModal({
         id: current_group.id,
         group: {
           title,
-          groupAdminId: groupAdmin?.id || undefined,
+          AdminId: Admin?.id || undefined,
           auctions: addedAuctions.map((a) => a.id),
           users: addedWorkers.map((w) => w.id), // Передаємо масив ID учасників
         },
@@ -166,13 +166,13 @@ export default function EditGroupModal({
           />
 
           <Autocomplete
-            value={groupAdmin}
-            options={groupAdminSearch.getFilteredOptions(groupAdmin)}
-            loading={groupAdminSearch.isLoading}
+            value={Admin}
+            options={AdminSearch.getFilteredOptions(Admin)}
+            loading={AdminSearch.isLoading}
             onInputChange={(_, val) =>
-              groupAdminSearch.debouncedFetch(val, groupAdmin)
+              AdminSearch.debouncedFetch(val, Admin)
             }
-            onChange={(_, val) => setGroupAdmin(val)}
+            onChange={(_, val) => setAdmin(val)}
             getOptionLabel={(o) =>
               o ? `${o.firstName} ${o.lastName} (${o.email})` : ''
             }

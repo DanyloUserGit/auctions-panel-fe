@@ -44,7 +44,7 @@ export default function AuctionsList({
       ))}
 
       <Can
-        roles={['GroupAdmin', 'SuperAdmin']}
+        roles={['Admin', 'SuperAdmin']}
         fallback={<Typography>Аукціонів ще немає</Typography>}
       >
         <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />

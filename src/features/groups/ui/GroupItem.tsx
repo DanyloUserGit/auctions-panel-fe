@@ -51,7 +51,7 @@ export default function GroupTabItem({
 }: GroupTabProps) {
   const mock = getMockData(group.id);
   const { data: admin, isLoading: isAdminLoading } = useUserById(
-    group.groupAdminId,
+    group.AdminId,
   );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -93,7 +93,7 @@ export default function GroupTabItem({
         '&:hover': { borderColor: isActive ? 'primary.main' : 'primary.light' },
       }}
     >
-      <Can roles={['GroupAdmin', 'SuperAdmin']}>
+      <Can roles={['Admin', 'SuperAdmin']}>
         <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
           <IconButton size="small" onClick={handleOpenMenu}>
             <MoreVert sx={{ fontSize: 18 }} />

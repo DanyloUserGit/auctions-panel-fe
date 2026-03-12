@@ -22,6 +22,8 @@ import Workers from '../pages/Workers';
 import NotificationsPage from '../pages/Notification';
 import TrainingPage from '../pages/Training';
 import Information from '../pages/Information';
+import AllActionsPage from '../pages/AllActions';
+import PageNotFound from '../pages/PageNotFound';
 
 const router = createBrowserRouter([
   {
@@ -42,7 +44,7 @@ const router = createBrowserRouter([
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
-
+          { path: 'logs', element: <AllActionsPage /> }
         ],
       },
     ],
@@ -71,6 +73,14 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  {
+    path: "*",
+    element: (
+      <ProtectedRoute>
+        <PageNotFound />
+      </ProtectedRoute>
+    )
+  }
 ]);
 
 export default function AppRouter() {

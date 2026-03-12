@@ -101,7 +101,7 @@ export default function SessionItem({ session, onClick }: SessionItemProps) {
         currentSession={session}
       />
 
-      <CardActionArea sx={{ p: 2 }} onClick={() => onClick(session)}>
+      <CardActionArea sx={{ p: 2 }} onClick={() => onClick(session)} disabled={!session.isActive}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
             sx={{

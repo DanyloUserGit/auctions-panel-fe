@@ -41,7 +41,7 @@ export default function TrainingPage() {
           Навчальний центр
         </Typography>
 
-        <Can roles={["GroupAdmin", "SuperAdmin"]}>
+        <Can roles={["Admin", "SuperAdmin"]}>
           <Button
             variant="contained"
             startIcon={<Add />}
