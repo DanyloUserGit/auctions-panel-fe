@@ -9,7 +9,8 @@ import { Notification } from '../features/notifications/ui/Notification';
 
 export default function Home() {
   const queryClient = useQueryClient();
-  const { showNotification, isOpen, closeNotification, message } = useNotificationToast();
+  const { showNotification, isOpen, closeNotification, message } =
+    useNotificationToast();
 
   useEffect(() => {
     const unsubscribe = subscribeToGlobalNotifications({
@@ -17,7 +18,7 @@ export default function Home() {
         showNotification(data.message);
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       },
-      onError: (err) => console.error("Socket error:", err.message),
+      onError: (err) => console.error('Socket error:', err.message),
     });
 
     return () => unsubscribe();

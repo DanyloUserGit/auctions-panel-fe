@@ -7,7 +7,7 @@ import {
   Button,
   Paper,
   Stack,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -55,11 +55,7 @@ export default function NotificationsPage() {
 
   // const { data } = useNotifications()
 
-
   const [open, setOpen] = useState(false);
-
-
-
 
   const handleToggle = (id: string, field: keyof NotificationSetting) => {
     setSettings((prev) =>
@@ -82,7 +78,8 @@ export default function NotificationsPage() {
             </Typography>
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
+            Керуйте тим, як і де ви отримуєте інформацію про активність в
+            аукціонах.
           </Typography>
         </Box>
 
@@ -103,7 +100,7 @@ export default function NotificationsPage() {
             px: 3,
             py: 1.5,
             textTransform: 'none',
-            fontWeight: 700
+            fontWeight: 700,
           }}
         >
           Переглянути всі
@@ -138,12 +135,16 @@ export default function NotificationsPage() {
 
       <NotificationsTable settings={settings} handleToggle={handleToggle} />
 
-      <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }} >
+      <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }}>
         Для активації Telegram-сповіщень необхідно підключити бота{' '}
         <b>@AuctionMasterBot</b> у вашому профілі.
       </Alert>
       <Button onClick={() => setOpen(true)}>Показата повідомлення</Button>
-      <Notification isOpen={open} close={() => setOpen(false)} message="Тестове повідомлення" />
+      <Notification
+        isOpen={open}
+        close={() => setOpen(false)}
+        message="Тестове повідомлення"
+      />
     </Box>
   );
 }

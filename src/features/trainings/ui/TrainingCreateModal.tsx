@@ -58,7 +58,7 @@ export function MaterialCreateModal({
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement> | null) => {
-    if(!e) return;
+    if (!e) return;
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
 
