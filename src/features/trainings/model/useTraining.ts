@@ -5,7 +5,13 @@ import {
   fetchInfoBySlug,
 } from '../../information/model/api';
 import type { CreateInfo } from '../../information/model/schemas';
-import { createTraining, fetchTraining, publishMaterial, updateTraining, uploadTrainingImage } from './api';
+import {
+  createTraining,
+  fetchTraining,
+  publishMaterial,
+  updateTraining,
+  uploadTrainingImage,
+} from './api';
 import type { CreateTraining, EditTraining } from './types';
 
 export const trainingKeys = {
@@ -32,9 +38,6 @@ export function useTraining(query: string) {
   return { items: data, isLoading, isError, error: error ?? null };
 }
 
-
-
-
 export function useCreateTraining() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -47,7 +50,8 @@ export function useCreateTraining() {
 export function useUpdateTraining() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string, data: EditTraining }) => updateTraining(id, data),
+    mutationFn: ({ id, data }: { id: string; data: EditTraining }) =>
+      updateTraining(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
     },
@@ -69,13 +73,14 @@ export function usePublishTraining() {
 }
 
 export interface UploadImagePayload {
-  id: string,
-  file: File,
+  id: string;
+  file: File;
 }
 export function useUploadMaterialImage() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, file }: UploadImagePayload) => uploadTrainingImage(id, file),
+    mutationFn: ({ id, file }: UploadImagePayload) =>
+      uploadTrainingImage(id, file),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
       queryClient.invalidateQueries({
@@ -84,8 +89,6 @@ export function useUploadMaterialImage() {
     },
   });
 }
-
-
 
 // Видалення матеріалу
 // export function useDeleteTraining() {

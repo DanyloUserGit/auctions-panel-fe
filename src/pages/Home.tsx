@@ -1,8 +1,27 @@
 import { Box } from '@mui/material';
 import { Outlet } from 'react-router';
 import Sidebar from '../shared/ui/Sidebar';
+import { useEffect } from 'react';
+import { subscribeToGlobalNotifications } from '../features/sessions/model/sockets';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNotificationToast } from '../features/notifications/model/useNotificationToast';
+import { Notification } from '../features/notifications/ui/Notification';
 
 export default function Home() {
+  const queryClient = useQueryClient();
+  const { showNotification, isOpen, closeNotification, message } = useNotificationToast();
+
+  useEffect(() => {
+    const unsubscribe = subscribeToGlobalNotifications({
+      onReceived: (data) => {
+        showNotification(data.message);
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      },
+      onError: (err) => console.error("Socket error:", err.message),
+    });
+
+    return () => unsubscribe();
+  }, [showNotification, queryClient]);
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
@@ -21,6 +40,11 @@ export default function Home() {
           <Outlet />
         </Box>
       </Box>
+      <Notification
+        isOpen={isOpen}
+        message={message}
+        close={closeNotification}
+      />
     </Box>
   );
 }

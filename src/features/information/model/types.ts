@@ -1,4 +1,4 @@
 export interface EditInfo {
-    title?: string,
-    content?: string,
+  title?: string;
+  content?: string;
 }

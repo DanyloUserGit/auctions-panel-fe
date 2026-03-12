@@ -1,15 +1,5 @@
-import {
-  Add,
-  DescriptionOutlined,
-  InfoOutlined
-} from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material';
+import { Add, DescriptionOutlined, InfoOutlined } from '@mui/icons-material';
+import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useModal } from '../../../shared/hooks/useModal';
@@ -25,24 +15,27 @@ export default function InfoFaqUI() {
 
   const { isOpen, open, close } = useModal(false);
 
-  const [loadedContent, setLoadedContent] = useState<Record<string, string>>({});
+  const [loadedContent, setLoadedContent] = useState<Record<string, string>>(
+    {},
+  );
   const [loadingSlugs, setLoadingSlugs] = useState<Record<string, boolean>>({});
 
-  const handleAccordionChange = (slug: string) => async (_: React.SyntheticEvent, isExpanded: boolean) => {
-    if (!isExpanded || loadedContent[slug]) return;
+  const handleAccordionChange =
+    (slug: string) => async (_: React.SyntheticEvent, isExpanded: boolean) => {
+      if (!isExpanded || loadedContent[slug]) return;
 
-    try {
-      setLoadingSlugs((prev) => ({ ...prev, [slug]: true }));
-      const response = await fetchInfoBySlug(slug);
+      try {
+        setLoadingSlugs((prev) => ({ ...prev, [slug]: true }));
+        const response = await fetchInfoBySlug(slug);
 
-      // Припускаємо, що response має поле content
-      setLoadedContent((prev) => ({ ...prev, [slug]: response.content }));
-    } catch (error) {
-      console.error("Помилка при завантаженні контенту:", error);
-    } finally {
-      setLoadingSlugs((prev) => ({ ...prev, [slug]: false }));
-    }
-  };
+        // Припускаємо, що response має поле content
+        setLoadedContent((prev) => ({ ...prev, [slug]: response.content }));
+      } catch (error) {
+        console.error('Помилка при завантаженні контенту:', error);
+      } finally {
+        setLoadingSlugs((prev) => ({ ...prev, [slug]: false }));
+      }
+    };
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
@@ -103,7 +96,13 @@ export default function InfoFaqUI() {
         </Stack>
 
         {infoPages?.map((page: Info) => (
-          <InfoItem key={page.id} page={page} loadedContent={loadedContent} loadingSlugs={loadingSlugs} handleAccordionChange={handleAccordionChange} />
+          <InfoItem
+            key={page.id}
+            page={page}
+            loadedContent={loadedContent}
+            loadingSlugs={loadingSlugs}
+            handleAccordionChange={handleAccordionChange}
+          />
         ))}
 
         {infoPages?.length === 0 && (
@@ -114,6 +113,6 @@ export default function InfoFaqUI() {
       </Box>
 
       <InfoCreateModal isModalOpen={isOpen} handleClose={close} />
-    </Box >
+    </Box>
   );
 }

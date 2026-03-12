@@ -1,24 +1,21 @@
-import { Email, Language, Security, Telegram } from '@mui/icons-material';
+import { ArrowForwardIos, Security } from '@mui/icons-material';
+import MessageIcon from '@mui/icons-material/Message';
 import {
   Alert,
+  Badge,
   Box,
-  Checkbox,
-  Chip,
+  Button,
   Paper,
   Stack,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { Can } from '../../auth/ui/Can';
-import type { NotificationSetting } from '../model/type';
+import type { NotificationSetting } from '../model/types';
+// import { useNotifications } from '../model/useNotifications';
+import { Notification } from './Notification';
+import NotificationsTable from './NotificationsTable';
 
 export default function NotificationsPage() {
   const [settings, setSettings] = useState<NotificationSetting[]>([
@@ -56,6 +53,14 @@ export default function NotificationsPage() {
     },
   ]);
 
+  // const { data } = useNotifications()
+
+
+  const [open, setOpen] = useState(false);
+
+
+
+
   const handleToggle = (id: string, field: keyof NotificationSetting) => {
     setSettings((prev) =>
       prev.map((s) => (s.id === id ? { ...s, [field]: !s[field] } : s)),
@@ -64,12 +69,46 @@ export default function NotificationsPage() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
-        Сповіщення
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        sx={{ mb: 4 }}
+      >
+        <Box>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="h4" sx={{ fontWeight: 800 }}>
+              Сповіщення
+            </Typography>
+          </Stack>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
+          </Typography>
+        </Box>
+
+        {/* Кнопка переходу в Інбокс */}
+        <Button
+          component={Link}
+          to="/notifications/list" // Шлях до вашої сторінки зі списком (NotificationsPage)
+          variant="outlined"
+          color="primary"
+          startIcon={
+            <Badge badgeContent={6} color="error" overlap="circular">
+              <MessageIcon />
+            </Badge>
+          }
+          endIcon={<ArrowForwardIos sx={{ fontSize: 12 }} />}
+          sx={{
+            borderRadius: '12px',
+            px: 3,
+            py: 1.5,
+            textTransform: 'none',
+            fontWeight: 700
+          }}
+        >
+          Переглянути всі
+        </Button>
+      </Stack>
 
       <Can roles={['Admin', 'SuperAdmin']}>
         <Paper
@@ -97,115 +136,14 @@ export default function NotificationsPage() {
         </Paper>
       </Can>
 
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: '12px',
-        }}
-      >
-        <Table>
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Тип сповіщення</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
-                <Tooltip title="У кабінеті">
-                  <Language fontSize="small" />
-                </Tooltip>
-                <Typography variant="caption" display="block">
-                  Кабінет
-                </Typography>
-              </TableCell>
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
-                <Tooltip title="Email">
-                  <Email fontSize="small" />
-                </Tooltip>
-                <Typography variant="caption" display="block">
-                  Email
-                </Typography>
-              </TableCell>
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
-                <Tooltip title="Telegram">
-                  <Telegram fontSize="small" />
-                </Tooltip>
-                <Typography variant="caption" display="block">
-                  Telegram
-                </Typography>
-              </TableCell>
-              <Can roles={['Admin', 'SuperAdmin']}>
-                <TableCell
-                  align="center"
-                  sx={{ fontWeight: 700, color: 'primary.main' }}
-                >
-                  Обов'язкове
-                </TableCell>
-              </Can>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {settings.map((row) => (
-              <TableRow key={row.id} hover>
-                <TableCell>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {row.type}
-                  </Typography>
-                  {row.isMandatory && (
-                    <Chip
-                      label="Обов'язкове"
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                      sx={{ mt: 0.5, height: 18, fontSize: '10px' }}
-                    />
-                  )}
-                </TableCell>
+      <NotificationsTable settings={settings} handleToggle={handleToggle} />
 
-                <TableCell align="center">
-                  <Switch
-                    size="small"
-                    checked={row.inApp}
-                    disabled={row.isMandatory}
-                    onChange={() => handleToggle(row.id, 'inApp')}
-                  />
-                </TableCell>
-
-                <TableCell align="center">
-                  <Checkbox
-                    checked={row.email}
-                    disabled={row.isMandatory}
-                    onChange={() => handleToggle(row.id, 'email')}
-                  />
-                </TableCell>
-
-                <TableCell align="center">
-                  <Checkbox
-                    checked={row.telegram}
-                    disabled={row.isMandatory}
-                    onChange={() => handleToggle(row.id, 'telegram')}
-                  />
-                </TableCell>
-
-                <Can roles={['Admin', 'SuperAdmin']}>
-                  <TableCell align="center">
-                    <Checkbox
-                      color="primary"
-                      checked={row.isMandatory}
-                      onChange={() => handleToggle(row.id, 'isMandatory')}
-                    />
-                  </TableCell>
-                </Can>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }}>
+      <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }} >
         Для активації Telegram-сповіщень необхідно підключити бота{' '}
         <b>@AuctionMasterBot</b> у вашому профілі.
       </Alert>
+      <Button onClick={() => setOpen(true)}>Показата повідомлення</Button>
+      <Notification isOpen={open} close={() => setOpen(false)} message="Тестове повідомлення" />
     </Box>
   );
 }

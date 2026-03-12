@@ -1,6 +1,7 @@
 import type { Account } from '../../acounts/model/types';
 import type { Auction } from '../../auctions/model/types';
 import type { User } from '../../auth/model/user-schema';
+import type { Notification } from '../../notifications/model/types';
 
 export type SessionConnectData = {
   auctionId: string;
@@ -18,7 +19,13 @@ export interface AuctionSocketEvents {
   onSignalFromWorker: (signalData: WebRTCSignalData) => void;
   onError: (err: { message: string }) => void;
 }
+// src/features/notifications/model/types.ts
 
+export interface NotificationSocketEvents {
+  onReceived: (data: Notification) => void;
+  onError: (err: { message: string }) => void;
+  onRead?: (data: { id: string }) => void;
+}
 export interface Session {
   id: string;
 
