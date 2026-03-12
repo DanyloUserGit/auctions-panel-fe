@@ -30,7 +30,7 @@ export function MaterialEditorModal({
   open,
   onClose,
 }: MaterialEditorModalProps) {
-  const { mutate } = useCreateTraining()
+  const { mutate } = useCreateTraining();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   // const [imageUrl, setImageUrl] = useState('');
@@ -62,7 +62,7 @@ export function MaterialEditorModal({
         setAllowedRoles([]);
         setSelectedGroup(null);
         onClose();
-      }
+      },
     });
   };
   return (

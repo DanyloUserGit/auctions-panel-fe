@@ -2,7 +2,7 @@ import {
   Add,
   DescriptionOutlined,
   ExpandMore,
-  InfoOutlined
+  InfoOutlined,
 } from '@mui/icons-material';
 import {
   Accordion,
@@ -13,7 +13,7 @@ import {
   Divider,
   Paper,
   Stack,
-  Typography
+  Typography,
 } from '@mui/material';
 import { Link } from 'react-router';
 import { useModal } from '../../../shared/hooks/useModal';
@@ -23,7 +23,7 @@ import { useInfoPages } from '../../trainings/model/useTraining';
 import { InfoCreateModal } from './InfoCreateModal';
 
 export default function InfoFaqUI() {
-  const { data: infoPages, } = useInfoPages();
+  const { data: infoPages } = useInfoPages();
 
   const { isOpen, open, close } = useModal(false);
 
@@ -66,8 +66,7 @@ export default function InfoFaqUI() {
               помилок під час перших торгів.
             </Typography>
           </Box>
-          <Link to={"/learning"}>
-
+          <Link to={'/learning'}>
             <Button
               size="small"
               variant="contained"
@@ -103,11 +102,13 @@ export default function InfoFaqUI() {
         </Stack>
 
         {/* Рендер динамічних сторінок InfoPage */}
-        {[{
-          "title": "title",
-          "slug": "slug-slug-123",
-          "content": "vnjkdsnvsndvndsvlsnv"
-        }]?.map((page: InfoPage) => (
+        {[
+          {
+            title: 'title',
+            slug: 'slug-slug-123',
+            content: 'vnjkdsnvsndvndsvlsnv',
+          },
+        ]?.map((page: InfoPage) => (
           <Accordion
             key={page.slug}
             elevation={0}
@@ -144,10 +145,7 @@ export default function InfoFaqUI() {
         )}
       </Box>
 
-      <InfoCreateModal
-        isModalOpen={isOpen}
-        handleClose={close}
-      />
+      <InfoCreateModal isModalOpen={isOpen} handleClose={close} />
     </Box>
   );
 }

@@ -1,7 +1,6 @@
 import { api } from '../../../shared/http';
 import type { CreateTraining } from './types';
 
-
 export const fetchTraining = async (search: string) => {
   const responce = await api.get('/training/materials', {
     params: {

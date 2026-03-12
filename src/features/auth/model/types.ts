@@ -1,4 +1,4 @@
-import { ROLES } from "./user-schema";
+import { ROLES } from './user-schema';
 
 export type Role = (typeof ROLES)[number];
 

@@ -112,9 +112,7 @@ export default function AddGroupModal({
         <Autocomplete
           options={AdminSearch.getFilteredOptions(Admin)}
           loading={AdminSearch.isLoading}
-          onInputChange={(_, val) =>
-            AdminSearch.debouncedFetch(val, Admin)
-          }
+          onInputChange={(_, val) => AdminSearch.debouncedFetch(val, Admin)}
           onChange={(_, val) => setAdmin(val)}
           getOptionLabel={(o) => `${o.firstName} ${o.lastName} (${o.email})`}
           isOptionEqualToValue={(o, v) => o?.id === v?.id}

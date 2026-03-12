@@ -44,7 +44,7 @@ const router = createBrowserRouter([
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
-          { path: 'logs', element: <AllActionsPage /> }
+          { path: 'logs', element: <AllActionsPage /> },
         ],
       },
     ],
@@ -74,13 +74,13 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "*",
+    path: '*',
     element: (
       <ProtectedRoute>
         <PageNotFound />
       </ProtectedRoute>
-    )
-  }
+    ),
+  },
 ]);
 
 export default function AppRouter() {

@@ -169,9 +169,7 @@ export default function EditGroupModal({
             value={Admin}
             options={AdminSearch.getFilteredOptions(Admin)}
             loading={AdminSearch.isLoading}
-            onInputChange={(_, val) =>
-              AdminSearch.debouncedFetch(val, Admin)
-            }
+            onInputChange={(_, val) => AdminSearch.debouncedFetch(val, Admin)}
             onChange={(_, val) => setAdmin(val)}
             getOptionLabel={(o) =>
               o ? `${o.firstName} ${o.lastName} (${o.email})` : ''

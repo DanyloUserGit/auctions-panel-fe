@@ -50,9 +50,7 @@ export default function GroupTabItem({
   onDelete,
 }: GroupTabProps) {
   const mock = getMockData(group.id);
-  const { data: admin, isLoading: isAdminLoading } = useUserById(
-    group.AdminId,
-  );
+  const { data: admin, isLoading: isAdminLoading } = useUserById(group.AdminId);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);

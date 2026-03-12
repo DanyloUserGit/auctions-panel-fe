@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createInfo, fetchInfo, fetchInfoBySlug } from '../../information/model/api';
+import {
+  createInfo,
+  fetchInfo,
+  fetchInfoBySlug,
+} from '../../information/model/api';
 import type { CreateInfo } from '../../information/model/schemas';
 import { createTraining, fetchTraining, publishMaterial } from './api';
 import type { CreateTraining } from './types';
@@ -46,7 +50,9 @@ export function usePublishTraining() {
       publishMaterial(id, isPublished),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: trainingKeys.materials() });
-      queryClient.invalidateQueries({ queryKey: trainingKeys.detail(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: trainingKeys.detail(variables.id),
+      });
     },
   });
 }
@@ -91,7 +97,7 @@ export function useCreateInfo() {
       queryClient.invalidateQueries({ queryKey: trainingKeys.info() });
     },
     onError: (error) => {
-      console.error("Помилка при створенні інформаційної сторінки:", error);
-    }
+      console.error('Помилка при створенні інформаційної сторінки:', error);
+    },
   });
 }

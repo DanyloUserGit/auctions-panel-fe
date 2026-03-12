@@ -4,7 +4,7 @@ import {
   Button,
   InputAdornment,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { MaterialEditorModal } from '../features/trainings/ui/MaterialEditorModal';
@@ -15,8 +15,8 @@ import { useTraining } from '../features/trainings/model/useTraining';
 export default function TrainingPage() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   // Дебаунс для пошуку
   useEffect(() => {
@@ -24,9 +24,10 @@ export default function TrainingPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-
-  const { items: training } = useTraining(debouncedSearch)
-  useEffect(() => { console.log(training) }, [training])
+  const { items: training } = useTraining(debouncedSearch);
+  useEffect(() => {
+    console.log(training);
+  }, [training]);
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -41,7 +42,7 @@ export default function TrainingPage() {
           Навчальний центр
         </Typography>
 
-        <Can roles={["Admin", "SuperAdmin"]}>
+        <Can roles={['Admin', 'SuperAdmin']}>
           <Button
             variant="contained"
             startIcon={<Add />}
@@ -51,7 +52,6 @@ export default function TrainingPage() {
           </Button>
         </Can>
       </Box>
-
 
       <TextField
         fullWidth
