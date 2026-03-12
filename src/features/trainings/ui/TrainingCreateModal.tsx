@@ -1,22 +1,22 @@
+import { CheckCircleOutline, CloudUpload } from '@mui/icons-material';
 import {
   Autocomplete,
   Box,
   Button,
+  Chip,
   CircularProgress,
+  Divider,
   FormControlLabel,
   Stack,
   Switch,
   TextField,
   Typography,
-  Divider,
-  Chip,
 } from '@mui/material';
-import { CloudUpload, CheckCircleOutline } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
-import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import { ROLES, type UserRole } from '../../auth/model/user-schema';
+import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
 import {
   MaterialVisibility,
@@ -57,7 +57,9 @@ export function MaterialCreateModal({
     fetchFn: fetchGroupByQuery,
   });
 
-  const handleFileChange = (file: File | null) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement> | null) => {
+    if(!e) return;
+    const file = e.target.files?.[0] || null;
     setSelectedFile(file);
 
     if (preview) {
@@ -71,15 +73,6 @@ export function MaterialCreateModal({
       setPreview(null);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview]);
-
   const handleCreateText = () => {
     const payload = {
       title,
@@ -300,11 +293,11 @@ export function MaterialCreateModal({
               </Box>
 
               <input
+                onChange={handleFileChange}
                 accept="image/*"
                 style={{ display: 'none' }}
                 id="material-image-upload-create"
                 type="file"
-                onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
               />
 
               <Stack spacing={1} alignItems="center">

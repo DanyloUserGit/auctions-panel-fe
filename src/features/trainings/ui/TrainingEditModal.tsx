@@ -75,29 +75,25 @@ export function TrainingEditModal({
     fetchFn: fetchGroupByQuery,
   });
 
-  const handleFileChange = (file: File | null) => {
-    setSelectedFile(file);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement> | null) => {
+    if(!e) return;
+    const file = e.target.files?.[0] || null;
 
+    // Очищуємо попередній URL, щоб уникнути витоку пам'яті
     if (preview) {
       URL.revokeObjectURL(preview);
     }
 
+    setSelectedFile(file);
+
     if (file) {
+      // Створюємо новий URL для прев'ю
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
     } else {
       setPreview(null);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview]);
-
   const handleUpdateText = () => {
     const payload = {
       title,
@@ -238,7 +234,7 @@ export function TrainingEditModal({
               <Autocomplete
                 options={groupsSearch.getFilteredOptions(selectedGroup)}
                 loading={groupsSearch.isLoading}
-                value={selectedGroup}
+                value={selectedGroup} // Робимо компонент контрольованим
                 onInputChange={(_, val) =>
                   groupsSearch.debouncedFetch(val, selectedGroup)
                 }
@@ -367,7 +363,7 @@ export function TrainingEditModal({
               style={{ display: 'none' }}
               id="material-image-upload-edit"
               type="file"
-              onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+              onChange={handleFileChange}
             />
 
             <Stack spacing={2} alignItems="center">
