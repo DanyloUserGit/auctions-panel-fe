@@ -31,7 +31,7 @@ export function InfoCreateModal({
   });
 
   const onSubmit = (data: CreateInfo) => {
-    console.log(data)
+    console.log(data);
     mutate(data, {
       onSuccess: () => {
         reset();

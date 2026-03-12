@@ -1,8 +1,4 @@
-import {
-  Box,
-  Grid,
-  Typography
-} from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { type Training } from '../model/types';
 import TrainingItem from './TrainingItem';
 
@@ -11,7 +7,6 @@ interface Props {
 }
 
 export const TrainingList = ({ materials }: Props) => {
-
   return (
     <Grid container spacing={3}>
       {materials.map((item) => (

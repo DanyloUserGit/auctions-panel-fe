@@ -5,23 +5,25 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import LoginForm from '../features/auth/ui/LoginFrom';
+import NotificationsList from '../features/notifications/ui/NotificationList';
 import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
 import Inventory from '../pages/Inventory';
 import Orders from '../pages/Orders';
+import Profile from '../pages/Profile';
 import Purchases from '../pages/Purchases';
+import ResetPassword from '../pages/ResetPassword';
 import SessionPage from '../pages/SessionPage';
+import Workers from '../pages/Workers';
 import { useWindowSize } from '../shared/hooks/useWindowSize';
 import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
-import ResetPassword from '../pages/ResetPassword';
-import Profile from '../pages/Profile';
-import Workers from '../pages/Workers';
-import NotificationsPage from '../pages/Notification';
-import TrainingPage from '../pages/Training';
+
 import Information from '../pages/Information';
+import SettingsPage from '../pages/Settings';
+import TrainingPage from '../pages/Training';
 
 const router = createBrowserRouter([
   {
@@ -39,9 +41,18 @@ const router = createBrowserRouter([
           { path: 'inventory', element: <Inventory /> },
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
-          { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'notifications/list', element: <NotificationsList /> },
+
+          // {
+          //   path: 'notifications',
+          //   children: [
+          //     { index: true, element: <NotificationsPage /> }, // Налаштування (ваша поточна сторінка)
+          //     { path: 'list', element: <NotificationsList /> }, // Список сповіщень (інбокс)
+          //   ]
+          // },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
+          { path: 'settings', element: <SettingsPage /> },
         ],
       },
     ],
