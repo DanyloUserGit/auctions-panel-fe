@@ -7,16 +7,13 @@ export interface NotificationSetting {
   isMandatory: boolean;
 }
 export interface UpdateNotificationSettings {
-  "typeId": "string",
-  "isEnabled": boolean,
-  "channels": [
-    "InApp",
-    "Email"
-  ]
+  typeId: 'string';
+  isEnabled: boolean;
+  channels: ['InApp', 'Email'];
 }
 export interface Notification {
-  id: string,
-  type: string,
-  message: string,
-  createdAt: string
+  id: string;
+  type: string;
+  message: string;
+  createdAt: string;
 }

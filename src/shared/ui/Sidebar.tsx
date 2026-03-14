@@ -73,7 +73,11 @@ export default function Sidebar() {
     {
       group: 'Система',
       items: [
-        { text: 'Сповіщення', icon: <Notifications />, path: '/notifications/list' },
+        {
+          text: 'Сповіщення',
+          icon: <Notifications />,
+          path: '/notifications/list',
+        },
         { text: 'Інформація', icon: <Info />, path: '/info' },
         { text: 'Навчання', icon: <School />, path: '/learning' },
       ],
