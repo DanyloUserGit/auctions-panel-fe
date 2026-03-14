@@ -1,51 +1,65 @@
 import { Security } from '@mui/icons-material';
 import { Alert, Box, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
+import { Loader } from '../../../shared/ui/Loader';
+import { useAuth } from '../../auth/model/useAuth';
 import { Can } from '../../auth/ui/Can';
-import type { NotificationSetting } from '../../notifications/model/types';
+import type { NotificationChannel, NotificationSetting } from '../../notifications/model/types';
+import { useNotificationsSettings, useUpdateNotificationsRequirements, useUpdateNotificationsSettings } from '../../notifications/model/useNotifications';
 import NotificationsTable from '../../notifications/ui/NotificationsTable';
 
 export default function NotificationsSettings() {
-  const [settings, setSettings] = useState<NotificationSetting[]>([
-    {
-      id: '1',
-      type: 'Нова ставка в аукціоні',
-      inApp: true,
-      email: true,
-      telegram: false,
-      isMandatory: true,
-    },
-    {
-      id: '2',
-      type: 'Вашу ставку перебито',
-      inApp: true,
-      email: false,
-      telegram: true,
-      isMandatory: false,
-    },
-    {
-      id: '3',
-      type: 'Завершення аукціону (за 15 хв)',
-      inApp: true,
-      email: true,
-      telegram: true,
-      isMandatory: false,
-    },
-    {
-      id: '4',
-      type: 'Системні оновлення',
-      inApp: true,
-      email: false,
-      telegram: false,
-      isMandatory: true,
-    },
-  ]);
+  const { data, isLoading } = useNotificationsSettings();
+  const { mutate: updateGeneral } = useUpdateNotificationsSettings();
+  const { user } = useAuth()
+  const groupId = user?.auctionGroupId
 
-  const handleToggle = (id: string, field: keyof NotificationSetting) => {
-    setSettings((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, [field]: !s[field] } : s)),
-    );
+  // Ваша нова мутація для Mandatory (виправлено назву для зручності)
+  const { mutate: updateRequirements } = useUpdateNotificationsRequirements();
+
+  const [settings, setSettings] = useState<NotificationSetting[]>([]);
+
+  if (settings.length === 0 && data && Array.isArray(data)) {
+    setSettings(data);
+  }
+
+  const handleToggle = (id: string, field: 'isEnabled' | NotificationChannel | 'isMandatory') => {
+    const currentItem = settings.find(s => s.id === id);
+    console.log(groupId)
+    if (!currentItem) return;
+    const updatedItem = { ...currentItem };
+
+    if (field === 'isMandatory') {
+      const newValue = !currentItem.isMandatory;
+      setSettings(prev => prev.map(s => s.id === id ? { ...s, isMandatory: newValue } : s));
+
+      updateRequirements({
+        id: groupId ? groupId : "",
+        data: {
+          typeId: currentItem.notificationTypeId,
+          isMandatory: newValue
+        }
+      });
+      return
+    }
+    if (field === 'isEnabled') {
+      updatedItem[field] = !currentItem[field];
+    } else {
+      const currentChannels = currentItem.channels || [];
+      updatedItem.channels = currentChannels.includes(field)
+        ? currentChannels.filter((c) => c !== field)
+        : [...currentChannels, field];
+    }
+
+    setSettings(prev => prev.map(s => s.id === id ? updatedItem : s));
+
+    updateGeneral({
+      typeId: updatedItem.notificationTypeId,
+      isEnabled: updatedItem.isEnabled,
+      channels: updatedItem.channels,
+    });
   };
+  if (isLoading) return <Loader />;
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}>
@@ -62,8 +76,7 @@ export default function NotificationsSettings() {
             </Typography>
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Керуйте тим, як і де ви отримуєте інформацію про активність в
-            аукціонах.
+            Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
           </Typography>
         </Box>
       </Stack>
@@ -94,7 +107,10 @@ export default function NotificationsSettings() {
         </Paper>
       </Can>
 
-      <NotificationsTable settings={settings} handleToggle={handleToggle} />
+      <NotificationsTable
+        settings={settings}
+        handleToggle={handleToggle}
+      />
 
       <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }}>
         Для активації Telegram-сповіщень необхідно підключити бота{' '}

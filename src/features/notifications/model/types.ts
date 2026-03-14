@@ -1,19 +1,35 @@
-export interface NotificationSetting {
+export type NotificationChannel = 'InApp' | 'Email';
+
+export interface NotificationTypeInfo {
   id: string;
-  type: string;
-  inApp: boolean;
-  email: boolean;
-  telegram: boolean;
-  isMandatory: boolean;
+  name: string;
+  description: string;
+}
+
+export interface NotificationSetting {
+  id: string,
+  userId: string,
+  notificationTypeId: string,
+  isEnabled: boolean,
+  channels: NotificationChannel[],
+  notificationType: NotificationTypeInfo,
+  isMandatory: boolean
 }
 export interface UpdateNotificationSettings {
-  typeId: 'string';
+  typeId: string;
   isEnabled: boolean;
-  channels: ['InApp', 'Email'];
+  channels: NotificationChannel[],
 }
 export interface Notification {
   id: string;
   type: string;
   message: string;
   createdAt: string;
+}
+export interface fetchNotificationsResponce {
+  "data": Notification[],
+  "total": number,
+  "page": number,
+  "limit": number,
+  "unreadCount": number
 }

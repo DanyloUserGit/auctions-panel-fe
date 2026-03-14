@@ -8,7 +8,7 @@ import { GroupSettings } from '../features/settings/ui/GroupSettings';
 import NotificationsSettings from '../features/settings/ui/NotificationsSettings';
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState(2);
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
