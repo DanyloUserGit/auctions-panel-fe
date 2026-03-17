@@ -4,15 +4,22 @@ import { useState } from 'react';
 import { Loader } from '../../../shared/ui/Loader';
 import { useAuth } from '../../auth/model/useAuth';
 import { Can } from '../../auth/ui/Can';
-import type { NotificationChannel, NotificationSetting } from '../../notifications/model/types';
-import { useNotificationsSettings, useUpdateNotificationsRequirements, useUpdateNotificationsSettings } from '../../notifications/model/useNotifications';
+import type {
+  NotificationChannel,
+  NotificationSetting,
+} from '../../notifications/model/types';
+import {
+  useNotificationsSettings,
+  useUpdateNotificationsRequirements,
+  useUpdateNotificationsSettings,
+} from '../../notifications/model/useNotifications';
 import NotificationsTable from '../../notifications/ui/NotificationsTable';
 
 export default function NotificationsSettings() {
   const { data, isLoading } = useNotificationsSettings();
   const { mutate: updateGeneral } = useUpdateNotificationsSettings();
-  const { user } = useAuth()
-  const groupId = user?.auctionGroupId
+  const { user } = useAuth();
+  const groupId = user?.auctionGroupId;
 
   // Ваша нова мутація для Mandatory (виправлено назву для зручності)
   const { mutate: updateRequirements } = useUpdateNotificationsRequirements();
@@ -23,24 +30,29 @@ export default function NotificationsSettings() {
     setSettings(data);
   }
 
-  const handleToggle = (id: string, field: 'isEnabled' | NotificationChannel | 'isMandatory') => {
-    const currentItem = settings.find(s => s.id === id);
-    console.log(groupId)
+  const handleToggle = (
+    id: string,
+    field: 'isEnabled' | NotificationChannel | 'isMandatory',
+  ) => {
+    const currentItem = settings.find((s) => s.id === id);
+    console.log(groupId);
     if (!currentItem) return;
     const updatedItem = { ...currentItem };
 
     if (field === 'isMandatory') {
       const newValue = !currentItem.isMandatory;
-      setSettings(prev => prev.map(s => s.id === id ? { ...s, isMandatory: newValue } : s));
+      setSettings((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, isMandatory: newValue } : s)),
+      );
 
       updateRequirements({
-        id: groupId ? groupId : "",
+        id: groupId ? groupId : '',
         data: {
           typeId: currentItem.notificationTypeId,
-          isMandatory: newValue
-        }
+          isMandatory: newValue,
+        },
       });
-      return
+      return;
     }
     if (field === 'isEnabled') {
       updatedItem[field] = !currentItem[field];
@@ -51,7 +63,7 @@ export default function NotificationsSettings() {
         : [...currentChannels, field];
     }
 
-    setSettings(prev => prev.map(s => s.id === id ? updatedItem : s));
+    setSettings((prev) => prev.map((s) => (s.id === id ? updatedItem : s)));
 
     updateGeneral({
       typeId: updatedItem.notificationTypeId,
@@ -76,7 +88,8 @@ export default function NotificationsSettings() {
             </Typography>
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
+            Керуйте тим, як і де ви отримуєте інформацію про активність в
+            аукціонах.
           </Typography>
         </Box>
       </Stack>
@@ -107,10 +120,7 @@ export default function NotificationsSettings() {
         </Paper>
       </Can>
 
-      <NotificationsTable
-        settings={settings}
-        handleToggle={handleToggle}
-      />
+      <NotificationsTable settings={settings} handleToggle={handleToggle} />
 
       <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }}>
         Для активації Telegram-сповіщень необхідно підключити бота{' '}

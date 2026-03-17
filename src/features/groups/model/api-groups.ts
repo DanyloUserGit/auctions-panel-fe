@@ -3,7 +3,7 @@ import type { Group, GroupCreate, GroupEdit } from './types';
 
 export const fetchGroups = async () => {
   const responce = await api.get('/auction-groups');
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
 export const fetchGroupByQuery = async (q: string): Promise<Group[]> => {
@@ -22,7 +22,10 @@ export const createGroup = async (newGroup: GroupCreate) => {
   const responce = await api.post('/auction-groups', newGroup);
   return responce.data;
 };
-export const editGroup = async ({ id, group, }: {
+export const editGroup = async ({
+  id,
+  group,
+}: {
   id: string;
   group: GroupEdit;
 }) => {

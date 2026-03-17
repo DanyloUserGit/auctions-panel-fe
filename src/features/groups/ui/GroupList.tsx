@@ -10,7 +10,6 @@ interface Props {
   onDelete: () => void;
 }
 
-
 export default function AuctionsGroup({
   groups,
   activeGroupId,
@@ -18,7 +17,7 @@ export default function AuctionsGroup({
   onEdit,
   onDelete,
 }: Props) {
-  console.log(groups)
+  console.log(groups);
   return (
     <Box
       sx={{
@@ -29,7 +28,6 @@ export default function AuctionsGroup({
         mb: 3,
         px: { xs: 2, sm: 0 },
         mx: { xs: -2, sm: 0 },
-
       }}
     >
       {groups.map((group: Group) => (

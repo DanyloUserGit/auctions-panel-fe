@@ -10,15 +10,14 @@ import { useMobile } from '../shared/hooks/useMobile';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
-  const isMobile = useMobile()
+  const isMobile = useMobile();
   return (
     <Box sx={{ p: { xs: 0, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
-      {
-        !isMobile &&
+      {!isMobile && (
         <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
           Налаштування
         </Typography>
-      }
+      )}
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
         <Paper

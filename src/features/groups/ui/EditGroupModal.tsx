@@ -50,7 +50,7 @@ export default function EditGroupModal({
       try {
         // 1. Завантажуємо адміна за ID
         if (current_group.AdminId) {
-          console.log(current_group.AdminId)
+          console.log(current_group.AdminId);
           const adminData = await fetchUserById(current_group.AdminId);
           setGroupAdmin(adminData);
         }

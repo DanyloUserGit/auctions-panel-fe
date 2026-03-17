@@ -51,15 +51,15 @@ export default function GroupTabItem({
 }: GroupTabProps) {
   const mock = getMockData(group.id);
 
-  useEffect(() => { console.log(group) }, [group])
+  useEffect(() => {
+    console.log(group);
+  }, [group]);
 
+  const { data: admin, isLoading: isAdminLoading } = useUserById(group.AdminId);
 
-
-  const { data: admin, isLoading: isAdminLoading } = useUserById(
-    group.AdminId,
-  );
-
-  useEffect(() => { console.log(admin) }, [admin])
+  useEffect(() => {
+    console.log(admin);
+  }, [admin]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
 

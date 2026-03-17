@@ -1,7 +1,4 @@
-import {
-  ArrowBack,
-  NotificationsNone
-} from '@mui/icons-material';
+import { ArrowBack, NotificationsNone } from '@mui/icons-material';
 import {
   Box,
   IconButton,
@@ -9,7 +6,7 @@ import {
   Pagination,
   Paper,
   Stack,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -23,10 +20,11 @@ export default function NotificationsList() {
   const [page, setPage] = useState(1);
   const [limit] = useState('20');
 
-  const { data: response, isLoading, isFetching } = useNotifications(
-    page.toString(),
-    limit
-  );
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = useNotifications(page.toString(), limit);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
@@ -75,10 +73,7 @@ export default function NotificationsList() {
         ) : (
           <List sx={{ p: 0 }}>
             {notifications.map((item) => (
-              <NotificationItem
-                key={item.id}
-                item={item}
-              />
+              <NotificationItem key={item.id} item={item} />
             ))}
           </List>
         )}

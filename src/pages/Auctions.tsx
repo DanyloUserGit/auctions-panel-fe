@@ -34,7 +34,7 @@ export default function AuctionsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isAlphabetical, setisAlphabetical] = useState(false);
 
-  const isMobile = useMobile()
+  const isMobile = useMobile();
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups;
     if (debouncedSearch.trim()) {
@@ -138,8 +138,7 @@ export default function AuctionsPage() {
               Назад
             </Button>
           )}
-          {
-            !isMobile &&
+          {!isMobile && (
             <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a1a' }}>
               {view === 'auctions'
                 ? 'Аукціони'
@@ -147,7 +146,7 @@ export default function AuctionsPage() {
                   ? `Акаунти: ${selectedAuction?.title}`
                   : 'Сесії'}
             </Typography>
-          }
+          )}
         </Box>
 
         <Box className="flex gap-4">

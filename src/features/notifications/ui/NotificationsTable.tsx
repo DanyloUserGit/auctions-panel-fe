@@ -1,4 +1,9 @@
-import { Email, Language, PowerSettingsNew, Security } from '@mui/icons-material';
+import {
+  Email,
+  Language,
+  PowerSettingsNew,
+  Security,
+} from '@mui/icons-material';
 import {
   Checkbox,
   Chip,
@@ -19,13 +24,15 @@ import type { NotificationChannel, NotificationSetting } from '../model/types';
 
 interface Props {
   settings: NotificationSetting[];
-  handleToggle: (id: string, field: 'isEnabled' | NotificationChannel | 'isMandatory') => void;
+  handleToggle: (
+    id: string,
+    field: 'isEnabled' | NotificationChannel | 'isMandatory',
+  ) => void;
 }
 
 export default function NotificationsTable({ settings, handleToggle }: Props) {
   const { user } = useAuth();
-  const isAdmin = user?.role == "Admin" || user?.role == "SuperAdmin";
-
+  const isAdmin = user?.role == 'Admin' || user?.role == 'SuperAdmin';
 
   return (
     <TableContainer
@@ -36,21 +43,27 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
       <Table size="small">
         <TableHead sx={{ bgcolor: 'action.hover' }}>
           <TableRow>
-            <TableCell sx={{ fontWeight: 700, py: 2 }}>Тип сповіщення</TableCell>
+            <TableCell sx={{ fontWeight: 700, py: 2 }}>
+              Тип сповіщення
+            </TableCell>
 
             {/* Колонки каналів */}
             <TableCell align="center" sx={{ fontWeight: 700 }}>
               <Tooltip title="Внутрішні сповіщення">
                 <Language fontSize="small" />
               </Tooltip>
-              <Typography variant="caption" display="block">In-App</Typography>
+              <Typography variant="caption" display="block">
+                In-App
+              </Typography>
             </TableCell>
 
             <TableCell align="center" sx={{ fontWeight: 700 }}>
               <Tooltip title="Електронна пошта">
                 <Email fontSize="small" />
               </Tooltip>
-              <Typography variant="caption" display="block">Email</Typography>
+              <Typography variant="caption" display="block">
+                Email
+              </Typography>
             </TableCell>
 
             {/* Статус активності */}
@@ -58,16 +71,23 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
               <Tooltip title="Загальний статус">
                 <PowerSettingsNew fontSize="small" />
               </Tooltip>
-              <Typography variant="caption" display="block">Активне</Typography>
+              <Typography variant="caption" display="block">
+                Активне
+              </Typography>
             </TableCell>
 
             {/* Обов'язковість (Тільки для адмінів) */}
             <Can roles={['Admin', 'SuperAdmin']}>
-              <TableCell align="center" sx={{ fontWeight: 700, color: 'primary.main' }}>
+              <TableCell
+                align="center"
+                sx={{ fontWeight: 700, color: 'primary.main' }}
+              >
                 <Tooltip title="Адмін-налаштування">
                   <Security fontSize="small" />
                 </Tooltip>
-                <Typography variant="caption" display="block">Mandatory</Typography>
+                <Typography variant="caption" display="block">
+                  Mandatory
+                </Typography>
               </TableCell>
             </Can>
           </TableRow>
@@ -81,7 +101,8 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
               <TableRow key={row.id} hover>
                 <TableCell sx={{ py: 2 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {row?.notificationType?.description || row?.notificationType?.name}
+                    {row?.notificationType?.description ||
+                      row?.notificationType?.name}
                   </Typography>
                   {row.isMandatory && (
                     <Chip

@@ -40,7 +40,7 @@ const roleColors: Record<UserRole, ChipProps['color']> = {
 };
 
 export default function EmployeesSection() {
-  const isMobile = useMobile()
+  const isMobile = useMobile();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -101,12 +101,11 @@ export default function EmployeesSection() {
           mb: 4,
         }}
       >
-        {
-          !isMobile &&
+        {!isMobile && (
           <Typography variant="h4" sx={{ fontWeight: 800 }}>
             Працівники
           </Typography>
-        }
+        )}
         <Button
           onClick={OpenAddUser}
           variant="contained"

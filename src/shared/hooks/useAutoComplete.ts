@@ -18,9 +18,6 @@ export function useAutoComplete<T extends { id: string }>({
     return Array.isArray(initialSelected) ? initialSelected : [initialSelected];
   });
 
-
-
-
   const updateOptions = useCallback(
     (newResults: T[], currentSelected: T | T[] | null) => {
       const selectedArray = Array.isArray(currentSelected)

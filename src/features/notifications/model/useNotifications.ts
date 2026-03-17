@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchNotifications, fetchNotificationsSettings, markAsRead, updateNotificationsRequirements, updateNotificationsSettings } from './api';
+import {
+  fetchNotifications,
+  fetchNotificationsSettings,
+  markAsRead,
+  updateNotificationsRequirements,
+  updateNotificationsSettings,
+} from './api';
 import type { UpdateNotificationSettings } from './types';
 
 export const useNotifications = (page: string = '1', limit: string = '20') => {
@@ -39,10 +45,10 @@ export const useUpdateNotificationsSettings = () => {
   const queryClient = useQueryClient();
 
   const { mutate, isError, isPending } = useMutation({
-    mutationFn: (data: UpdateNotificationSettings) => updateNotificationsSettings(data),
+    mutationFn: (data: UpdateNotificationSettings) =>
+      updateNotificationsSettings(data),
     mutationKey: ['notifications_settings'],
-
-  })
+  });
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
   };
@@ -50,17 +56,19 @@ export const useUpdateNotificationsSettings = () => {
     refresh,
     mutate,
     isError,
-    isPending
+    isPending,
   };
 };
 export const useUpdateNotificationsRequirements = () => {
   const queryClient = useQueryClient();
 
   const { mutate, isError, isPending } = useMutation({
-    mutationFn: (data: { id: string, data: { typeId: string, isMandatory: boolean } }) => updateNotificationsRequirements(data.id, data.data),
+    mutationFn: (data: {
+      id: string;
+      data: { typeId: string; isMandatory: boolean };
+    }) => updateNotificationsRequirements(data.id, data.data),
     mutationKey: ['notifications_settings'],
-
-  })
+  });
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
   };
@@ -68,10 +76,9 @@ export const useUpdateNotificationsRequirements = () => {
     refresh,
     mutate,
     isError,
-    isPending
+    isPending,
   };
 };
-
 
 export const useMarkAsRead = () => {
   const queryClient = useQueryClient();
@@ -83,6 +90,6 @@ export const useMarkAsRead = () => {
     },
     onError: (error) => {
       console.error('Помилка при позначенні як прочитане:', error);
-    }
+    },
   });
 };

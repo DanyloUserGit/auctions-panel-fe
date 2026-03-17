@@ -7,18 +7,18 @@ export interface NotificationTypeInfo {
 }
 
 export interface NotificationSetting {
-  id: string,
-  userId: string,
-  notificationTypeId: string,
-  isEnabled: boolean,
-  channels: NotificationChannel[],
-  notificationType: NotificationTypeInfo,
-  isMandatory: boolean
+  id: string;
+  userId: string;
+  notificationTypeId: string;
+  isEnabled: boolean;
+  channels: NotificationChannel[];
+  notificationType: NotificationTypeInfo;
+  isMandatory: boolean;
 }
 export interface UpdateNotificationSettings {
   typeId: string;
   isEnabled: boolean;
-  channels: NotificationChannel[],
+  channels: NotificationChannel[];
 }
 export interface Notification {
   id: string;
@@ -27,9 +27,9 @@ export interface Notification {
   createdAt: string;
 }
 export interface fetchNotificationsResponce {
-  "data": Notification[],
-  "total": number,
-  "page": number,
-  "limit": number,
-  "unreadCount": number
+  data: Notification[];
+  total: number;
+  page: number;
+  limit: number;
+  unreadCount: number;
 }

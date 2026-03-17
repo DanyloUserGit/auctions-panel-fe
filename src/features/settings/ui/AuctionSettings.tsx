@@ -3,7 +3,7 @@ import {
   LockOutlined,
   MouseOutlined,
   PersonAddOutlined,
-  Search
+  Search,
 } from '@mui/icons-material';
 import {
   Alert,
@@ -14,7 +14,7 @@ import {
   Paper,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
@@ -33,7 +33,7 @@ import {
   useRemoveAllowedPath,
   useRemoveAuctionUser,
   useRemoveForbiddenPath,
-  useRemoveForbiddenSelector
+  useRemoveForbiddenSelector,
 } from '../model/useAuctionSettings';
 
 export function AuctionSettings() {
@@ -47,8 +47,9 @@ export function AuctionSettings() {
     debounceTime: 400,
   });
 
-
-  const { data: allowedPaths, isLoading: isLoadingPath } = useAllowedPaths(selectedAuction?.id);
+  const { data: allowedPaths, isLoading: isLoadingPath } = useAllowedPaths(
+    selectedAuction?.id,
+  );
   const { data: forbiddenPaths } = useForbiddenPaths(selectedAuction?.id);
   const { data: selectors } = useForbiddenSelectors(selectedAuction?.id);
 
@@ -77,7 +78,14 @@ export function AuctionSettings() {
   return (
     <Stack spacing={3}>
       {/* Селектор аукціону */}
-      <Paper sx={{ p: 3, borderRadius: '20px', border: '2px solid', borderColor: 'primary.main' }}>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: '20px',
+          border: '2px solid',
+          borderColor: 'primary.main',
+        }}
+      >
         <Stack direction="row" spacing={2} alignItems="center">
           <Search color="primary" />
           <Autocomplete
@@ -85,7 +93,6 @@ export function AuctionSettings() {
             options={auctionsSearch.getFilteredOptions(selectedAuction)}
             loading={auctionsSearch.isLoading}
             onChange={(_, newValue) => setSelectedAuction(newValue)}
-
             onInputChange={(_, newInputValue) => {
               auctionsSearch.debouncedFetch(newInputValue, selectedAuction);
             }}
@@ -102,7 +109,9 @@ export function AuctionSettings() {
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {auctionsSearch.isLoading ? <CircularProgress size={20} /> : null}
+                      {auctionsSearch.isLoading ? (
+                        <CircularProgress size={20} />
+                      ) : null}
                       {params.InputProps.endAdornment}
                     </>
                   ),
@@ -120,39 +129,53 @@ export function AuctionSettings() {
       ) : (
         <Stack spacing={3}>
           <Paper sx={{ p: 3, borderRadius: '20px' }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
               <PersonAddOutlined color="secondary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Дозволені користувачі</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Дозволені користувачі
+              </Typography>
             </Stack>
             <Autocomplete
               multiple
               value={selectedAuction.users || []}
-
               isOptionEqualToValue={(option, value) => option.id === value.id}
-              options={usersSearch.getFilteredOptions(selectedAuction.users || [])}
+              options={usersSearch.getFilteredOptions(
+                selectedAuction.users || [],
+              )}
               loading={usersSearch.isLoading}
-              onInputChange={(_, val) => usersSearch.debouncedFetch(val, selectedAuction.users || [])}
-              getOptionLabel={(option) => `${option.firstName} ${option.lastName} (${option.email})`}
+              onInputChange={(_, val) =>
+                usersSearch.debouncedFetch(val, selectedAuction.users || [])
+              }
+              getOptionLabel={(option) =>
+                `${option.firstName} ${option.lastName} (${option.email})`
+              }
               filterOptions={(x) => x}
               onChange={(_, newValue, reason, details) => {
                 const lastSelected = newValue[newValue.length - 1];
                 if (reason === 'selectOption' && selectedAuction) {
                   if (lastSelected) {
                     const isAlreadyAdded = selectedAuction.users?.some(
-                      (u: User) => u.id === lastSelected.id
+                      (u: User) => u.id === lastSelected.id,
                     );
                     if (!isAlreadyAdded) {
                       addUser.mutate({
                         id: selectedAuction.id,
-                        userId: lastSelected.id
+                        userId: lastSelected.id,
                       });
                     }
                   }
                 }
                 if (reason === 'removeOption' && details?.option) {
-                  const userToRemove = details.option
-                  removeUser.mutate({ id: selectedAuction.id, userId: userToRemove.id })
-
+                  const userToRemove = details.option;
+                  removeUser.mutate({
+                    id: selectedAuction.id,
+                    userId: userToRemove.id,
+                  });
                 }
               }}
               renderInput={(params) => (
@@ -164,7 +187,9 @@ export function AuctionSettings() {
                     ...params.InputProps,
                     endAdornment: (
                       <>
-                        {usersSearch.isLoading ? <CircularProgress size={20} /> : null}
+                        {usersSearch.isLoading ? (
+                          <CircularProgress size={20} />
+                        ) : null}
                         {params.InputProps.endAdornment}
                       </>
                     ),
@@ -180,7 +205,10 @@ export function AuctionSettings() {
                   label={`${user.firstName} ${user.lastName}`}
                   onDelete={() => {
                     console.log(user.id);
-                    removeUser.mutate({ id: selectedAuction.id, userId: user.id })
+                    removeUser.mutate({
+                      id: selectedAuction.id,
+                      userId: user.id,
+                    });
                   }}
                   color="secondary"
                   variant="outlined"
@@ -190,29 +218,50 @@ export function AuctionSettings() {
           </Paper>
           {/* Дозволені сторінки */}
           <Paper sx={{ p: 3, borderRadius: '20px' }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
               <CheckCircleOutline color="success" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Дозволені сторінки</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Дозволені сторінки
+              </Typography>
             </Stack>
             <Autocomplete
-              multiple freeSolo options={[]}
-              value={allowedPaths?.map((p: { id: string, path: string }) => p.path) || []}
+              multiple
+              freeSolo
+              options={[]}
+              value={
+                allowedPaths?.map(
+                  (p: { id: string; path: string }) => p.path,
+                ) || []
+              }
               onChange={(_, newValue, reason) => {
                 if (reason === 'createOption' || reason === 'selectOption') {
                   const val = newValue[newValue.length - 1];
                   addAllowed.mutate({ id: selectedAuction.id, path: val });
                 }
               }}
-
               renderTags={(_, getTagProps) =>
-                allowedPaths?.map((item: { id: string, path: string }, index: number) => (
-                  <Chip
-                    label={item.path}
-                    {...getTagProps({ index })}
-                    onDelete={() => removeAllowed.mutate({ id: item.id, auctionId: selectedAuction.id })}
-                    color="success" variant="outlined" size="small"
-                  />
-                ))
+                allowedPaths?.map(
+                  (item: { id: string; path: string }, index: number) => (
+                    <Chip
+                      label={item.path}
+                      {...getTagProps({ index })}
+                      onDelete={() =>
+                        removeAllowed.mutate({
+                          id: item.id,
+                          auctionId: selectedAuction.id,
+                        })
+                      }
+                      color="success"
+                      variant="outlined"
+                      size="small"
+                    />
+                  ),
+                )
               }
               renderInput={(params) => (
                 <TextField
@@ -234,57 +283,110 @@ export function AuctionSettings() {
 
           {/* Заборонені переходи */}
           <Paper sx={{ p: 3, borderRadius: '20px' }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
               <LockOutlined color="error" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Заборонені переходи</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Заборонені переходи
+              </Typography>
             </Stack>
             <Autocomplete
-              multiple freeSolo options={[]}
-              value={forbiddenPaths?.map((p: { id: string, path: string }) => p.path) || []}
+              multiple
+              freeSolo
+              options={[]}
+              value={
+                forbiddenPaths?.map(
+                  (p: { id: string; path: string }) => p.path,
+                ) || []
+              }
               onChange={(_, newValue, reason) => {
                 if (reason === 'createOption') {
-                  addForbidden.mutate({ id: selectedAuction.id, path: newValue[newValue.length - 1] });
+                  addForbidden.mutate({
+                    id: selectedAuction.id,
+                    path: newValue[newValue.length - 1],
+                  });
                 }
               }}
               renderTags={(_, getTagProps) =>
-                forbiddenPaths?.map((item: { id: string, path: string }, index: number) => (
-                  <Chip
-                    label={item.path}
-                    {...getTagProps({ index })}
-                    onDelete={() => removeForbidden.mutate({ id: item.id, auctionId: selectedAuction.id })}
-                    color="error" variant="outlined" size="small"
-                  />
-                ))
+                forbiddenPaths?.map(
+                  (item: { id: string; path: string }, index: number) => (
+                    <Chip
+                      label={item.path}
+                      {...getTagProps({ index })}
+                      onDelete={() =>
+                        removeForbidden.mutate({
+                          id: item.id,
+                          auctionId: selectedAuction.id,
+                        })
+                      }
+                      color="error"
+                      variant="outlined"
+                      size="small"
+                    />
+                  ),
+                )
               }
-              renderInput={(params) => <TextField {...params} label="URL для блокування" />}
+              renderInput={(params) => (
+                <TextField {...params} label="URL для блокування" />
+              )}
             />
           </Paper>
 
           {/* Заборонені дії */}
           <Paper sx={{ p: 3, borderRadius: '20px' }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
               <MouseOutlined color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Заборонені дії</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Заборонені дії
+              </Typography>
             </Stack>
             <Autocomplete
-              multiple freeSolo options={[]}
-              value={selectors?.map((s: { id: string, selector: string }) => s.selector) || []}
+              multiple
+              freeSolo
+              options={[]}
+              value={
+                selectors?.map(
+                  (s: { id: string; selector: string }) => s.selector,
+                ) || []
+              }
               onChange={(_, newValue, reason) => {
                 if (reason === 'createOption') {
-                  addSelector.mutate({ id: selectedAuction.id, selector: newValue[newValue.length - 1] });
+                  addSelector.mutate({
+                    id: selectedAuction.id,
+                    selector: newValue[newValue.length - 1],
+                  });
                 }
               }}
               renderTags={(_, getTagProps) =>
-                selectors?.map((item: { id: string, selector: string }, index: number) => (
-                  <Chip
-                    label={item.selector}
-                    {...getTagProps({ index })}
-                    onDelete={() => removeSelector.mutate({ id: item.id, auctionId: selectedAuction.id })}
-                    variant="filled" size="small"
-                  />
-                ))
+                selectors?.map(
+                  (item: { id: string; selector: string }, index: number) => (
+                    <Chip
+                      label={item.selector}
+                      {...getTagProps({ index })}
+                      onDelete={() =>
+                        removeSelector.mutate({
+                          id: item.id,
+                          auctionId: selectedAuction.id,
+                        })
+                      }
+                      variant="filled"
+                      size="small"
+                    />
+                  ),
+                )
               }
-              renderInput={(params) => <TextField {...params} label="ID/Класи елементів" />}
+              renderInput={(params) => (
+                <TextField {...params} label="ID/Класи елементів" />
+              )}
             />
           </Paper>
         </Stack>

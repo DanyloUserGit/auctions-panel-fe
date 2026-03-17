@@ -1,8 +1,4 @@
-import {
-  AdminPanelSettings,
-  Badge,
-  Security
-} from '@mui/icons-material';
+import { AdminPanelSettings, Badge, Security } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -15,7 +11,7 @@ import {
   Select,
   TextField,
   Typography,
-  type SelectChangeEvent
+  type SelectChangeEvent,
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -59,7 +55,6 @@ export default function ProfileEdit() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
     setFormData((prev) => ({ ...prev, role: e.target.value as UserRole }));
   };
@@ -90,7 +85,7 @@ export default function ProfileEdit() {
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: { xs: 2, sm: 4 }, }}>
+    <Box sx={{ maxWidth: 800, mx: 'auto', py: { xs: 2, sm: 4 } }}>
       {/* <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1 }}>
 
         <Typography

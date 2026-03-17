@@ -11,7 +11,7 @@ import {
   Paper,
   Select,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -37,7 +37,6 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
 
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
 
-
   const {
     options: groupOptions,
     isLoading: isGroupsLoading,
@@ -49,7 +48,9 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   });
 
   const isSA = currentUser?.role === 'SuperAdmin';
-  useEffect(() => { fetchGroupByQuery("Group").then(res => console.log(res)) }, [])
+  useEffect(() => {
+    fetchGroupByQuery('Group').then((res) => console.log(res));
+  }, []);
 
   const {
     register,
@@ -72,8 +73,6 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
       auctionGroupId: '',
     },
   });
-
-
 
   const onSubmit = (data: CreateUser) => {
     const payload = {
@@ -177,7 +176,9 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 value={selectedGroup}
                 options={groupOptions}
                 loading={isGroupsLoading}
-                onInputChange={(_, val) => debouncedFetchGroups(val, selectedGroup)}
+                onInputChange={(_, val) =>
+                  debouncedFetchGroups(val, selectedGroup)
+                }
                 onChange={(_, val) => {
                   setSelectedGroup(val);
                   setValue('auctionGroupId', val?.id || '');

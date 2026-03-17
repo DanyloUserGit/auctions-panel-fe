@@ -2,7 +2,11 @@ import { Box } from '@mui/material';
 import { Outlet } from 'react-router';
 import Sidebar from '../shared/ui/Sidebar';
 import { useEffect } from 'react';
-import { connectNotificationSocket, disconnectNotificationSocket, subscribeToGlobalNotifications } from '../features/sessions/model/sockets';
+import {
+  connectNotificationSocket,
+  disconnectNotificationSocket,
+  subscribeToGlobalNotifications,
+} from '../features/sessions/model/sockets';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNotificationToast } from '../features/notifications/model/useNotificationToast';
 import { Notification } from '../features/notifications/ui/Notification';
@@ -13,23 +17,17 @@ export default function Home() {
   const { showNotification, isOpen, closeNotification, message } =
     useNotificationToast();
 
-  const { user } = useAuth()
-  const userId = user?.id
+  const { user } = useAuth();
+  const userId = user?.id;
 
   useEffect(() => {
-
     if (!userId) return;
-
-
 
     connectNotificationSocket(userId);
 
-
-
     const unsubscribe = subscribeToGlobalNotifications({
-
       onReceived: (data) => {
-        console.log("Отримано сповіщення:", data);
+        console.log('Отримано сповіщення:', data);
         showNotification(data.message);
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       },
@@ -50,11 +48,9 @@ export default function Home() {
           display: 'flex',
           flexDirection: 'column',
           minWidth: 0,
-          pt: { xs: 8, sm: 0 }
+          pt: { xs: 8, sm: 0 },
         }}
       >
-
-
         <Box sx={{ pl: { xs: 0, sm: 2 }, pr: 2, flexGrow: 1 }}>
           <Outlet />
         </Box>

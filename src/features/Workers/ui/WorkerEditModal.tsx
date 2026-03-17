@@ -77,7 +77,6 @@ export const WorkerEditModal = ({
     name: 'auctionGroupId',
   });
 
-
   const selectedGroup =
     groups.find((g: Group) => g.id === currentGroupId) || null;
 
