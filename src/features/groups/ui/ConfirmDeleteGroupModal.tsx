@@ -17,7 +17,6 @@ export default function ConfirmDeleteGroupModal({
   const { DeleteGroupMutation } = useGroups();
 
   const handleSubmit = async () => {
-    console.log(currentGroup);
     await DeleteGroupMutation.mutate(currentGroup.id);
     handleClose();
   };

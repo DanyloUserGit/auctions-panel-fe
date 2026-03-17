@@ -17,6 +17,7 @@ export default function AuctionsGroup({
   onEdit,
   onDelete,
 }: Props) {
+  console.log(groups);
   return (
     <Box
       sx={{
@@ -27,9 +28,6 @@ export default function AuctionsGroup({
         mb: 3,
         px: { xs: 2, sm: 0 },
         mx: { xs: -2, sm: 0 },
-        // scrollSnapType: "x mandatory",
-        // scrollbarWidth: 'none',
-        // '&::-webkit-scrollbar': { display: 'none' }
       }}
     >
       {groups.map((group: Group) => (
