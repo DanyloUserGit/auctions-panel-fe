@@ -24,6 +24,7 @@ import SessionList from '../features/sessions/ui/SessionList';
 import GroupSearch from '../features/groups/ui/GroupSearch';
 import { useModal } from '../shared/hooks/useModal';
 import EditGroupModal from '../features/groups/ui/EditGroupModal';
+import { useMobile } from '../shared/hooks/useMobile';
 
 export default function AuctionsPage() {
   const { items: groups } = useGroups();
@@ -33,6 +34,7 @@ export default function AuctionsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isAlphabetical, setisAlphabetical] = useState(false);
 
+  const isMobile = useMobile()
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups;
     if (debouncedSearch.trim()) {
@@ -136,13 +138,16 @@ export default function AuctionsPage() {
               Назад
             </Button>
           )}
-          <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a1a' }}>
-            {view === 'auctions'
-              ? 'Аукціони'
-              : view === 'accounts'
-                ? `Акаунти: ${selectedAuction?.title}`
-                : 'Сесії'}
-          </Typography>
+          {
+            !isMobile &&
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a1a' }}>
+              {view === 'auctions'
+                ? 'Аукціони'
+                : view === 'accounts'
+                  ? `Акаунти: ${selectedAuction?.title}`
+                  : 'Сесії'}
+            </Typography>
+          }
         </Box>
 
         <Box className="flex gap-4">

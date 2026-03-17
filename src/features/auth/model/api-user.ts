@@ -21,11 +21,16 @@ export const fetchUsersByQuery = async (q: string) => {
   return responce.data || [];
 };
 export const fetchUserById = async (id: string): Promise<User> => {
+  console.log(id)
   const responce = await api.get(`/users/${id}`);
+  console.log(responce.data)
+
   return responce.data;
 };
 export const updateProfile = async (data: UpdateUser, id: string) => {
+  console.log(data)
   const responce = await api.patch(`/profile/edit`, { ...data, id });
+  console.log(responce.data)
   return responce.data;
 };
 export const updateRole = async (data: ChangeRole) => {
@@ -47,6 +52,7 @@ export const changePassword = async (data: {
 };
 export const fetchControlCard = async (id: string) => {
   const responce = await api.get(`/users/${id}/control-card`);
+  console.log(responce.data)
   return responce.data;
 };
 export const updateStatus = async (id: string) => {
