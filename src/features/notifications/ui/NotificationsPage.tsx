@@ -26,25 +26,21 @@ export default function NotificationsPage() {
 
   const handleToggle = (
     id: string,
-    field: 'isEnabled' | 'isMandatory' | NotificationChannel
+    field: 'isEnabled' | 'isMandatory' | NotificationChannel,
   ) => {
     setSettings((prev) =>
       prev.map((s) => {
-        // Якщо це не наш рядок, повертаємо його без змін
         if (s.id !== id) return s;
 
-        // 1. Якщо це пряме булеве поле (isEnabled або isMandatory)
         if (field === 'isEnabled' || field === 'isMandatory') {
           return { ...s, [field]: !s[field] };
         }
 
-        // 2. Якщо це канал зв'язку (наприклад, 'InApp')
-        // Перевіряємо, чи є він вже в масиві channels
         const hasChannel = s.channels.includes(field as NotificationChannel);
 
         const updatedChannels = hasChannel
           ? s.channels.filter((c) => c !== field)
-          : [...s.channels, field as NotificationChannel]; 
+          : [...s.channels, field as NotificationChannel];
 
         return { ...s, channels: updatedChannels };
       }),
