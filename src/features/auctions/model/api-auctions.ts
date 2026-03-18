@@ -3,7 +3,7 @@ import type { AuctionCreate, AuctionEdit } from './types';
 
 export const fetchAuctions = async (groupId: string) => {
   if (!groupId) return [];
-  const responce = await api.get(`/auctions/${groupId}`);
+  const responce = await api.get(`/auctions/group/${groupId}`);
   return responce.data;
 };
 export const fetchAuctionsByQuery = async (q: string) => {
