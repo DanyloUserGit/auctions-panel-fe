@@ -31,6 +31,7 @@ import { useModal } from '../shared/hooks/useModal';
 
 import { type ChipProps } from '@mui/material';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
+import { useMobile } from '../shared/hooks/useMobile';
 
 const roleColors: Record<UserRole, ChipProps['color']> = {
   SuperAdmin: 'error',
@@ -39,6 +40,7 @@ const roleColors: Record<UserRole, ChipProps['color']> = {
 };
 
 export default function EmployeesSection() {
+  const isMobile = useMobile();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -90,7 +92,7 @@ export default function EmployeesSection() {
   } = useModal(false);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 0, sm: 3 } }}>
       <Box
         sx={{
           display: 'flex',
@@ -99,9 +101,11 @@ export default function EmployeesSection() {
           mb: 4,
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Працівники
-        </Typography>
+        {!isMobile && (
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            Працівники
+          </Typography>
+        )}
         <Button
           onClick={OpenAddUser}
           variant="contained"
@@ -126,7 +130,7 @@ export default function EmployeesSection() {
       >
         <TextField
           size="small"
-          placeholder="Пошук за іменем або email..."
+          placeholder="Пошук за email"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           sx={{ flexGrow: 1, maxWidth: 400 }}

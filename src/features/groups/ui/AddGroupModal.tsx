@@ -29,13 +29,13 @@ export default function AddGroupModal({
 
   const [title, setTitle] = useState<string>('');
   const [addedAuctions, setAddedAuctions] = useState<Auction[]>([]);
-  const [groupAdmin, setGroupAdmin] = useState<User | null>(null);
+  const [Admin, setAdmin] = useState<User | null>(null);
   const [addedWorkers, setAddedWorkers] = useState<User[]>([]);
 
   const auctionsSearch = useAutoComplete<Auction>({
     fetchFn: fetchAuctionsByQuery,
   });
-  const groupAdminSearch = useAutoComplete<User>({
+  const AdminSearch = useAutoComplete<User>({
     fetchFn: fetchUsersByQuery,
   });
   const workersSearch = useAutoComplete<User>({
@@ -43,19 +43,19 @@ export default function AddGroupModal({
   });
   const handleSubmit = () => {
     if (!title.trim()) return;
-    console.log(groupAdmin);
+    console.log(Admin);
     GroupCreation.mutate(
       {
         title,
         auctions: addedAuctions.map((a) => a.id),
-        groupAdminId: groupAdmin ? groupAdmin?.id : null,
+        AdminId: Admin ? Admin?.id : null,
         users: addedWorkers.map((w) => w.id),
       },
       {
         onSuccess: () => {
           setTitle('');
           setAddedAuctions([]);
-          setGroupAdmin(null);
+          setAdmin(null);
           handleClose();
         },
       },
@@ -110,12 +110,10 @@ export default function AddGroupModal({
         />
 
         <Autocomplete
-          options={groupAdminSearch.getFilteredOptions(groupAdmin)}
-          loading={groupAdminSearch.isLoading}
-          onInputChange={(_, val) =>
-            groupAdminSearch.debouncedFetch(val, groupAdmin)
-          }
-          onChange={(_, val) => setGroupAdmin(val)}
+          options={AdminSearch.getFilteredOptions(Admin)}
+          loading={AdminSearch.isLoading}
+          onInputChange={(_, val) => AdminSearch.debouncedFetch(val, Admin)}
+          onChange={(_, val) => setAdmin(val)}
           getOptionLabel={(o) => `${o.firstName} ${o.lastName} (${o.email})`}
           isOptionEqualToValue={(o, v) => o?.id === v?.id}
           renderInput={(params) => (

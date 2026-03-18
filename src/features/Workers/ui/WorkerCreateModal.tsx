@@ -1,28 +1,28 @@
-import {
-  Grid,
-  TextField,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  Typography,
-  Alert,
-  Button,
-  Paper,
-  Autocomplete,
-  CircularProgress,
-  debounce,
-} from '@mui/material';
-import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Alert,
+  Autocomplete,
+  Button,
+  CircularProgress,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
+import BaseModal from '../../../shared/ui/Modal';
 import { useAuth, useCreateUser } from '../../auth/model/useAuth';
 import {
   type CreateUser,
   createUserSchema,
   ROLES,
 } from '../../auth/model/user-schema';
-import BaseModal from '../../../shared/ui/Modal';
-import { useMemo, useState } from 'react';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
 
@@ -36,10 +36,21 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { mutate: createUser, isPending, error } = useCreateUser();
 
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  const [groupOptions, setGroupOptions] = useState<Group[]>([]);
-  const [isGroupsLoading, setIsGroupsLoading] = useState(false);
+
+  const {
+    options: groupOptions,
+    isLoading: isGroupsLoading,
+    debouncedFetch: debouncedFetchGroups,
+    setOptions: setGroupOptions,
+  } = useAutoComplete<Group>({
+    fetchFn: fetchGroupByQuery,
+    debounceTime: 400,
+  });
 
   const isSA = currentUser?.role === 'SuperAdmin';
+  useEffect(() => {
+    fetchGroupByQuery('Group').then((res) => console.log(res));
+  }, []);
 
   const {
     register,
@@ -63,24 +74,6 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     },
   });
 
-  const debouncedFetchGroups = useMemo(
-    () =>
-      debounce(async (query: string) => {
-        if (!query.trim()) {
-          setGroupOptions([]);
-          return;
-        }
-        setIsGroupsLoading(true);
-        try {
-          const results = await fetchGroupByQuery(query);
-          setGroupOptions(results || []);
-        } finally {
-          setIsGroupsLoading(false);
-        }
-      }, 400),
-    [],
-  );
-
   const onSubmit = (data: CreateUser) => {
     const payload = {
       ...data,
@@ -91,18 +84,23 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
       onSuccess: () => {
         reset();
         setSelectedGroup(null);
+        setGroupOptions([]);
+
         onClose();
       },
     });
   };
 
+  const handleClose = () => {
+    reset();
+    setSelectedGroup(null);
+    setGroupOptions([]);
+    onClose();
+  };
   return (
     <BaseModal
       open={open}
-      onClose={() => {
-        reset();
-        onClose();
-      }}
+      onClose={handleClose}
       title="Створення нового працівника"
       maxWidth="sm"
     >
@@ -172,14 +170,15 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
               helperText={errors.phone?.message}
             />
           </Grid>
-          {/* Пошук Групи (тільки для SA) */}
           {isSA && (
             <Grid size={12}>
               <Autocomplete
                 value={selectedGroup}
                 options={groupOptions}
                 loading={isGroupsLoading}
-                onInputChange={(_, val) => debouncedFetchGroups(val)}
+                onInputChange={(_, val) =>
+                  debouncedFetchGroups(val, selectedGroup)
+                }
                 onChange={(_, val) => {
                   setSelectedGroup(val);
                   setValue('auctionGroupId', val?.id || '');
@@ -197,7 +196,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                       endAdornment: (
                         <>
                           {isGroupsLoading ? (
-                            <CircularProgress size={20} />
+                            <CircularProgress color="inherit" size={20} />
                           ) : null}
                           {params.InputProps.endAdornment}
                         </>

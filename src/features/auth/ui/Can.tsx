@@ -5,7 +5,7 @@ import type { UserRole } from '../model/user-schema';
 interface CanProps {
   roles: UserRole[];
   children: ReactNode;
-  fallback?: ReactNode; // Що показати, якщо доступу немає (опціонально)
+  fallback?: ReactNode;
 }
 
 export const Can = ({ roles, children, fallback = null }: CanProps) => {

@@ -1,5 +1,9 @@
-import { socket } from '../../../shared/http';
-import type { AuctionSocketEvents, SessionConnectData } from './types';
+import { notificationSocket, socket } from '../../../shared/http';
+import type {
+  AuctionSocketEvents,
+  NotificationSocketEvents,
+  SessionConnectData,
+} from './types';
 
 export const emitJoinAuction = (sessionConnectData: SessionConnectData) => {
   socket.emit('join_auction', sessionConnectData);
@@ -29,6 +33,28 @@ export const subscribeToAuctionEvents = (events: AuctionSocketEvents) => {
     socket.off('session_ready', events.onSessionReady);
     socket.off('webrtc_signal_from_worker', events.onSignalFromWorker);
     socket.off('error', events.onError);
+  };
+};
+export const connectNotificationSocket = (userId: string) => {
+  if (!notificationSocket.connected) {
+    notificationSocket.io.opts.query = { userId };
+    notificationSocket.connect();
+  }
+};
+
+export const disconnectNotificationSocket = () => {
+  if (notificationSocket.connected) {
+    notificationSocket.disconnect();
+  }
+};
+
+export const subscribeToGlobalNotifications = (
+  events: NotificationSocketEvents,
+) => {
+  notificationSocket.on('new_notification', events.onReceived);
+
+  return () => {
+    notificationSocket.off('new_notification', events.onReceived);
   };
 };
 

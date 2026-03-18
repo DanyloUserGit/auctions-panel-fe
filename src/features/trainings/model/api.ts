@@ -2,7 +2,7 @@ import { api } from '../../../shared/http';
 import type { CreateTraining, EditTraining } from './types';
 
 export const fetchTraining = async (search: string) => {
-  console.log(search)
+  console.log(search);
   const responce = await api.get('/training/materials', {
     params: {
       search,
@@ -11,16 +11,16 @@ export const fetchTraining = async (search: string) => {
   return responce.data;
 };
 export const createTraining = async (data: CreateTraining) => {
-  console.log(data)
+  console.log(data);
   const responce = await api.post('/training/materials', data);
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
 
 export const updateTraining = async (id: string, data: EditTraining) => {
-  console.log(data)
+  console.log(data);
   const responce = await api.patch(`/training/materials/${id}`, data);
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
 export const fetchTrainingById = async (id: string) => {

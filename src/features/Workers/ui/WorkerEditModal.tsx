@@ -77,12 +77,9 @@ export const WorkerEditModal = ({
     name: 'auctionGroupId',
   });
 
-  // 2. ОБЧИСЛЮЄМО об'єкт групи (це і є наш "замінник" стейту)
   const selectedGroup =
     groups.find((g: Group) => g.id === currentGroupId) || null;
 
-  // 3. Замість useEffect для reset — використовуємо key={user.id} у батьківському компоненті.
-  // Але якщо key неможливо додати, використовуй reset тільки для ініціалізації:
   useEffect(() => {
     if (open) {
       reset({ ...user, auctionGroupId: user.auctionGroupId || '' });

@@ -17,7 +17,6 @@ export default function TrainingPage() {
 
   const [search, setSearch] = useState('');
 
-
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   useEffect(() => {
@@ -28,7 +27,6 @@ export default function TrainingPage() {
   }, [search]);
 
   const { items: training } = useTraining(debouncedSearch);
-
   return (
     <Box sx={{ p: 3 }}>
       <Box

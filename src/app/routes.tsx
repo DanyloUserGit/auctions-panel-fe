@@ -5,23 +5,27 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import LoginForm from '../features/auth/ui/LoginFrom';
+import NotificationsList from '../features/notifications/ui/NotificationList';
 import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
 import Inventory from '../pages/Inventory';
 import Orders from '../pages/Orders';
+import Profile from '../pages/Profile';
 import Purchases from '../pages/Purchases';
+import ResetPassword from '../pages/ResetPassword';
 import SessionPage from '../pages/SessionPage';
+import Workers from '../pages/Workers';
 import { useWindowSize } from '../shared/hooks/useWindowSize';
 import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
-import ResetPassword from '../pages/ResetPassword';
-import Profile from '../pages/Profile';
-import Workers from '../pages/Workers';
-import NotificationsPage from '../pages/Notification';
-import TrainingPage from '../pages/Training';
+
 import Information from '../pages/Information';
+import AllActionsPage from '../pages/AllActions';
+import PageNotFound from '../pages/PageNotFound';
+import SettingsPage from '../pages/Settings';
+import TrainingPage from '../pages/Training';
 
 const router = createBrowserRouter([
   {
@@ -39,9 +43,11 @@ const router = createBrowserRouter([
           { path: 'inventory', element: <Inventory /> },
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
-          { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'notifications/list', element: <NotificationsList /> },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
+          { path: 'logs', element: <AllActionsPage /> },
+          { path: 'settings', element: <SettingsPage /> },
         ],
       },
     ],
@@ -70,9 +76,16 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  {
+    path: '*',
+    element: (
+      <ProtectedRoute>
+        <PageNotFound />
+      </ProtectedRoute>
+    ),
+  },
 ]);
 
-// src/app/routes.tsx
 export default function AppRouter() {
   const { width, height } = useWindowSize();
   const setWidth = useSession((state) => state.setWidth);

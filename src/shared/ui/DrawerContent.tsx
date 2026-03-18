@@ -177,11 +177,8 @@ export default function DrawerContent({
                 })}
               </List>
             </Box>
-
           </Fragment>
-
         ))}
-
 
         <Box sx={{ mt: 'auto', px: 1, pb: 2 }}>
           <Divider sx={{ mb: 1, mx: 1 }} />
@@ -196,7 +193,7 @@ export default function DrawerContent({
                 color: 'error.main',
                 '&:hover': {
                   backgroundColor: 'rgba(211, 47, 47, 0.04)',
-                }
+                },
               }}
             >
               <ListItemIcon
