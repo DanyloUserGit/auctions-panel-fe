@@ -1,11 +1,11 @@
 import { api } from '../../../shared/http';
 import type { AuctionCreate, AuctionEdit } from './types';
 
-export const fetchAuctions = async (groupId: string) => {
-  if (!groupId) return [];
-  const responce = await api.get(`/auctions/${groupId}`);
-  return responce.data;
-};
+// export const fetchAuctions = async (groupId: string) => {
+//   if (!groupId) return [];
+//   const responce = await api.get(`/auctions/${groupId}`);
+//   return responce.data;
+// };
 export const fetchAuctionsByQuery = async (q: string) => {
   if (!q) return [];
   const responce = await api.get(`/auctions/search`, {
@@ -31,6 +31,13 @@ export const deleteAuction = async (id: string) => {
   return responce.data;
 };
 export const fetchAuctionsByGroup = async (groupId: string) => {
-  const responce = await api.get(`auctions/${groupId}`);
+  const responce = await api.get(`auctions/group/${groupId}`);
   return responce.data;
 };
+
+export const fetchAuctionsById = async (id: string) => {
+  const responce = await api.get(`/auctions/${id}`);
+  console.log(responce.data)
+  return responce.data;
+};
+

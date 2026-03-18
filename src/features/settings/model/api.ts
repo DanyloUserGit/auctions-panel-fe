@@ -1,17 +1,20 @@
 import { api } from '../../../shared/http';
 
-export const fetchForbiddenPaths = async () => {
-  const response = await api.get('auctions/forbidden-paths');
+export const fetchForbiddenPaths = async (auctionId: string) => {
+  if (!auctionId) return
+  const response = await api.get(`auctions/${auctionId}/forbidden-paths`);
   return response.data;
 };
 
-export const fetchForbiddenSelectors = async () => {
-  const response = await api.get('auctions/forbidden-selectors');
+export const fetchForbiddenSelectors = async (auctionId: string) => {
+  if (!auctionId) return
+  const response = await api.get(`auctions/${auctionId}/forbidden-selectors`);
   return response.data;
 };
 
-export const fetchAllowedPaths = async () => {
-  const response = await api.get('auctions/allowed-paths');
+export const fetchAllowedPaths = async (auctionId: string) => {
+  if (!auctionId) return
+  const response = await api.get(`auctions/${auctionId}/allowed-paths`);
   return response.data;
 };
 export const addAuctionUser = async (id: string, data: { userId: string }) => {
@@ -55,6 +58,8 @@ export const removeForbiddenPath = async (id: string) => {
 };
 
 export const removeForbiddenSelector = async (id: string) => {
+  if (!id) return
+
   console.log(id);
   const response = await api.delete(`auctions/remove-forbidden-selector/${id}`);
   console.log(response.data);
@@ -65,6 +70,8 @@ export const removeAuctionUser = async (
   id: string,
   data: { userId: string },
 ) => {
+  if (!id || !data.userId) return
   const response = await api.delete(`auctions/${id}/remove-user`, { data });
+  console.log(response.data)
   return response.data;
 };

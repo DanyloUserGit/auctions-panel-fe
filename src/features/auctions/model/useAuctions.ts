@@ -3,7 +3,8 @@ import {
   createAuction,
   deleteAuction,
   editAuction,
-  fetchAuctions,
+  fetchAuctionsByGroup,
+  fetchAuctionsById,
 } from './api-auctions';
 import type { AuctionCreate, AuctionEdit } from './types';
 export const auctionsKeys = {
@@ -19,12 +20,27 @@ export function useAuctionsData(groupId: string) {
     error,
   } = useQuery({
     queryKey: auctionsKeys.byGroup(groupId),
-    queryFn: () => fetchAuctions(groupId),
+    queryFn: () => fetchAuctionsByGroup(groupId),
     staleTime: 5 * 60 * 1000,
     enabled: !!groupId,
   });
 
   return { items: data, isLoading, isError, error: error ?? null };
+}
+export function useAuction(auctionId: string) {
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: auctionsKeys.byGroup(auctionId),
+    queryFn: () => fetchAuctionsById(auctionId),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!auctionId,
+  });
+
+  return { data, isLoading, isError, error: error ?? null };
 }
 
 export function useCreateAuction() {
