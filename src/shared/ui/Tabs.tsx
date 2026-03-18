@@ -16,34 +16,35 @@ export default function Tabs() {
             className={`
               relative flex items-center h-9 min-w-[120px] max-w-[200px] px-3 cursor-default group
               transition-all duration-150 ease-in-out
-              ${isActive
-                ? 'bg-white rounded-t-lg z-10 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]'
-                : 'hover:bg-[#e8eaed] rounded-t-lg mx-[1px]'
+              ${
+                isActive
+                  ? 'bg-white rounded-t-lg z-10 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]'
+                  : 'hover:bg-[#e8eaed] rounded-t-lg mx-[1px]'
               }
             `}
             sx={{
               '&::before, &::after': isActive
                 ? {
-                  content: '""',
-                  position: 'absolute',
-                  bottom: 0,
-                  width: '10px',
-                  height: '10px',
-                  backgroundColor: 'white',
-                  zIndex: 1,
-                }
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: 'white',
+                    zIndex: 1,
+                  }
                 : {},
               '&::before': isActive
                 ? {
-                  left: '-10px',
-                  mask: 'radial-gradient(circle at 0 0, transparent 10px, black 10px)',
-                }
+                    left: '-10px',
+                    mask: 'radial-gradient(circle at 0 0, transparent 10px, black 10px)',
+                  }
                 : {},
               '&::after': isActive
                 ? {
-                  right: '-10px',
-                  mask: 'radial-gradient(circle at 100% 0, transparent 10px, black 10px)',
-                }
+                    right: '-10px',
+                    mask: 'radial-gradient(circle at 100% 0, transparent 10px, black 10px)',
+                  }
                 : {},
             }}
           >

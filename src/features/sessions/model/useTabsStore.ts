@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface TabItem {
-  key: string;   
-  id: string;    
+  key: string;
+  id: string;
   title: string;
 }
 
@@ -22,29 +22,37 @@ export const useTabsStore = create<TabsState>()(
       tabs: [],
       activeTabId: null,
 
-      addTab: (tab) => set((state) => {
-        const exists = state.tabs.some(t => t.id === tab.id);
-        if (exists) return { activeTabId: tab.id };
-        return { tabs: [...state.tabs, tab], activeTabId: tab.id };
-      }),
+      addTab: (tab) =>
+        set((state) => {
+          const exists = state.tabs.some((t) => t.id === tab.id);
+          if (exists) return { activeTabId: tab.id };
+          return { tabs: [...state.tabs, tab], activeTabId: tab.id };
+        }),
 
-      closeTab: (id) => set((state) => {
-        const newTabs = state.tabs.filter((tab) => tab.id !== id);
-        return {
-          tabs: newTabs,
-          activeTabId: state.activeTabId === id ? (newTabs.length ? newTabs[newTabs.length - 1].id : null) : state.activeTabId
-        };
-      }),
+      closeTab: (id) =>
+        set((state) => {
+          const newTabs = state.tabs.filter((tab) => tab.id !== id);
+          return {
+            tabs: newTabs,
+            activeTabId:
+              state.activeTabId === id
+                ? newTabs.length
+                  ? newTabs[newTabs.length - 1].id
+                  : null
+                : state.activeTabId,
+          };
+        }),
 
       setActiveTab: (id) => set({ activeTabId: id }),
 
-      updateTabId: (oldId, newId, newTitle) => set((state) => ({
-        tabs: state.tabs.map((tab) =>
-          tab.id === oldId ? { ...tab, id: newId, title: newTitle } : tab
-        ),
-        activeTabId: state.activeTabId === oldId ? newId : state.activeTabId,
-      })),
+      updateTabId: (oldId, newId, newTitle) =>
+        set((state) => ({
+          tabs: state.tabs.map((tab) =>
+            tab.id === oldId ? { ...tab, id: newId, title: newTitle } : tab,
+          ),
+          activeTabId: state.activeTabId === oldId ? newId : state.activeTabId,
+        })),
     }),
-    { name: 'auction-tabs' }
-  )
+    { name: 'auction-tabs' },
+  ),
 );

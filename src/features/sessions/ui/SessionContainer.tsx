@@ -40,13 +40,13 @@ export const SessionContainer: FC = () => {
       return;
     }
 
-    if (sessionId && !(tabs.find((item) => item.id == sessionId))) {
-      console.log(tabs)
+    if (sessionId && !tabs.find((item) => item.id == sessionId)) {
+      console.log(tabs);
       addTab({
         id: sessionId,
         key: (tabs.length + 1).toString(),
-        title: `Вкладка ${tabs.length + 1}`
-      })
+        title: `Вкладка ${tabs.length + 1}`,
+      });
     }
 
     const payload = sessionId
