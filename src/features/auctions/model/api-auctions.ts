@@ -37,7 +37,6 @@ export const fetchAuctionsByGroup = async (groupId: string) => {
 
 export const fetchAuctionsById = async (id: string) => {
   const responce = await api.get(`/auctions/${id}`);
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
-

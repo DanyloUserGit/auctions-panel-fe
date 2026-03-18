@@ -28,12 +28,7 @@ export function useAuctionsData(groupId: string) {
   return { items: data, isLoading, isError, error: error ?? null };
 }
 export function useAuction(auctionId: string) {
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: auctionsKeys.byGroup(auctionId),
     queryFn: () => fetchAuctionsById(auctionId),
     staleTime: 5 * 60 * 1000,

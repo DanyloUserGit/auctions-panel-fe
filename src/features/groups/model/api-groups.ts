@@ -20,7 +20,7 @@ export const fetchGroupByid = async (id: string) => {
 };
 export const createGroup = async (newGroup: GroupCreate) => {
   const responce = await api.post('/auction-groups', newGroup);
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
 export const editGroup = async ({
