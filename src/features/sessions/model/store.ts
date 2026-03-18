@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware'; 
+import { persist } from 'zustand/middleware';
 import type { SessionConnectData } from './types';
 
 type Action = {
@@ -25,7 +25,7 @@ export const useSession = create<SessionConnectData & Action>()(
       setHeight: (height) => set(() => ({ height: height })),
     }),
     {
-      name: 'session-store', 
-    }
-  )
+      name: 'session-store',
+    },
+  ),
 );

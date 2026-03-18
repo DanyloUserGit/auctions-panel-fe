@@ -37,7 +37,7 @@ export const subscribeToAuctionEvents = (events: AuctionSocketEvents) => {
 };
 export const connectNotificationSocket = (userId: string) => {
   if (!notificationSocket.connected) {
-    notificationSocket.io.opts.query = { userId }; 
+    notificationSocket.io.opts.query = { userId };
     notificationSocket.connect();
   }
 };

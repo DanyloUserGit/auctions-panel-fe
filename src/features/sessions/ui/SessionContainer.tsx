@@ -208,14 +208,21 @@ export const SessionContainer: FC = () => {
       y: (e.clientY - rect.top) / rect.height,
     };
   };
-  const throttledMouseMoveRef = useRef<ReturnType<typeof throttle> | null>(null);
+  const throttledMouseMoveRef = useRef<ReturnType<typeof throttle> | null>(
+    null,
+  );
 
   useEffect(() => {
-    throttledMouseMoveRef.current = throttle((coords: { x: number; y: number }) => {
-      if (dataChannelRef.current?.readyState === 'open') {
-        dataChannelRef.current.send(JSON.stringify({ type: 'mousemove', ...coords }));
-      }
-    }, 50);
+    throttledMouseMoveRef.current = throttle(
+      (coords: { x: number; y: number }) => {
+        if (dataChannelRef.current?.readyState === 'open') {
+          dataChannelRef.current.send(
+            JSON.stringify({ type: 'mousemove', ...coords }),
+          );
+        }
+      },
+      50,
+    );
 
     return () => {
       throttledMouseMoveRef.current?.cancel();

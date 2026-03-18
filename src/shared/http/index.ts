@@ -5,16 +5,14 @@ import io from 'socket.io-client';
 // export const baseUrl = `https://auctions-be.duckdns.org/api`;
 // export const notificationSocket = io('https://auctions-be.duckdns.org/notifications', {
 
-//   autoConnect: false, 
+//   autoConnect: false,
 
 // });
 
 export const socket = io('http://localhost:8000');
 export const baseUrl = `http://localhost:8000/api`;
 export const notificationSocket = io('http://localhost:8000/notifications', {
-
-  autoConnect: false,  
-
+  autoConnect: false,
 });
 
 export const api = axios.create({
