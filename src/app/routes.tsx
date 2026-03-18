@@ -27,6 +27,7 @@ import PageNotFound from '../pages/PageNotFound';
 import SettingsPage from '../pages/Settings';
 import TrainingPage from '../pages/Training';
 import CalculationPage from '../pages/calculation/CalculationPage';
+import BalancesPage from '../pages/balance/BalancePage';
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
           { path: 'logs', element: <AllActionsPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'accounting', element: <CalculationPage /> },
+          {path: 'balances', element: <BalancesPage />}
         ],
       },
     ],
