@@ -32,6 +32,8 @@ export const updateNotificationsRequirements = async (
   id: string,
   data: { typeId: string; isMandatory: boolean },
 ) => {
+  console.log(id)
+  console.log(data)
   const response = await api.patch(
     `/notifications/group/${id}/requirements`,
     data,
