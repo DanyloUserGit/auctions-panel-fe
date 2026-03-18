@@ -20,7 +20,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useUserById } from '../../auth/model/useAuth';
 import { Can } from '../../auth/ui/Can';
 import type { Group } from '../model/types';
@@ -50,8 +50,16 @@ export default function GroupTabItem({
   onDelete,
 }: GroupTabProps) {
   const mock = getMockData(group.id);
+
+  useEffect(() => {
+    console.log(group);
+  }, [group]);
+
   const { data: admin, isLoading: isAdminLoading } = useUserById(group.AdminId);
 
+  useEffect(() => {
+    console.log(admin);
+  }, [admin]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
 

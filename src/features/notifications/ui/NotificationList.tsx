@@ -1,29 +1,43 @@
-import {
-  ArrowBack,
-  DeleteOutline,
-  NotificationsNone,
-} from '@mui/icons-material';
+import { ArrowBack, NotificationsNone } from '@mui/icons-material';
 import {
   Box,
-  Divider,
   IconButton,
   List,
-  ListItem,
-  ListItemText,
   Pagination,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { Loader } from '../../../shared/ui/Loader';
+import { useNotifications } from '../model/useNotifications';
+import NotificationItem from './NotificationItem';
 
 export default function NotificationsList() {
   const navigate = useNavigate();
 
-  const isEmpty = false;
+  const [page, setPage] = useState(1);
+  const [limit] = useState('20');
+
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = useNotifications(page.toString(), limit);
+
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (isLoading) return <Loader />;
+
+  const notifications = response?.data || [];
+  const isEmpty = notifications.length === 0;
+
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
-      {/* Шапка з кнопкою Назад */}
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
         <IconButton
           onClick={() => navigate(-1)}
@@ -42,59 +56,12 @@ export default function NotificationsList() {
           overflow: 'hidden',
           border: '1px solid',
           borderColor: 'divider',
+          position: 'relative',
+          opacity: isFetching ? 0.7 : 1,
+          transition: 'opacity 0.2s',
         }}
       >
-        <List sx={{ p: 0 }}>
-          {/* Приклад елемента списку */}
-          {[1, 2, 3, 4, 5].map((item, index) => (
-            <Box key={item}>
-              <ListItem
-                alignItems="flex-start"
-                secondaryAction={
-                  <IconButton edge="end" size="small">
-                    <DeleteOutline fontSize="small" />
-                  </IconButton>
-                }
-                sx={{
-                  py: 2,
-                  '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' },
-                  cursor: 'pointer',
-                }}
-              >
-                <ListItemText
-                  primary={
-                    <Typography fontWeight={600} variant="body1">
-                      Новий аукціон розпочато!
-                    </Typography>
-                  }
-                  secondary={
-                    <>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                      >
-                        Аукціон "BMW M5" вже доступний для ставок. Не пропустіть
-                        свій шанс!
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        color="text.disabled"
-                        sx={{ mt: 1, display: 'block' }}
-                      >
-                        Сьогодні, 14:20
-                      </Typography>
-                    </>
-                  }
-                />
-              </ListItem>
-              {index < 4 && <Divider />}
-            </Box>
-          ))}
-        </List>
-
-        {/* Якщо порожньо */}
-        {isEmpty && (
+        {isEmpty ? (
           <Box sx={{ py: 10, textAlign: 'center' }}>
             <NotificationsNone
               sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }}
@@ -103,13 +70,27 @@ export default function NotificationsList() {
               У вас поки немає сповіщень
             </Typography>
           </Box>
+        ) : (
+          <List sx={{ p: 0 }}>
+            {notifications.map((item) => (
+              <NotificationItem key={item.id} item={item} />
+            ))}
+          </List>
         )}
       </Paper>
 
-      {/* Пагінація */}
-      <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
-        <Pagination count={10} color="primary" shape="rounded" />
-      </Stack>
+      {response && response.total > 1 && (
+        <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
+          <Pagination
+            count={response.total}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            shape="rounded"
+            disabled={isFetching}
+          />
+        </Stack>
+      )}
     </Box>
   );
 }

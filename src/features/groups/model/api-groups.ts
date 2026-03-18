@@ -1,13 +1,14 @@
 import { api } from '../../../shared/http';
-import type { GroupCreate, GroupEdit } from './types';
+import type { Group, GroupCreate, GroupEdit } from './types';
 
 export const fetchGroups = async () => {
   const responce = await api.get('/auction-groups');
+  console.log(responce.data);
   return responce.data;
 };
-export const fetchGroupByQuery = async (query: string) => {
+export const fetchGroupByQuery = async (q: string): Promise<Group[]> => {
   const responce = await api.get(`/auction-groups/search`, {
-    params: { query },
+    params: { q },
   });
   console.log(responce.data);
   return responce.data;
@@ -18,9 +19,7 @@ export const fetchGroupByid = async (id: string) => {
   return responce.data;
 };
 export const createGroup = async (newGroup: GroupCreate) => {
-  console.log(newGroup);
   const responce = await api.post('/auction-groups', newGroup);
-  console.log(responce.data);
   return responce.data;
 };
 export const editGroup = async ({

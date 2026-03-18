@@ -6,15 +6,18 @@ import ProfileEdit from '../features/profile/ui/ProfileEdit';
 import { AuctionSettings } from '../features/settings/ui/AuctionSettings';
 import { GroupSettings } from '../features/settings/ui/GroupSettings';
 import NotificationsSettings from '../features/settings/ui/NotificationsSettings';
+import { useMobile } from '../shared/hooks/useMobile';
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState(2);
-
+  const [activeTab, setActiveTab] = useState(0);
+  const isMobile = useMobile();
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
-        Налаштування
-      </Typography>
+    <Box sx={{ p: { xs: 0, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
+      {!isMobile && (
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
+          Налаштування
+        </Typography>
+      )}
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
         <Paper

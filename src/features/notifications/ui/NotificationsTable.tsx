@@ -1,4 +1,9 @@
-import { Email, Language, Telegram } from '@mui/icons-material';
+import {
+  Email,
+  Language,
+  PowerSettingsNew,
+  Security,
+} from '@mui/icons-material';
 import {
   Checkbox,
   Chip,
@@ -14,114 +19,146 @@ import {
   Typography,
 } from '@mui/material';
 import { Can } from '../../auth/ui/Can';
-import type { NotificationSetting } from '../model/types';
+import { useAuth } from '../../auth/model/useAuth';
+import type { NotificationChannel, NotificationSetting } from '../model/types';
+
 interface Props {
   settings: NotificationSetting[];
-  handleToggle: (id: string, field: keyof NotificationSetting) => void;
+  handleToggle: (
+    id: string,
+    field: 'isEnabled' | NotificationChannel | 'isMandatory',
+  ) => void;
 }
+
 export default function NotificationsTable({ settings, handleToggle }: Props) {
+  const { user } = useAuth();
+  const isAdmin = user?.role == 'Admin' || user?.role == 'SuperAdmin';
+
   return (
     <TableContainer
       component={Paper}
       elevation={0}
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: '12px',
-      }}
+      sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '12px' }}
     >
-      <Table>
+      <Table size="small">
         <TableHead sx={{ bgcolor: 'action.hover' }}>
           <TableRow>
-            <TableCell sx={{ fontWeight: 700 }}>Тип сповіщення</TableCell>
+            <TableCell sx={{ fontWeight: 700, py: 2 }}>
+              Тип сповіщення
+            </TableCell>
+
+            {/* Колонки каналів */}
             <TableCell align="center" sx={{ fontWeight: 700 }}>
-              <Tooltip title="У кабінеті">
+              <Tooltip title="Внутрішні сповіщення">
                 <Language fontSize="small" />
               </Tooltip>
               <Typography variant="caption" display="block">
-                Кабінет
+                In-App
               </Typography>
             </TableCell>
+
             <TableCell align="center" sx={{ fontWeight: 700 }}>
-              <Tooltip title="Email">
+              <Tooltip title="Електронна пошта">
                 <Email fontSize="small" />
               </Tooltip>
               <Typography variant="caption" display="block">
                 Email
               </Typography>
             </TableCell>
+
+            {/* Статус активності */}
             <TableCell align="center" sx={{ fontWeight: 700 }}>
-              <Tooltip title="Telegram">
-                <Telegram fontSize="small" />
+              <Tooltip title="Загальний статус">
+                <PowerSettingsNew fontSize="small" />
               </Tooltip>
               <Typography variant="caption" display="block">
-                Telegram
+                Активне
               </Typography>
             </TableCell>
+
+            {/* Обов'язковість (Тільки для адмінів) */}
             <Can roles={['Admin', 'SuperAdmin']}>
               <TableCell
                 align="center"
                 sx={{ fontWeight: 700, color: 'primary.main' }}
               >
-                Обов'язкове
+                <Tooltip title="Адмін-налаштування">
+                  <Security fontSize="small" />
+                </Tooltip>
+                <Typography variant="caption" display="block">
+                  Mandatory
+                </Typography>
               </TableCell>
             </Can>
           </TableRow>
         </TableHead>
+
         <TableBody>
-          {settings.map((row) => (
-            <TableRow key={row.id} hover>
-              <TableCell>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {row.type}
-                </Typography>
-                {row.isMandatory && (
-                  <Chip
-                    label="Обов'язкове"
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                    sx={{ mt: 0.5, height: 18, fontSize: '10px' }}
-                  />
-                )}
-              </TableCell>
+          {settings.map((row) => {
+            const isRowDisabled = row.isMandatory && !isAdmin;
 
-              <TableCell align="center">
-                <Switch
-                  size="small"
-                  checked={row.inApp}
-                  disabled={row.isMandatory}
-                  onChange={() => handleToggle(row.id, 'inApp')}
-                />
-              </TableCell>
+            return (
+              <TableRow key={row.id} hover>
+                <TableCell sx={{ py: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {row?.notificationType?.description ||
+                      row?.notificationType?.name}
+                  </Typography>
+                  {row.isMandatory && (
+                    <Chip
+                      label="Обов'язкове"
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                      sx={{ mt: 0.5, height: 18, fontSize: '10px' }}
+                    />
+                  )}
+                </TableCell>
 
-              <TableCell align="center">
-                <Checkbox
-                  checked={row.email}
-                  disabled={row.isMandatory}
-                  onChange={() => handleToggle(row.id, 'email')}
-                />
-              </TableCell>
-
-              <TableCell align="center">
-                <Checkbox
-                  checked={row.telegram}
-                  disabled={row.isMandatory}
-                  onChange={() => handleToggle(row.id, 'telegram')}
-                />
-              </TableCell>
-
-              <Can roles={['Admin', 'SuperAdmin']}>
+                {/* Канал In-App */}
                 <TableCell align="center">
                   <Checkbox
-                    color="primary"
-                    checked={row.isMandatory}
-                    onChange={() => handleToggle(row.id, 'isMandatory')}
+                    size="small"
+                    checked={row.channels?.includes('InApp') ?? false}
+                    disabled={isRowDisabled}
+                    onChange={() => handleToggle(row.id, 'InApp')}
                   />
                 </TableCell>
-              </Can>
-            </TableRow>
-          ))}
+
+                {/* Канал Email */}
+                <TableCell align="center">
+                  <Checkbox
+                    size="small"
+                    checked={row.channels?.includes('Email') ?? false}
+                    disabled={isRowDisabled}
+                    onChange={() => handleToggle(row.id, 'Email')}
+                  />
+                </TableCell>
+
+                {/* Загальний перемикач isEnabled */}
+                <TableCell align="center">
+                  <Switch
+                    size="small"
+                    checked={row.isEnabled}
+                    disabled={isRowDisabled}
+                    onChange={() => handleToggle(row.id, 'isEnabled')}
+                  />
+                </TableCell>
+
+                {/* Керування Mandatory (Тільки для SA/Admin) */}
+                <Can roles={['Admin', 'SuperAdmin']}>
+                  <TableCell align="center">
+                    <Checkbox
+                      size="small"
+                      color="primary"
+                      checked={row.isMandatory}
+                      onChange={() => handleToggle(row.id, 'isMandatory')}
+                    />
+                  </TableCell>
+                </Can>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>

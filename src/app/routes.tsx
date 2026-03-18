@@ -44,14 +44,6 @@ const router = createBrowserRouter([
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
           { path: 'notifications/list', element: <NotificationsList /> },
-
-          // {
-          //   path: 'notifications',
-          //   children: [
-          //     { index: true, element: <NotificationsPage /> }, // Налаштування (ваша поточна сторінка)
-          //     { path: 'list', element: <NotificationsList /> }, // Список сповіщень (інбокс)
-          //   ]
-          // },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
           { path: 'logs', element: <AllActionsPage /> },

@@ -35,7 +35,6 @@ export function useGroups(groupId?: string) {
 
   const GroupCreation = useMutation({
     mutationFn: (newGroup: GroupCreate) => {
-      console.log(newGroup);
       return createGroup(newGroup);
     },
     onSuccess: () => {

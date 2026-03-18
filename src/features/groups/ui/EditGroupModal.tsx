@@ -50,8 +50,9 @@ export default function EditGroupModal({
       try {
         // 1. Завантажуємо адміна за ID
         if (current_group.AdminId) {
+          console.log(current_group.AdminId);
           const adminData = await fetchUserById(current_group.AdminId);
-          setAdmin(adminData);
+          setGroupAdmin(adminData);
         }
 
         // 2. Завантажуємо учасників за їхніми ID (якщо в моделі Group.users лежать рядки)
@@ -97,9 +98,9 @@ export default function EditGroupModal({
         id: current_group.id,
         group: {
           title,
-          AdminId: Admin?.id || undefined,
+          AdminId: groupAdmin?.id || undefined,
           auctions: addedAuctions.map((a) => a.id),
-          users: addedWorkers.map((w) => w.id), // Передаємо масив ID учасників
+          users: addedWorkers.map((w) => w.id),
         },
       },
       {

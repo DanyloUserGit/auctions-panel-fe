@@ -19,3 +19,9 @@ export const api = axios.create({
   baseURL: baseUrl,
   withCredentials: true,
 });
+export const notificationSocket = io(
+  'https://auctions-be.duckdns.org/notifications',
+  {
+    autoConnect: false,
+  },
+);

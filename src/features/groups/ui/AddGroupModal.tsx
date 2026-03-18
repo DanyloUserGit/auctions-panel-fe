@@ -48,7 +48,7 @@ export default function AddGroupModal({
       {
         title,
         auctions: addedAuctions.map((a) => a.id),
-        AdminId: Admin ? Admin?.id : null,
+        AdminId: groupAdmin ? groupAdmin?.id : null,
         users: addedWorkers.map((w) => w.id),
       },
       {
