@@ -51,7 +51,7 @@ const router = createBrowserRouter([
           { path: 'logs', element: <AllActionsPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'accounting', element: <CalculationPage /> },
-          {path: 'balances', element: <BalancesPage />}
+          { path: 'balances', element: <BalancesPage /> },
         ],
       },
     ],
