@@ -1,6 +1,8 @@
+import throttle from 'lodash/throttle';
 import { useEffect, useRef, useState, type FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { socket } from '../../../shared/http';
+import { Loader } from '../../../shared/ui/Loader';
 import { useAuth } from '../../auth/model/useAuth';
 import {
   emitJoinAuction,
@@ -10,7 +12,6 @@ import {
 } from '../model/sockets';
 import { useSession } from '../model/store';
 import type { SessionConnectData } from '../model/types';
-import { Loader } from '../../../shared/ui/Loader';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -199,22 +200,31 @@ export const SessionContainer: FC = () => {
     }
   };
 
-  // Універсальна функція для обчислення координат (повертає від 0 до 1)
   const getCoordinates = (e: React.MouseEvent | React.WheelEvent) => {
     const rect = videoRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
-
-    // x та y будуть від 0.0 до 1.0
     return {
       x: (e.clientX - rect.left) / rect.width,
       y: (e.clientY - rect.top) / rect.height,
     };
   };
+  const throttledMouseMoveRef = useRef<ReturnType<typeof throttle> | null>(null);
+
+  useEffect(() => {
+    throttledMouseMoveRef.current = throttle((coords: { x: number; y: number }) => {
+      if (dataChannelRef.current?.readyState === 'open') {
+        dataChannelRef.current.send(JSON.stringify({ type: 'mousemove', ...coords }));
+      }
+    }, 50);
+
+    return () => {
+      throttledMouseMoveRef.current?.cancel();
+    };
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLVideoElement>) => {
-    sendInteraction({ type: 'mousemove', ...getCoordinates(e) });
+    throttledMouseMoveRef.current?.(getCoordinates(e));
   };
-
   const handleMouseDown = (e: React.MouseEvent<HTMLVideoElement>) => {
     sendInteraction({
       type: 'mousedown',
@@ -265,7 +275,7 @@ export const SessionContainer: FC = () => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onWheel={handleWheel}
-        className={`w-full h-full object-contain cursor-none ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`w-full h-full object-contain ${isLoading ? 'opacity-0' : 'opacity-100'}`}
       />
     </div>
   );

@@ -8,6 +8,7 @@ export type SessionConnectData = {
   auctionAuthId: string;
   width: number;
   height: number;
+  sessionId?:string;
 };
 export type WebRTCSignalData =
   | RTCSessionDescriptionInit

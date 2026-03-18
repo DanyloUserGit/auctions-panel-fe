@@ -1,4 +1,4 @@
-import { socket } from '../../../shared/http';
+import { notificationSocket, socket } from '../../../shared/http';
 import type {
   AuctionSocketEvents,
   NotificationSocketEvents,
@@ -35,13 +35,26 @@ export const subscribeToAuctionEvents = (events: AuctionSocketEvents) => {
     socket.off('error', events.onError);
   };
 };
+export const connectNotificationSocket = (userId: string) => {
+  if (!notificationSocket.connected) {
+    notificationSocket.io.opts.query = { userId }; 
+    notificationSocket.connect();
+  }
+};
+
+export const disconnectNotificationSocket = () => {
+  if (notificationSocket.connected) {
+    notificationSocket.disconnect();
+  }
+};
+
 export const subscribeToGlobalNotifications = (
   events: NotificationSocketEvents,
 ) => {
-  socket.on('notifications/new_notification', events.onReceived);
+  notificationSocket.on('new_notification', events.onReceived);
 
   return () => {
-    socket.off('notifications/new_notification', events.onReceived);
+    notificationSocket.off('new_notification', events.onReceived);
   };
 };
 
