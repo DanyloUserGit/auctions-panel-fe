@@ -12,54 +12,42 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Can } from '../../auth/ui/Can';
-import type { NotificationSetting } from '../model/types';
+import type { NotificationChannel, NotificationSetting } from '../model/types';
 // import { useNotifications } from '../model/useNotifications';
 import { Notification } from './Notification';
 import NotificationsTable from './NotificationsTable';
 
 export default function NotificationsPage() {
-  const [settings, setSettings] = useState<NotificationSetting[]>([
-    {
-      id: '1',
-      type: 'Нова ставка в аукціоні',
-      inApp: true,
-      email: true,
-      telegram: false,
-      isMandatory: true,
-    },
-    {
-      id: '2',
-      type: 'Вашу ставку перебито',
-      inApp: true,
-      email: false,
-      telegram: true,
-      isMandatory: false,
-    },
-    {
-      id: '3',
-      type: 'Завершення аукціону (за 15 хв)',
-      inApp: true,
-      email: true,
-      telegram: true,
-      isMandatory: false,
-    },
-    {
-      id: '4',
-      type: 'Системні оновлення',
-      inApp: true,
-      email: false,
-      telegram: false,
-      isMandatory: true,
-    },
-  ]);
+  const [settings, setSettings] = useState<NotificationSetting[]>([]);
 
   // const { data } = useNotifications()
 
   const [open, setOpen] = useState(false);
 
-  const handleToggle = (id: string, field: keyof NotificationSetting) => {
+  const handleToggle = (
+    id: string,
+    field: 'isEnabled' | 'isMandatory' | NotificationChannel
+  ) => {
     setSettings((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, [field]: !s[field] } : s)),
+      prev.map((s) => {
+        // Якщо це не наш рядок, повертаємо його без змін
+        if (s.id !== id) return s;
+
+        // 1. Якщо це пряме булеве поле (isEnabled або isMandatory)
+        if (field === 'isEnabled' || field === 'isMandatory') {
+          return { ...s, [field]: !s[field] };
+        }
+
+        // 2. Якщо це канал зв'язку (наприклад, 'InApp')
+        // Перевіряємо, чи є він вже в масиві channels
+        const hasChannel = s.channels.includes(field as NotificationChannel);
+
+        const updatedChannels = hasChannel
+          ? s.channels.filter((c) => c !== field)
+          : [...s.channels, field as NotificationChannel]; 
+
+        return { ...s, channels: updatedChannels };
+      }),
     );
   };
 
