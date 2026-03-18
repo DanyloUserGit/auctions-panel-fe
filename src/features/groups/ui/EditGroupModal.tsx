@@ -52,7 +52,7 @@ export default function EditGroupModal({
         if (current_group.AdminId) {
           console.log(current_group.AdminId);
           const adminData = await fetchUserById(current_group.AdminId);
-          setGroupAdmin(adminData);
+          setAdmin(adminData);
         }
 
         // 2. Завантажуємо учасників за їхніми ID (якщо в моделі Group.users лежать рядки)
@@ -98,7 +98,7 @@ export default function EditGroupModal({
         id: current_group.id,
         group: {
           title,
-          AdminId: groupAdmin?.id || undefined,
+          AdminId: Admin?.id || undefined,
           auctions: addedAuctions.map((a) => a.id),
           users: addedWorkers.map((w) => w.id),
         },
