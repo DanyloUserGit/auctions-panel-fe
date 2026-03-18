@@ -21,7 +21,6 @@ export default function NotificationsSettings() {
   const { user } = useAuth();
   const groupId = user?.auctionGroupId;
 
-  // Ваша нова мутація для Mandatory (виправлено назву для зручності)
   const { mutate: updateRequirements } = useUpdateNotificationsRequirements();
 
   const [settings, setSettings] = useState<NotificationSetting[]>([]);
@@ -35,7 +34,6 @@ export default function NotificationsSettings() {
     field: 'isEnabled' | NotificationChannel | 'isMandatory',
   ) => {
     const currentItem = settings.find((s) => s.id === id);
-    console.log(groupId);
     if (!currentItem) return;
     const updatedItem = { ...currentItem };
 

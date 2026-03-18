@@ -25,30 +25,29 @@ export const auctionSettingsKeys = {
     [...auctionSettingsKeys.all, id, 'allowed-paths'] as const,
 };
 
-// 2. Queries з залежністю від auctionId
-export const useForbiddenPaths = (auctionId?: string) => {
+export const useForbiddenPaths = (auctionId: string) => {
   return useQuery({
     queryKey: auctionSettingsKeys.forbiddenPaths(auctionId),
-    queryFn: () => fetchForbiddenPaths(), // Якщо API приймає ID, додайте його сюди
-    staleTime: 5 * 60 * 1000,
-    enabled: !!auctionId, // Запит не йде, поки не обрано аукціон
-  });
-};
-
-export const useForbiddenSelectors = (auctionId?: string) => {
-  return useQuery({
-    queryKey: auctionSettingsKeys.forbiddenSelectors(auctionId),
-    queryFn: () => fetchForbiddenSelectors(),
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => fetchForbiddenPaths(auctionId),
+    staleTime: 1000,
     enabled: !!auctionId,
   });
 };
 
-export const useAllowedPaths = (auctionId?: string) => {
+export const useForbiddenSelectors = (auctionId: string) => {
+  return useQuery({
+    queryKey: auctionSettingsKeys.forbiddenSelectors(auctionId),
+    queryFn: () => fetchForbiddenSelectors(auctionId),
+    staleTime: 1000,
+    enabled: !!auctionId,
+  });
+};
+
+export const useAllowedPaths = (auctionId: string) => {
   return useQuery({
     queryKey: auctionSettingsKeys.allowedPaths(auctionId),
-    queryFn: () => fetchAllowedPaths(),
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => fetchAllowedPaths(auctionId),
+    staleTime: 1000,
     enabled: !!auctionId,
   });
 };
@@ -156,6 +155,9 @@ export const useRemoveAuctionUser = () => {
     onSuccess: (_, variables) => {
       // Оновлюємо всі пов'язані дані, щоб юзер зник всюди
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
+      queryClient.invalidateQueries({
+        queryKey: auctionSettingsKeys.all,
+      });
       queryClient.invalidateQueries({ queryKey: auctionsKeys.all });
     },
     onError: (error) => {

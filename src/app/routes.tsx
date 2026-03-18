@@ -26,6 +26,7 @@ import AllActionsPage from '../pages/AllActions';
 import PageNotFound from '../pages/PageNotFound';
 import SettingsPage from '../pages/Settings';
 import TrainingPage from '../pages/Training';
+import CalculationPage from '../pages/calculation/CalculationPage';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
           { path: 'info', element: <Information /> },
           { path: 'logs', element: <AllActionsPage /> },
           { path: 'settings', element: <SettingsPage /> },
+          { path: 'accounting', element: <CalculationPage /> },
         ],
       },
     ],
