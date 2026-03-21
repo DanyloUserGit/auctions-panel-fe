@@ -29,6 +29,7 @@ export default function NotificationsSettings() {
   // 2. Використовуємо useEffect для синхронізації даних із сервера у локальний стейт
   useEffect(() => {
     if (data && Array.isArray(data)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSettings(data);
     }
   }, [data]);

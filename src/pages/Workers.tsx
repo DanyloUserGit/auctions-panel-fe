@@ -51,11 +51,6 @@ export default function EmployeesSection() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Скидаємо сторінку при зміні фільтрів
-  useEffect(() => {
-    setPage(0);
-  }, [roleFilter, statusFilter]);
-
   // 1. Фільтрація базового списку (локальна або отримана з пошуку)
   const filteredUsers = useMemo(() => {
     const baseList = debouncedSearch.trim()
@@ -194,7 +189,7 @@ export default function EmployeesSection() {
           <Select
             value={roleFilter}
             label="Роль"
-            onChange={(e) => setRoleFilter(e.target.value)}
+            onChange={(e) => {setRoleFilter(e.target.value); setPage(0);}}
           >
             <MenuItem value="All">Всі ролі</MenuItem>
             {ROLES.map((role) => (
@@ -208,7 +203,7 @@ export default function EmployeesSection() {
           <Select
             value={statusFilter}
             label="Статус"
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {setStatusFilter(e.target.value); setPage(0);}}
           >
             <MenuItem value="All">Всі статуси</MenuItem>
             <MenuItem value="Active">Активні</MenuItem>
