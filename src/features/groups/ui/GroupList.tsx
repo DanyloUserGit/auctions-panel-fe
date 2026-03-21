@@ -1,23 +1,22 @@
 import { Box } from '@mui/material';
 import type { Group } from '../model/types';
-import GroupTabItem from './GroupItem';
+import GroupItem from './GroupItem';
 
 interface Props {
   groups: Group[];
   activeGroupId: string;
   setActiveGroupId: (id: string) => void;
-  onEdit: (() => void) | undefined;
+  onEdit: () => void;
   onDelete: () => void;
 }
 
-export default function AuctionsGroup({
+export default function GroupList({
   groups,
   activeGroupId,
   setActiveGroupId,
   onEdit,
   onDelete,
 }: Props) {
-  console.log(groups);
   return (
     <Box
       sx={{
@@ -28,10 +27,16 @@ export default function AuctionsGroup({
         mb: 3,
         px: { xs: 2, sm: 0 },
         mx: { xs: -2, sm: 0 },
+        // Стилізація скроллбару, щоб він виглядав акуратно
+        '&::-webkit-scrollbar': { height: '6px' },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(0,0,0,0.1)',
+          borderRadius: '10px',
+        },
       }}
     >
       {groups.map((group: Group) => (
-        <GroupTabItem
+        <GroupItem
           key={group.id}
           group={group}
           isActive={activeGroupId === group.id}

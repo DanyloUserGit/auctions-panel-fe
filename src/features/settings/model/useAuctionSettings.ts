@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { auctionsKeys } from '../../auctions/model/useAuctions';
 import {
   addAuctionAllowedPath,
   addAuctionForbiddenPath,
@@ -11,21 +12,23 @@ import {
   removeAuctionUser,
   removeForbiddenPath,
   removeForbiddenSelector,
-} from './api';
-import { auctionsKeys } from '../../auctions/model/useAuctions';
+} from './api-auctions-settings';
 
-// 1. Оновлені ключі: тепер вони приймають auctionId
 export const auctionSettingsKeys = {
   all: ['auctions', 'settings'] as const,
-  forbiddenPaths: (id?: string) =>
-    [...auctionSettingsKeys.all, id, 'forbidden-paths'] as const,
-  forbiddenSelectors: (id?: string) =>
-    [...auctionSettingsKeys.all, id, 'forbidden-selectors'] as const,
-  allowedPaths: (id?: string) =>
-    [...auctionSettingsKeys.all, id, 'allowed-paths'] as const,
+  forbiddenPaths: (id?: string) => [...auctionSettingsKeys.all, id, 'forbidden-paths'] as const,
+  forbiddenSelectors: (id?: string) => [...auctionSettingsKeys.all, id, 'forbidden-selectors'] as const,
+  allowedPaths: (id?: string) => [...auctionSettingsKeys.all, id, 'allowed-paths'] as const,
+
 };
 
 export const useForbiddenPaths = (auctionId: string) => {
+  return useQuery({
+    queryKey: auctionSettingsKeys.forbiddenPaths(auctionId),
+    queryFn: () => fetchForbiddenPaths(auctionId),
+    staleTime: 1000,
+    enabled: !!auctionId,
+  });
   return useQuery({
     queryKey: auctionSettingsKeys.forbiddenPaths(auctionId),
     queryFn: () => fetchForbiddenPaths(auctionId),
@@ -41,9 +44,21 @@ export const useForbiddenSelectors = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
+  return useQuery({
+    queryKey: auctionSettingsKeys.forbiddenSelectors(auctionId),
+    queryFn: () => fetchForbiddenSelectors(auctionId),
+    staleTime: 1000,
+    enabled: !!auctionId,
+  });
 };
 
 export const useAllowedPaths = (auctionId: string) => {
+  return useQuery({
+    queryKey: auctionSettingsKeys.allowedPaths(auctionId),
+    queryFn: () => fetchAllowedPaths(auctionId),
+    staleTime: 1000,
+    enabled: !!auctionId,
+  });
   return useQuery({
     queryKey: auctionSettingsKeys.allowedPaths(auctionId),
     queryFn: () => fetchAllowedPaths(auctionId),
@@ -55,6 +70,7 @@ export const useAllowedPaths = (auctionId: string) => {
 // 3. Mutations з правильною інвалідацією через variables.id
 
 export const useAddAuctionUser = () => {
+
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, userId }: { id: string; userId: string }) =>
@@ -68,6 +84,7 @@ export const useAddAuctionUser = () => {
 };
 
 export const useAddAuctionSelector = () => {
+
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, selector }: { id: string; selector: string }) =>
@@ -80,6 +97,7 @@ export const useAddAuctionSelector = () => {
 };
 
 export const useAddAllowedPath = () => {
+
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, path }: { id: string; path: string }) =>
@@ -92,6 +110,7 @@ export const useAddAllowedPath = () => {
 };
 
 export const useAddForbiddenPath = () => {
+
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, path }: { id: string; path: string }) =>
@@ -103,12 +122,9 @@ export const useAddForbiddenPath = () => {
   });
 };
 
-// --- ВИДАЛЕННЯ ---
 
-// --- ВИДАЛЕННЯ (Виправлено) ---
 
 export const useRemoveAllowedPath = () => {
-  // Прибираємо аргумент звідси
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id }: { id: string; auctionId: string }) =>
@@ -148,6 +164,7 @@ export const useRemoveForbiddenSelector = () => {
 };
 
 export const useRemoveAuctionUser = () => {
+
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, userId }: { id: string; userId: string }) =>

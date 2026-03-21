@@ -8,13 +8,13 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Loader } from '../../../shared/ui/Loader';
-import { useNotifications } from '../model/useNotifications';
-import NotificationItem from './NotificationItem';
+import { Loader } from '../shared/ui/Loader';
+import { useNotifications } from '../features/notifications/model/useNotifications';
+import NotificationItem from '../features/notifications/ui/NotificationItem';
 
-export default function NotificationsList() {
+export default function NotificationsPage() {
   const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
@@ -25,7 +25,7 @@ export default function NotificationsList() {
     isLoading,
     isFetching,
   } = useNotifications(page.toString(), limit);
-
+  useEffect(() => console.log(response), [response]);
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -82,7 +82,7 @@ export default function NotificationsList() {
       {response && response.total > 1 && (
         <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
           <Pagination
-            count={response.total}
+            count={response.page}
             page={page}
             onChange={handlePageChange}
             color="primary"

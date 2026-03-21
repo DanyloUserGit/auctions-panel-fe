@@ -7,6 +7,7 @@ import {
   fetchCurrentUser,
   fetchUserById,
   fetchUsers,
+  fetchUsersByQuery,
   handleBlockUser,
   refreshUser,
   updateUser,
@@ -144,7 +145,7 @@ export const useUpdateUser = () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,
       });
-      queryClient.invalidateQueries({ queryKey: groupsKeys.key });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.all });
     },
     onError: (error) => {
       console.error('Помилка при створенні користувача:', error);
@@ -159,6 +160,15 @@ export const useUserById = (id: string | null) => {
       return fetchUserById(id);
     },
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useSearchUsers = (query: string) => {
+  return useQuery({
+    queryKey: [...authKeys.users, 'search', query],
+    queryFn: () => fetchUsersByQuery(query),
+    enabled: !!query.trim(),
     staleTime: 5 * 60 * 1000,
   });
 };

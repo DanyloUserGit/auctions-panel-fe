@@ -44,7 +44,7 @@ export const WorkerEditModal = ({
 }: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
   const { mutate: updateUser, isPending, error } = useUpdateUser();
-  const { items: groups, isLoading: isLoadingGroups } = useGroups();
+  const { data: groups, isLoading: isLoadingGroups } = useGroups();
 
   const isSA = currentUser?.role === 'SuperAdmin';
   useEffect(() => {
@@ -78,7 +78,7 @@ export const WorkerEditModal = ({
   });
 
   const selectedGroup =
-    groups.find((g: Group) => g.id === currentGroupId) || null;
+    groups?.find((g: Group) => g.id === currentGroupId) || null;
 
   useEffect(() => {
     if (open) {
@@ -179,7 +179,7 @@ export const WorkerEditModal = ({
               <Autocomplete
                 filterOptions={(x) => x}
                 value={selectedGroup}
-                options={groups}
+                options={groups || []}
                 loading={isLoadingGroups}
                 onChange={(_, val) => {
                   setValue('auctionGroupId', val?.id || '');

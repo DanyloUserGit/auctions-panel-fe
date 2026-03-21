@@ -6,14 +6,14 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
 import type { Auction } from '../../auctions/model/types';
-import type { Group } from '../model/types';
-import { useGroups } from '../model/useGroups';
-import type { User } from '../../auth/model/user-schema';
 import { fetchUserById, fetchUsersByQuery } from '../../auth/model/api-user';
-import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
+import type { User } from '../../auth/model/user-schema';
+import type { Group } from '../model/types';
+import { useEditGroup } from '../model/useGroups';
 
 interface EditGroupModalProps {
   isModalOpen: boolean;
@@ -28,7 +28,7 @@ export default function EditGroupModal({
   handleClose,
   modal_title,
 }: EditGroupModalProps) {
-  const { EditGroupMutation } = useGroups();
+  const EditGroupMutation = useEditGroup();
 
   // Стан для відстеження повної готовності даних
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -56,9 +56,9 @@ export default function EditGroupModal({
         }
 
         // 2. Завантажуємо учасників за їхніми ID (якщо в моделі Group.users лежать рядки)
-        if (current_group.users && current_group.users.length > 0) {
-          const usersPromises = current_group.users.map((id) =>
-            fetchUserById(id),
+        if (current_group.accounts && current_group.accounts.length > 0) {
+          const usersPromises = current_group.accounts.map((u) =>
+            fetchUserById(u.id),
           );
           const fullUsers = await Promise.all(usersPromises);
           setAddedWorkers(fullUsers);
@@ -99,8 +99,8 @@ export default function EditGroupModal({
         group: {
           title,
           AdminId: Admin?.id || undefined,
-          auctions: addedAuctions.map((a) => a.id),
-          users: addedWorkers.map((w) => w.id),
+          auctions: addedAuctions,
+          users: addedWorkers,
         },
       },
       {

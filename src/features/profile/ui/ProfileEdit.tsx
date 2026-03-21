@@ -66,6 +66,7 @@ export default function ProfileEdit() {
     lastName: user?.lastName || '',
     email: user?.email || '',
     role: user?.role || 'User',
+    phone: user?.phone,
     rights: (Array.isArray(user?.rights)
       ? user.rights[0]
       : user?.rights) as UserRights,
@@ -86,16 +87,6 @@ export default function ProfileEdit() {
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', py: { xs: 2, sm: 4 } }}>
-      {/* <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1 }}>
-
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 800, letterSpacing: '-0.5px' }}
-        >
-          Налаштування профілю
-        </Typography>
-      </Box> */}
-
       <Paper
         variant="outlined"
         sx={{
@@ -157,6 +148,7 @@ export default function ProfileEdit() {
               label="Phone"
               name="phone"
               value={formData.phone}
+              onChange={handleChange}
             />
           </Grid>
           <Grid size={{ xs: 12 }}>

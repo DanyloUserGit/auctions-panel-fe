@@ -12,7 +12,7 @@ import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
 import type { Auction } from '../../auctions/model/types';
 import { fetchUsersByQuery } from '../../auth/model/api-user';
 import type { User } from '../../auth/model/user-schema';
-import { useGroups } from '../model/useGroups';
+import { useCreateGroup } from '../model/useGroups';
 
 interface AddGroupModalProps {
   handleClose: () => void;
@@ -25,8 +25,7 @@ export default function AddGroupModal({
   handleClose,
   modal_title,
 }: AddGroupModalProps) {
-  const { GroupCreation } = useGroups();
-
+  const GroupCreation = useCreateGroup();
   const [title, setTitle] = useState<string>('');
   const [addedAuctions, setAddedAuctions] = useState<Auction[]>([]);
   const [Admin, setAdmin] = useState<User | null>(null);
@@ -43,13 +42,13 @@ export default function AddGroupModal({
   });
   const handleSubmit = () => {
     if (!title.trim()) return;
-    console.log(Admin);
+
     GroupCreation.mutate(
       {
         title,
-        auctions: addedAuctions.map((a) => a.id),
+        auctions: addedAuctions,
         AdminId: Admin ? Admin?.id : null,
-        users: addedWorkers.map((w) => w.id),
+        users: addedWorkers,
       },
       {
         onSuccess: () => {

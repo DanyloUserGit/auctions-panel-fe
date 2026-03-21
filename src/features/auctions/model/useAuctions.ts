@@ -10,6 +10,7 @@ import type { AuctionCreate, AuctionEdit } from './types';
 export const auctionsKeys = {
   all: ['auctions'] as const,
   byGroup: (groupId: string) => [...auctionsKeys.all, groupId] as const,
+  detail: (id: string) => [...auctionsKeys.all, 'detail', id] as const,
 };
 
 export function useAuctionsData(groupId: string) {
@@ -31,7 +32,7 @@ export function useAuction(auctionId: string) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: auctionsKeys.byGroup(auctionId),
     queryFn: () => fetchAuctionsById(auctionId),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     enabled: !!auctionId,
   });
 
@@ -61,4 +62,23 @@ export function useDeleteAuction() {
     mutationFn: (id: string) => deleteAuction(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['auctions'] }),
   });
+}
+
+export function useAuctionById(id?: string) {
+  const { data, isLoading, isError, error, isFetching } = useQuery({
+    queryKey: auctionsKeys.detail(id || ''),
+    queryFn: () => fetchAuctionsById(id!),
+
+    staleTime: 5 * 60 * 1000, // Дані вважаються свіжими 5 хвилин
+    enabled: !!id, // Запит не виконується, якщо ID порожній
+    retry: 1, // Кількість спроб перезаппиту при помилці
+  });
+
+  return {
+    auction: data,
+    isLoading,
+    isFetching, // Корисно для показу оновлення на фоні
+    isError,
+    error: error ?? null,
+  };
 }

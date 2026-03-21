@@ -1,15 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  addToFavourite,
   createAcount,
   deleteAcount,
   fetchAcountsByAuction,
+  GetFavourite,
+  RemoveFromFavourite,
   updateAcount,
 } from './api-acounts';
 import type { AccountCreate, AccountUpdate } from './types';
 
 export const accountKeys = {
   all: ['accounts'] as const,
-  byAuction: (auctionId: string) => [...accountKeys.all, auctionId] as const,
+  byAuction: (auctionId: string) =>
+    [...accountKeys.all, 'by-auction', auctionId] as const,
+  favorites: () => [...accountKeys.all, 'favorites'] as const,
 };
 
 export function useAcounts(auctionId: string) {
@@ -56,6 +61,43 @@ export function useDeleteAcount() {
     mutationFn: (id: string) => deleteAcount(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
+    },
+  });
+}
+export function useFavoriteAccounts() {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: accountKeys.favorites(),
+    queryFn: GetFavourite,
+    staleTime: 10 * 60 * 1000, // Обране можна кешувати довше
+  });
+
+  return { items: data || [], isLoading, isError, error: error ?? null };
+}
+
+/**
+ * Додати акаунт у список обраних
+ */
+export function useAddToFavorite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (accountId: string) => addToFavourite(accountId),
+    onSuccess: () => {
+      // Оновлюємо список обраних акаунтів
+      queryClient.invalidateQueries({ queryKey: accountKeys.favorites() });
+    },
+  });
+}
+
+/**
+ * Видалити акаунт зі списку обраних
+ */
+export function useRemoveFromFavorite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (accountId: string) => RemoveFromFavourite(accountId),
+    onSuccess: () => {
+      // Оновлюємо список обраних акаунтів
+      queryClient.invalidateQueries({ queryKey: accountKeys.favorites() });
     },
   });
 }

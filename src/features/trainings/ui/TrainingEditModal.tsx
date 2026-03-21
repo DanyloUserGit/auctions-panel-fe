@@ -66,7 +66,7 @@ export function TrainingEditModal({
   useEffect(() => {
     if (isOpen && item.groupId) {
       fetchGroupByid(item.groupId).then((data) => {
-        setSelectedGroup(data);
+        setSelectedGroup(data?.at(0) || null);
       });
     }
   }, [isOpen, item.groupId]);

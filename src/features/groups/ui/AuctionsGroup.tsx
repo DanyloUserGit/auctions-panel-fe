@@ -3,11 +3,13 @@ import { useState } from 'react';
 import type { Group } from '../model/types';
 import ConfirmDeleteGroupModal from './ConfirmDeleteGroupModal';
 import GroupList from './GroupList';
+import { Groups } from '@mui/icons-material';
+import { useAuth } from '../../auth/model/useAuth';
 
 interface Props {
   activeGroupId: string;
   setActiveGroupId: (id: string) => void;
-  onEditGroup?: () => void;
+  onEditGroup: () => void;
   groups: Group[];
 }
 
@@ -17,12 +19,13 @@ export default function AuctionsGroup({
   onEditGroup,
   groups,
 }: Props) {
+  const { user } = useAuth();
   const [isDeleteGroupModalOpen, setDeleteGroupModalOpen] = useState(false);
-
   const handleOpenDeleteGroupModal = () => setDeleteGroupModalOpen(true);
   const handleCloseDeleteGroupModal = () => setDeleteGroupModalOpen(false);
 
-  const currentGroupExist = groups.find((group) => group.id === activeGroupId);
+  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+  const currentGroupExist = groups?.find((group) => group.id === activeGroupId);
   return (
     <Paper
       elevation={0}
@@ -38,7 +41,7 @@ export default function AuctionsGroup({
         minHeight: '49px', // Гарантує стабільну висоту лінії
       }}
     >
-      {groups.length > 0 ? (
+      {groups?.length > 0 ? (
         <>
           <GroupList
             groups={groups}
@@ -49,13 +52,25 @@ export default function AuctionsGroup({
           />
         </>
       ) : (
-        <Box sx={{ flexGrow: 1, py: 1.5, px: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            py: 3,
+            borderColor: 'divider',
+            gap: 2,
+          }}
+        >
+          <Groups sx={{ color: 'text.disabled' }} />
           <Typography
-            variant="body2"
+            variant="body1"
             color="text.secondary"
             sx={{ fontWeight: 500 }}
           >
-            Для початку створіть вашу першу групу
+            Список груп порожній.{' '}
+            {isAdmin && `Створіть першу групу, щоб додати аукціони.`}
           </Typography>
         </Box>
       )}
