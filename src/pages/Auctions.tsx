@@ -40,14 +40,15 @@ export default function AuctionsPage() {
     location.state?.view || 'auctions',
   );
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
-  const { data, isLoading: isLoadingGroupSearch } = useGroupByQuery(debouncedSearch)
-  useEffect(() => console.log(data), [data])
+  const { data, isLoading: isLoadingGroupSearch } =
+    useGroupByQuery(debouncedSearch);
+  useEffect(() => console.log(data), [data]);
   const isMobile = useMobile();
 
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups ?? [];
     if (debouncedSearch.trim()) {
-      result = data || []
+      result = data || [];
     }
     if (isAlphabetical) {
       return [...result].sort((a, b) => a.title.localeCompare(b.title));
@@ -117,11 +118,11 @@ export default function AuctionsPage() {
     close: handleCloseCreateGroup,
   } = useModal(false);
 
-  if (IsLoadingAuctions || isLoadingSessions || isLoadingGroupSearch) return <Loader />;
+  if (IsLoadingAuctions || isLoadingSessions || isLoadingGroupSearch)
+    return <Loader />;
 
   return (
     <Box sx={{ p: { xs: 2, sm: 0 } }}>
-
       <Box
         sx={{
           display: 'flex',
@@ -161,7 +162,6 @@ export default function AuctionsPage() {
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={2}
-
           alignItems="center"
           sx={{ width: { xs: '100%', md: 'auto' } }}
         >

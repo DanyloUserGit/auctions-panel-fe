@@ -1,8 +1,4 @@
-import {
-  MailOutline,
-  Person,
-  Star,
-} from '@mui/icons-material';
+import { MailOutline, Person, Star } from '@mui/icons-material';
 import {
   Avatar,
   Box,
@@ -24,10 +20,7 @@ interface Props {
   handleSelectAccount: (account: Account) => void;
 }
 
-export default function FavoriteItem({
-  account,
-  handleSelectAccount,
-}: Props) {
+export default function FavoriteItem({ account, handleSelectAccount }: Props) {
   const { auction, isLoading: isLoadingAuction } = useAuctionById(
     account.auctionId,
   );
@@ -50,7 +43,6 @@ export default function FavoriteItem({
     e.stopPropagation();
     removeFromFavorite(account.id);
   };
-
 
   if (isLoadingAuction) return <Loader />;
 
@@ -85,8 +77,6 @@ export default function FavoriteItem({
           </Tooltip>
         </Box>
 
-
-
         <CardActionArea
           onClick={() => handleSelectAccount(account)}
           sx={{
@@ -97,10 +87,15 @@ export default function FavoriteItem({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
           }}
         >
-          <Stack spacing={1.5} alignItems="center" textAlign="center" sx={{ width: '100%' }}>
+          <Stack
+            spacing={1.5}
+            alignItems="center"
+            textAlign="center"
+            sx={{ width: '100%' }}
+          >
             <Avatar
               sx={{
                 width: 56,

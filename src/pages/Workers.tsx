@@ -26,12 +26,10 @@ import { useMobile } from '../shared/hooks/useMobile';
 export default function EmployeesSection() {
   const isMobile = useMobile();
 
-
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
-
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -40,7 +38,11 @@ export default function EmployeesSection() {
   const { users } = useUsers();
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
 
-  const { data: searchResults } = useSearchUsers(debouncedSearch, page + 1, rowsPerPage);
+  const { data: searchResults } = useSearchUsers(
+    debouncedSearch,
+    page + 1,
+    rowsPerPage,
+  );
 
   // Debounce для пошуку
   useEffect(() => {
@@ -50,11 +52,6 @@ export default function EmployeesSection() {
     }, 500);
     return () => clearTimeout(handler);
   }, [search]);
-
-  // Скидаємо сторінку при зміні фільтрів
-  useEffect(() => {
-    setPage(0);
-  }, [roleFilter, statusFilter]);
 
   // 1. Фільтрація базового списку (локальна або отримана з пошуку)
   const filteredUsers = useMemo(() => {
@@ -134,7 +131,7 @@ export default function EmployeesSection() {
           alignItems: 'center',
           mb: 4,
           flexWrap: 'wrap',
-          gap: 2
+          gap: 2,
         }}
       >
         {!isMobile && (
@@ -164,7 +161,7 @@ export default function EmployeesSection() {
           alignItems: 'center',
           boxShadow: 'none',
           border: '1px solid',
-          borderColor: 'divider'
+          borderColor: 'divider',
         }}
       >
         <TextField
@@ -189,26 +186,40 @@ export default function EmployeesSection() {
           }}
         />
 
-        <FormControl size="small" sx={{ minWidth: { xs: '47%', sm: 150 }, flexGrow: { xs: 1, sm: 0 } }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: { xs: '47%', sm: 150 }, flexGrow: { xs: 1, sm: 0 } }}
+        >
           <InputLabel>Роль</InputLabel>
           <Select
             value={roleFilter}
             label="Роль"
-            onChange={(e) => setRoleFilter(e.target.value)}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setPage(0);
+            }}
           >
             <MenuItem value="All">Всі ролі</MenuItem>
             {ROLES.map((role) => (
-              <MenuItem key={role} value={role}>{role}</MenuItem>
+              <MenuItem key={role} value={role}>
+                {role}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: { xs: '47%', sm: 150 }, flexGrow: { xs: 1, sm: 0 } }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: { xs: '47%', sm: 150 }, flexGrow: { xs: 1, sm: 0 } }}
+        >
           <InputLabel>Статус</InputLabel>
           <Select
             value={statusFilter}
             label="Статус"
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(0);
+            }}
           >
             <MenuItem value="All">Всі статуси</MenuItem>
             <MenuItem value="Active">Активні</MenuItem>

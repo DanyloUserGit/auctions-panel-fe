@@ -70,7 +70,9 @@ export default function EditGroupModal({
 
         // 3. Завантажуємо учасників (accounts)
         if (current_group.accounts && current_group.accounts.length > 0) {
-          const usersPromises = current_group.accounts.map((u) => fetchUserById(u.id));
+          const usersPromises = current_group.accounts.map((u) =>
+            fetchUserById(u.id),
+          );
           const fullUsers = await Promise.all(usersPromises);
           setAddedWorkers(fullUsers);
         } else {
@@ -115,7 +117,7 @@ export default function EditGroupModal({
         onSuccess: () => {
           handleClose();
         },
-      }
+      },
     );
   };
 
@@ -132,9 +134,15 @@ export default function EditGroupModal({
           <Button
             onClick={handleSubmit}
             variant="contained"
-            disabled={!title.trim() || EditGroupMutation.isPending || isInitialLoading}
+            disabled={
+              !title.trim() || EditGroupMutation.isPending || isInitialLoading
+            }
           >
-            {EditGroupMutation.isPending ? <CircularProgress size={24} /> : 'Зберегти зміни'}
+            {EditGroupMutation.isPending ? (
+              <CircularProgress size={24} />
+            ) : (
+              'Зберегти зміни'
+            )}
           </Button>
         </>
       }
@@ -157,22 +165,32 @@ export default function EditGroupModal({
             value={addedAuctions}
             options={auctionsSearch.getFilteredOptions(addedAuctions)}
             loading={auctionsSearch.isLoading}
-            onInputChange={(_, val) => auctionsSearch.debouncedFetch(val, addedAuctions)}
+            onInputChange={(_, val) =>
+              auctionsSearch.debouncedFetch(val, addedAuctions)
+            }
             onChange={(_, val) => setAddedAuctions(val)}
             getOptionLabel={(o) => o.title || ''}
             isOptionEqualToValue={(o, v) => o?.id === v?.id}
-            renderInput={(params) => <TextField {...params} label="Аукціони групи" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Аукціони групи" />
+            )}
           />
 
           <Autocomplete
             value={Admin}
             options={AdminSearch.getFilteredOptions(Admin ? [Admin] : [])}
             loading={AdminSearch.isLoading}
-            onInputChange={(_, val) => AdminSearch.debouncedFetch(val, Admin ? [Admin] : [])}
+            onInputChange={(_, val) =>
+              AdminSearch.debouncedFetch(val, Admin ? [Admin] : [])
+            }
             onChange={(_, val) => setAdmin(val)}
-            getOptionLabel={(o) => (o ? `${o.firstName} ${o.lastName} (${o.email})` : '')}
+            getOptionLabel={(o) =>
+              o ? `${o.firstName} ${o.lastName} (${o.email})` : ''
+            }
             isOptionEqualToValue={(o, v) => o?.id === v?.id}
-            renderInput={(params) => <TextField {...params} label="Адмін групи" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Адмін групи" />
+            )}
           />
 
           <Autocomplete
@@ -180,11 +198,15 @@ export default function EditGroupModal({
             value={addedWorkers}
             options={workersSearch.getFilteredOptions(addedWorkers)}
             loading={workersSearch.isLoading}
-            onInputChange={(_, val) => workersSearch.debouncedFetch(val, addedWorkers)}
+            onInputChange={(_, val) =>
+              workersSearch.debouncedFetch(val, addedWorkers)
+            }
             onChange={(_, val) => setAddedWorkers(val)}
             getOptionLabel={(o) => `${o.firstName} ${o.lastName} (${o.email})`}
             isOptionEqualToValue={(o, v) => o?.id === v?.id}
-            renderInput={(params) => <TextField {...params} label="Учасники групи" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Учасники групи" />
+            )}
           />
         </Box>
       )}

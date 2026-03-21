@@ -49,7 +49,6 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
 
   const isSA = currentUser?.role === 'SuperAdmin';
 
-
   const {
     register,
     handleSubmit,

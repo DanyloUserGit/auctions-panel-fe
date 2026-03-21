@@ -42,7 +42,7 @@ export default function TrainingPage() {
           height: 48,
           whiteSpace: 'nowrap',
           boxShadow: 'none',
-          '&:hover': { boxShadow: 'none' }
+          '&:hover': { boxShadow: 'none' },
         }}
       >
         Створити матеріал
@@ -52,7 +52,6 @@ export default function TrainingPage() {
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
-
       {/* HEADER: На мобільних тільки заголовок (якщо не прихований) */}
       <Stack
         direction="row"
@@ -84,7 +83,7 @@ export default function TrainingPage() {
         sx={{
           mb: { xs: 2, sm: 4 }, // Менший відступ на мобілках, бо кнопка буде під ним
           bgcolor: 'background.paper',
-          '& .MuiOutlinedInput-root': { borderRadius: '12px' }
+          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
         }}
         InputProps={{
           startAdornment: (
@@ -96,11 +95,7 @@ export default function TrainingPage() {
       />
 
       {/* Кнопка під пошуком ТІЛЬКИ для мобільних */}
-      {isMobile && (
-        <Box sx={{ mb: 3 }}>
-          {CreateButton}
-        </Box>
-      )}
+      {isMobile && <Box sx={{ mb: 3 }}>{CreateButton}</Box>}
 
       <Box sx={{ minHeight: '50vh' }}>
         <TrainingList materials={training} />

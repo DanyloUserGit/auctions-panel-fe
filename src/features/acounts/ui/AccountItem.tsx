@@ -82,7 +82,9 @@ export default function AccountItem({
       >
         {/* Кнопка "Обране" зліва */}
         <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
-          <Tooltip title={isFavorite ? "Видалити з обраного" : "Додати в обране"}>
+          <Tooltip
+            title={isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
+          >
             <IconButton
               size="small"
               onClick={toggleFavorite}
@@ -105,7 +107,7 @@ export default function AccountItem({
               onClick={handleDeleteClick}
               sx={{
                 ...iconButtonSx,
-                '&:hover': { ...iconButtonSx['&:hover'], color: 'error.main' }
+                '&:hover': { ...iconButtonSx['&:hover'], color: 'error.main' },
               }}
             >
               <DeleteOutline fontSize="small" sx={{ color: 'text.disabled' }} />
@@ -145,7 +147,7 @@ export default function AccountItem({
                   fontWeight: 700,
                   fontSize: '0.95rem',
                   lineHeight: 1.2,
-                  mb: 0.5
+                  mb: 0.5,
                 }}
               >
                 {account.email?.split('@')[0] || 'Користувач'}

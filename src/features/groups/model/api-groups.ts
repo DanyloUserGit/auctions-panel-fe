@@ -27,7 +27,7 @@ export const editGroup = async ({
   id: string;
   group: GroupEdit;
 }) => {
-  console.log(group)
+  console.log(group);
   const responce = await api.patch(`/auction-groups/${id}`, { group });
   return responce.data;
 };

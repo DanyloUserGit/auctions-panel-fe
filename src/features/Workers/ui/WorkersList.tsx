@@ -13,7 +13,7 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  type ChipProps
+  type ChipProps,
 } from '@mui/material';
 import type { User, UserRole } from '../../auth/model/user-schema';
 import { UserActionsMenu } from './UserActionsMenu';
@@ -34,7 +34,6 @@ export default function WorkersList({
   OpenControlCard,
   OpenEditUser,
 }: Props) {
-
   return (
     <TableContainer
       component={Paper}
@@ -119,7 +118,6 @@ export default function WorkersList({
           )}
         </TableBody>
       </Table>
-
     </TableContainer>
   );
 }
