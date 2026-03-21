@@ -20,15 +20,19 @@ export const deleteAcount = async (id: string) => {
   return responce.data;
 };
 export const addToFavourite = async (accountId: string) => {
-  const responce = await api.post(`/auction-auth/select-account`, { accountId });
-  console.log(responce.data)
+  const responce = await api.post(`/auction-auth/select-account`, {
+    accountId,
+  });
+  console.log(responce.data);
   return responce.data;
-}
+};
 export const GetFavourite = async (): Promise<Account[]> => {
   const responce = await api.get(`/auction-auth/selected`);
   return responce.data;
-}
+};
 export const RemoveFromFavourite = async (accountId: string) => {
-  const responce = await api.delete(`/auction-auth/remove-account/${accountId}`);
+  const responce = await api.delete(
+    `/auction-auth/remove-account/${accountId}`,
+  );
   return responce.data;
-}
+};

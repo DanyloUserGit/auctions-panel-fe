@@ -25,8 +25,8 @@ export interface Notification {
   type: string;
   message: string;
   createdAt: string;
-  isRead: boolean
-  userId: string
+  isRead: boolean;
+  userId: string;
 }
 export interface fetchNotificationsResponce {
   data: Notification[];

@@ -65,13 +65,7 @@ export function useDeleteAuction() {
 }
 
 export function useAuctionById(id?: string) {
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    isFetching
-  } = useQuery({
+  const { data, isLoading, isError, error, isFetching } = useQuery({
     queryKey: auctionsKeys.detail(id || ''),
     queryFn: () => fetchAuctionsById(id!),
 
@@ -85,6 +79,6 @@ export function useAuctionById(id?: string) {
     isLoading,
     isFetching, // Корисно для показу оновлення на фоні
     isError,
-    error: error ?? null
+    error: error ?? null,
   };
 }

@@ -9,8 +9,8 @@ import {
   Sensors,
   History,
   InfoOutlined,
-  Block,        // Додано іконку блокування
-  CheckCircle,  // Додано іконку розблокування
+  Block, // Додано іконку блокування
+  CheckCircle, // Додано іконку розблокування
 } from '@mui/icons-material';
 import {
   Box,
@@ -55,10 +55,12 @@ export default function GroupItem({
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-    onSelect(group.id)
+    onSelect(group.id);
   };
 
-  const handleCloseMenu = (event: React.MouseEvent | React.SyntheticEvent | Event) => {
+  const handleCloseMenu = (
+    event: React.MouseEvent | React.SyntheticEvent | Event,
+  ) => {
     if (event) {
       event.stopPropagation?.();
     }
@@ -70,7 +72,7 @@ export default function GroupItem({
     handleCloseMenu(event);
     updateGroup({
       id: group.id,
-      group: { isActive: !group.isActive }
+      group: { isActive: !group.isActive },
     });
   };
 
@@ -129,9 +131,16 @@ export default function GroupItem({
             </MenuItem>
 
             {/* НОВИЙ ПУНКТ: Заблокувати/Розблокувати */}
-            <MenuItem onClick={handleToggleActive} sx={{ color: group.isActive ? 'warning.main' : 'success.main' }}>
+            <MenuItem
+              onClick={handleToggleActive}
+              sx={{ color: group.isActive ? 'warning.main' : 'success.main' }}
+            >
               <ListItemIcon>
-                {group.isActive ? <Block fontSize="small" color="warning" /> : <CheckCircle fontSize="small" color="success" />}
+                {group.isActive ? (
+                  <Block fontSize="small" color="warning" />
+                ) : (
+                  <CheckCircle fontSize="small" color="success" />
+                )}
               </ListItemIcon>
               {group.isActive ? 'Заблокувати' : 'Розблокувати'}
             </MenuItem>
@@ -164,7 +173,7 @@ export default function GroupItem({
               lineHeight: 1.2,
               mb: 0.5,
               textDecoration: group.isActive ? 'none' : 'line-through', // Візуальне закреслення назви
-              color: group.isActive ? 'text.primary' : 'text.secondary'
+              color: group.isActive ? 'text.primary' : 'text.secondary',
             }}
           >
             {group.title}
@@ -172,10 +181,10 @@ export default function GroupItem({
 
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             <Chip
-              label={group.isActive ? "Активна" : "Заблокована"}
+              label={group.isActive ? 'Активна' : 'Заблокована'}
               size="small"
-              variant={group.isActive ? "outlined" : "filled"} // Міняємо стиль для акценту
-              color={group.isActive ? "success" : "error"}    // Міняємо колір на червоний при блокуванні
+              variant={group.isActive ? 'outlined' : 'filled'} // Міняємо стиль для акценту
+              color={group.isActive ? 'success' : 'error'} // Міняємо колір на червоний при блокуванні
               sx={{ height: 18, fontSize: '10px' }}
             />
             {isActive && (
@@ -208,9 +217,14 @@ export default function GroupItem({
           />
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}
+        >
           <History sx={{ fontSize: 12, color: 'text.secondary' }} />
-          <Typography variant="caption" sx={{ fontSize: '10px', color: 'text.secondary' }}>
+          <Typography
+            variant="caption"
+            sx={{ fontSize: '10px', color: 'text.secondary' }}
+          >
             Активність: {lastActivityFormatted}
           </Typography>
         </Box>
@@ -221,11 +235,26 @@ export default function GroupItem({
         <Divider sx={{ mb: 1.5, borderStyle: 'dashed' }} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AccountCircle
-            sx={{ color: group.isActive ? 'primary.main' : 'text.disabled', fontSize: 32, opacity: 0.8 }}
+            sx={{
+              color: group.isActive ? 'primary.main' : 'text.disabled',
+              fontSize: 32,
+              opacity: 0.8,
+            }}
           />
-          <Box sx={{ overflow: 'hidden', minHeight: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              overflow: 'hidden',
+              minHeight: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
             {isAdminLoading ? (
-              <Typography variant="caption" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+              <Typography
+                variant="caption"
+                sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+              >
                 Завантаження...
               </Typography>
             ) : (
@@ -239,10 +268,16 @@ export default function GroupItem({
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    color: !group.isActive ? 'text.disabled' : (admin ? 'text.primary' : 'text.disabled'),
+                    color: !group.isActive
+                      ? 'text.disabled'
+                      : admin
+                        ? 'text.primary'
+                        : 'text.disabled',
                   }}
                 >
-                  {admin ? `${admin.firstName} ${admin.lastName}` : 'Адмін не призначений'}
+                  {admin
+                    ? `${admin.firstName} ${admin.lastName}`
+                    : 'Адмін не призначений'}
                 </Typography>
 
                 {admin?.email && (
@@ -250,7 +285,12 @@ export default function GroupItem({
                     <Typography
                       variant="caption"
                       color="text.secondary"
-                      sx={{ display: 'flex', alignItems: 'center', gap: 0.3, fontSize: '10px' }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.3,
+                        fontSize: '10px',
+                      }}
                     >
                       <MailOutline sx={{ fontSize: 10 }} /> {admin.email}
                     </Typography>
@@ -266,7 +306,12 @@ export default function GroupItem({
 }
 
 // Допоміжний компонент StatBlock залишається без змін...
-function StatBlock({ icon, label, value, tooltip }: StatBlockProps & { tooltip?: string }) {
+function StatBlock({
+  icon,
+  label,
+  value,
+  tooltip,
+}: StatBlockProps & { tooltip?: string }) {
   return (
     <Box sx={{ textAlign: 'center' }}>
       <Box
@@ -279,7 +324,10 @@ function StatBlock({ icon, label, value, tooltip }: StatBlockProps & { tooltip?:
         }}
       >
         {icon}
-        <Typography variant="caption" sx={{ fontSize: '10px', whiteSpace: 'nowrap' }}>
+        <Typography
+          variant="caption"
+          sx={{ fontSize: '10px', whiteSpace: 'nowrap' }}
+        >
           {label}
         </Typography>
         {tooltip && (

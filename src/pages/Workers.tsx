@@ -10,7 +10,7 @@ import {
   Paper,
   Select,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchUsers, useUsers } from '../features/auth/model/useAuth';
@@ -22,7 +22,6 @@ import { useModal } from '../shared/hooks/useModal';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 import WorkersList from '../features/Workers/ui/WorkersList';
 import { useMobile } from '../shared/hooks/useMobile';
-
 
 export default function EmployeesSection() {
   const isMobile = useMobile();
@@ -41,7 +40,9 @@ export default function EmployeesSection() {
     return () => clearTimeout(handler);
   }, [search]);
   const filteredUsers = useMemo(() => {
-    const baseList = debouncedSearch.trim() ? (searchResults?.data || []) : (users || []);
+    const baseList = debouncedSearch.trim()
+      ? searchResults?.data || []
+      : users || [];
 
     return baseList.filter((user) => {
       const matchesRole = roleFilter === 'All' || user.role === roleFilter;
@@ -76,8 +77,6 @@ export default function EmployeesSection() {
     close: CloseEditUser,
   } = useModal(false);
 
-
-
   return (
     <Box sx={{ p: { xs: 0, sm: 3 } }}>
       <Box
@@ -102,7 +101,6 @@ export default function EmployeesSection() {
           Додати працівника
         </Button>
       </Box>
-
 
       <Paper
         sx={{
@@ -164,7 +162,12 @@ export default function EmployeesSection() {
           </Select>
         </FormControl>
       </Paper>
-      <WorkersList users={showUsers} handleChangeWorker={handleChangeWorker} OpenControlCard={OpenControlCard} OpenEditUser={OpenEditUser} />
+      <WorkersList
+        users={showUsers}
+        handleChangeWorker={handleChangeWorker}
+        OpenControlCard={OpenControlCard}
+        OpenEditUser={OpenEditUser}
+      />
 
       <WorkerControlModal
         id={String(effectiveId)}
@@ -181,6 +184,6 @@ export default function EmployeesSection() {
           user={currentUser}
         />
       )}
-    </Box >
+    </Box>
   );
 }

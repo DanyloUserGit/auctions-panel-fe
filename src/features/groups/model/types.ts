@@ -8,14 +8,14 @@ export interface Group {
   auctions: Auction[];
   accounts: User[];
   canGaManageAccounts: boolean;
-  rules: string
+  rules: string;
   sessionLimit: number;
   allowedProfileFields: 'firstName' | 'lastName' | 'phone' | 'city';
   auctionsCount: number;
   isActive: boolean;
   lastActivity: string;
-  usersCount: number
-  _count: { users: number, auctions: number }
+  usersCount: number;
+  _count: { users: number; auctions: number };
 }
 export interface GroupCreate {
   title: string;

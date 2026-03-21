@@ -37,7 +37,7 @@ export default function AuctionsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isAlphabetical, setisAlphabetical] = useState(false);
   const [view, setView] = useState<'auctions' | 'accounts' | 'sessions'>(
-    location.state?.view || 'auctions'
+    location.state?.view || 'auctions',
   );
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
 
@@ -61,15 +61,21 @@ export default function AuctionsPage() {
   // Визначення активної групи
   const activeGroupId = useMemo(() => {
     if (filteredGroups?.length === 0) return '';
-    if (selectedGroupId && filteredGroups?.some((g) => g.id === selectedGroupId))
+    if (
+      selectedGroupId &&
+      filteredGroups?.some((g) => g.id === selectedGroupId)
+    )
       return selectedGroupId;
     return filteredGroups?.at(0)?.id || '';
   }, [filteredGroups, selectedGroupId]);
 
-  const activeGroup = groups?.find((group: Group) => group.id === activeGroupId);
+  const activeGroup = groups?.find(
+    (group: Group) => group.id === activeGroupId,
+  );
 
   // Завантаження даних (аукціони та сесії)
-  const { items: auctions, isLoading: IsLoadingAuctions } = useAuctionsData(activeGroupId);
+  const { items: auctions, isLoading: IsLoadingAuctions } =
+    useAuctionsData(activeGroupId);
   const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(
     sessionConnect.auctionAuthId,
   );
@@ -143,7 +149,10 @@ export default function AuctionsPage() {
             </Button>
           )}
           {!isMobile && (
-            <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 800, color: 'text.primary' }}
+            >
               {view === 'auctions'
                 ? 'Аукціони'
                 : view === 'accounts'
@@ -160,9 +169,15 @@ export default function AuctionsPage() {
           sx={{ width: { xs: '100%', md: 'auto' } }}
         >
           {view === 'auctions' && (
-            <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
               <GroupSearch onSearch={(val) => setSearch(val)} />
-              <Tooltip title={isAlphabetical ? 'Скинути сортування' : 'Сортувати А-Я'}>
+              <Tooltip
+                title={isAlphabetical ? 'Скинути сортування' : 'Сортувати А-Я'}
+              >
                 <IconButton
                   onClick={() => setisAlphabetical(!isAlphabetical)}
                   sx={{
@@ -240,9 +255,7 @@ export default function AuctionsPage() {
           />
         )}
 
-        {view === 'sessions' && (
-          <SessionList sessions={sessions} />
-        )}
+        {view === 'sessions' && <SessionList sessions={sessions} />}
       </Box>
 
       {/* МОДАЛЬНІ ВІКНА */}

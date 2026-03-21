@@ -12,7 +12,8 @@ import type { AccountCreate, AccountUpdate } from './types';
 
 export const accountKeys = {
   all: ['accounts'] as const,
-  byAuction: (auctionId: string) => [...accountKeys.all, 'by-auction', auctionId] as const,
+  byAuction: (auctionId: string) =>
+    [...accountKeys.all, 'by-auction', auctionId] as const,
   favorites: () => [...accountKeys.all, 'favorites'] as const,
 };
 

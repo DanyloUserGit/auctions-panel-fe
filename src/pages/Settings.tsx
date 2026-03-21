@@ -14,37 +14,40 @@ export default function SettingsPage() {
   const { user } = useAuth();
 
   // Описуємо всі можливі таби з їхніми компонентами та правами доступу
-  const allTabs = useMemo(() => [
-    {
-      label: 'Профіль та Безпека',
-      icon: <Person />,
-      component: <ProfileEdit />,
-      roles: ['User', 'Admin', 'SuperAdmin']
-    },
-    {
-      label: 'Сповіщення',
-      icon: <Notifications />,
-      component: <NotificationsSettings />,
-      roles: ['User', 'Admin', 'SuperAdmin']
-    },
-    {
-      label: 'Налаштування групи',
-      icon: <Groups />,
-      component: <GroupSettings />,
-      roles: ['Admin', 'SuperAdmin']
-    },
-    {
-      label: 'Правила аукціонів',
-      icon: <Gavel />,
-      component: <AuctionSettings />,
-      roles: ['Admin', 'SuperAdmin']
-    },
-  ], []);
+  const allTabs = useMemo(
+    () => [
+      {
+        label: 'Профіль та Безпека',
+        icon: <Person />,
+        component: <ProfileEdit />,
+        roles: ['User', 'Admin', 'SuperAdmin'],
+      },
+      {
+        label: 'Сповіщення',
+        icon: <Notifications />,
+        component: <NotificationsSettings />,
+        roles: ['User', 'Admin', 'SuperAdmin'],
+      },
+      {
+        label: 'Налаштування групи',
+        icon: <Groups />,
+        component: <GroupSettings />,
+        roles: ['Admin', 'SuperAdmin'],
+      },
+      {
+        label: 'Правила аукціонів',
+        icon: <Gavel />,
+        component: <AuctionSettings />,
+        roles: ['Admin', 'SuperAdmin'],
+      },
+    ],
+    [],
+  );
 
   // Фільтруємо таби, щоб звичайний користувач не бачив адмінські пункти
-  const visibleTabs = useMemo(() =>
-    allTabs.filter(tab => tab.roles.includes(user?.role || 'User')),
-    [allTabs, user?.role]
+  const visibleTabs = useMemo(
+    () => allTabs.filter((tab) => tab.roles.includes(user?.role || 'User')),
+    [allTabs, user?.role],
   );
 
   return (
@@ -67,7 +70,7 @@ export default function SettingsPage() {
             top: 24,
             border: '1px solid',
             borderColor: 'divider',
-            boxShadow: 'none'
+            boxShadow: 'none',
           }}
         >
           <Tabs
@@ -87,7 +90,7 @@ export default function SettingsPage() {
                 minHeight: 44,
                 transition: '0.2s',
                 textTransform: 'none', // Прибираємо Caps Lock
-                fontSize: 14,          // Компактний шрифт
+                fontSize: 14, // Компактний шрифт
                 fontWeight: 500,
                 color: 'text.secondary',
                 '&.Mui-selected': {
@@ -114,8 +117,8 @@ export default function SettingsPage() {
                 sx={{
                   '& .MuiSvgIcon-root': {
                     fontSize: 20, // Розмір іконки
-                    mr: 1.5
-                  }
+                    mr: 1.5,
+                  },
                 }}
               />
             ))}

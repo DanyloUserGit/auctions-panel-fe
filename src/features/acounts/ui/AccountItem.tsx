@@ -46,7 +46,7 @@ export default function AccountItem({
     event.stopPropagation();
     setAnchorEl(null);
   };
-  const { mutate: addToFavorite } = useAddToFavorite()
+  const { mutate: addToFavorite } = useAddToFavorite();
 
   return (
     <Grid>
@@ -95,14 +95,17 @@ export default function AccountItem({
             <MenuItem
               onClick={(e) => {
                 handleCloseMenu(e);
-                addToFavorite(account.id)
+                addToFavorite(account.id);
               }}
               sx={{ color: 'warning.main' }}
             >
               <ListItemIcon>
                 <Star fontSize="small" color="warning" />
               </ListItemIcon>
-              <Typography variant="inherit" sx={{ color: 'warning', fontWeight: 500 }}>
+              <Typography
+                variant="inherit"
+                sx={{ color: 'warning', fontWeight: 500 }}
+              >
                 Додати в обране
               </Typography>
             </MenuItem>

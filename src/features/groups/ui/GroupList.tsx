@@ -6,7 +6,7 @@ interface Props {
   groups: Group[];
   activeGroupId: string;
   setActiveGroupId: (id: string) => void;
-  onEdit: (() => void);
+  onEdit: () => void;
   onDelete: () => void;
 }
 
@@ -17,7 +17,6 @@ export default function GroupList({
   onEdit,
   onDelete,
 }: Props) {
-
   return (
     <Box
       sx={{
@@ -36,7 +35,6 @@ export default function GroupList({
         },
       }}
     >
-
       {groups.map((group: Group) => (
         <GroupItem
           key={group.id}
@@ -47,7 +45,6 @@ export default function GroupList({
           onDelete={onDelete}
         />
       ))}
-
     </Box>
   );
 }

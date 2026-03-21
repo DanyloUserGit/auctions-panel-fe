@@ -1,12 +1,20 @@
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { authKeys } from "../../auth/model/useAuth";
-import { fetchGroups, fetchGroupByid, fetchGroupByQuery, createGroup, editGroup, deleteGroup } from "./api-groups";
-import type { GroupCreate, GroupEdit } from "./types";
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { authKeys } from '../../auth/model/useAuth';
+import {
+  fetchGroups,
+  fetchGroupByid,
+  fetchGroupByQuery,
+  createGroup,
+  editGroup,
+  deleteGroup,
+} from './api-groups';
+import type { GroupCreate, GroupEdit } from './types';
 
 export const groupsKeys = {
   all: ['groups'] as const,
   lists: () => [...groupsKeys.all, 'list'] as const,
-  list: (searchTerm: string) => [...groupsKeys.lists(), { searchTerm }] as const,
+  list: (searchTerm: string) =>
+    [...groupsKeys.lists(), { searchTerm }] as const,
   details: () => [...groupsKeys.all, 'detail'] as const,
   detail: (id: string) => [...groupsKeys.details(), id] as const,
 };
@@ -56,7 +64,8 @@ export function useEditGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, group }: { id: string; group: GroupEdit }) => editGroup({ id, group }),
+    mutationFn: ({ id, group }: { id: string; group: GroupEdit }) =>
+      editGroup({ id, group }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.all });
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });

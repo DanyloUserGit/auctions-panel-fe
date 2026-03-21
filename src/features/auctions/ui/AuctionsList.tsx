@@ -55,7 +55,7 @@ export default function AuctionsList({
               justifyContent: 'center',
               py: 6,
               opacity: 0.6,
-              textAlign: 'center'
+              textAlign: 'center',
             }}
           >
             <Gavel sx={{ fontSize: 48, mb: 2 }} />
@@ -63,7 +63,8 @@ export default function AuctionsList({
               Аукціонів не знайдено
             </Typography>
             <Typography variant="body2">
-              У цій групі ще не створено жодного аукціону або вони не відповідають фільтру
+              У цій групі ще не створено жодного аукціону або вони не
+              відповідають фільтру
             </Typography>
           </Box>
         </Grid>

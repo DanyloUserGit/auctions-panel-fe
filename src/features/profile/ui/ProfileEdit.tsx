@@ -87,7 +87,6 @@ export default function ProfileEdit() {
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', py: { xs: 2, sm: 4 } }}>
-
       <Paper
         variant="outlined"
         sx={{

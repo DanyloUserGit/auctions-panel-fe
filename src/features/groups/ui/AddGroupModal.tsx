@@ -25,7 +25,7 @@ export default function AddGroupModal({
   handleClose,
   modal_title,
 }: AddGroupModalProps) {
-  const GroupCreation = useCreateGroup()
+  const GroupCreation = useCreateGroup();
   const [title, setTitle] = useState<string>('');
   const [addedAuctions, setAddedAuctions] = useState<Auction[]>([]);
   const [Admin, setAdmin] = useState<User | null>(null);

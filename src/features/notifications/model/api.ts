@@ -15,25 +15,32 @@ export const fetchNotifications = async ({
 
   return response.data;
 };
-export const fetchNotificationsSettings = async (): Promise<NotificationSetting> => {
-  const response = await api.get(`/notifications/settings`);
-  console.log(response.data)
-  return response.data;
-};
+export const fetchNotificationsSettings =
+  async (): Promise<NotificationSetting> => {
+    const response = await api.get(`/notifications/settings`);
+    console.log(response.data);
+    return response.data;
+  };
 export const updateNotificationsSettings = async (
   data: UpdateNotificationSettings,
 ) => {
   const response = await api.patch(`/notifications/settings`, data);
   return response.data;
 };
-export const updateNotificationsRequirements = async (id: string, data: { typeId: string; isMandatory: boolean },) => {
-  console.log(data, id)
-  const response = await api.patch(`/notifications/group/${id}/requirements`, data,);
-  console.log(response.data)
+export const updateNotificationsRequirements = async (
+  id: string,
+  data: { typeId: string; isMandatory: boolean },
+) => {
+  console.log(data, id);
+  const response = await api.patch(
+    `/notifications/group/${id}/requirements`,
+    data,
+  );
+  console.log(response.data);
   return response.data;
 };
 export const markAsRead = async (id: string) => {
   const response = await api.patch(`/notifications/${id}/read`);
-  console.log(response.data)
+  console.log(response.data);
   return response.data;
 };

@@ -19,12 +19,12 @@ export default function AuctionsGroup({
   onEditGroup,
   groups,
 }: Props) {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const [isDeleteGroupModalOpen, setDeleteGroupModalOpen] = useState(false);
   const handleOpenDeleteGroupModal = () => setDeleteGroupModalOpen(true);
   const handleCloseDeleteGroupModal = () => setDeleteGroupModalOpen(false);
 
-  const isAdmin = user?.role === "Admin" || user?.role === "SuperAdmin"
+  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
   const currentGroupExist = groups?.find((group) => group.id === activeGroupId);
   return (
     <Paper
@@ -51,22 +51,29 @@ export default function AuctionsGroup({
             onDelete={handleOpenDeleteGroupModal}
           />
         </>
-      ) : <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          py: 3,
-          borderColor: 'divider',
-          gap: 2
-        }}
-      >
-        <Groups sx={{ color: 'text.disabled' }} />
-        <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-          Список груп порожній.  {isAdmin && `Створіть першу групу, щоб додати аукціони.`}
-        </Typography>
-      </Box>}
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            py: 3,
+            borderColor: 'divider',
+            gap: 2,
+          }}
+        >
+          <Groups sx={{ color: 'text.disabled' }} />
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ fontWeight: 500 }}
+          >
+            Список груп порожній.{' '}
+            {isAdmin && `Створіть першу групу, щоб додати аукціони.`}
+          </Typography>
+        </Box>
+      )}
 
       {currentGroupExist && (
         <ConfirmDeleteGroupModal

@@ -67,7 +67,8 @@ export const useUpdateNotificationsRequirements = () => {
 
   const { mutate, isError, isPending } = useMutation({
     mutationFn: (data: {
-      id: string; data: { typeId: string; isMandatory: boolean };
+      id: string;
+      data: { typeId: string; isMandatory: boolean };
     }) => updateNotificationsRequirements(data.id, data.data),
     mutationKey: ['notifications_settings'],
     onSuccess: () => {

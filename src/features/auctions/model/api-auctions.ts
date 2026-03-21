@@ -30,7 +30,9 @@ export const deleteAuction = async (id: string) => {
   const responce = await api.delete(`auctions/${id}`);
   return responce.data;
 };
-export const fetchAuctionsByGroup = async (groupId: string): Promise<Auction[]> => {
+export const fetchAuctionsByGroup = async (
+  groupId: string,
+): Promise<Auction[]> => {
   const responce = await api.get(`auctions/group/${groupId}`);
   return responce.data;
 };
