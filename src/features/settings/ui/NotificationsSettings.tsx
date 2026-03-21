@@ -41,7 +41,7 @@ export default function NotificationsSettings() {
       const newValue = !currentItem.isMandatory;
       setSettings((prev) =>
         prev.map((s) => (s.id === id ? { ...s, isMandatory: newValue } : s)),
-      )
+      );
 
       updateRequirements({
         id: groupId ? groupId : '',
