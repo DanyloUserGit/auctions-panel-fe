@@ -46,28 +46,32 @@ export default function AuctionsList({
         ))
       ) : (
         /* Якщо аукціонів немає — показуємо повідомлення */
-        <Grid size={{ xs: 12 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              py: 6,
-              opacity: 0.6,
-              textAlign: 'center',
-            }}
-          >
-            <Gavel sx={{ fontSize: 48, mb: 2 }} />
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Аукціонів не знайдено
-            </Typography>
-            <Typography variant="body2">
-              У цій групі ще не створено жодного аукціону або вони не
-              відповідають фільтру
-            </Typography>
-          </Box>
-        </Grid>
+        <Can roles={["User"]}>
+
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 6,
+                opacity: 0.6,
+                textAlign: 'center',
+              }}
+            >
+              <Gavel sx={{ fontSize: 48, mb: 2 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Аукціонів не знайдено
+              </Typography>
+              <Typography variant="body2">
+                У цій групі ще не створено жодного аукціону або вони не
+                відповідають фільтру
+              </Typography>
+            </Box>
+          </Grid>
+        </Can>
+
       )}
 
       <Can roles={['Admin', 'SuperAdmin']}>

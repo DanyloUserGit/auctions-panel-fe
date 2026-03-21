@@ -47,7 +47,7 @@ export default function AddGroupModal({
       {
         title,
         auctions: addedAuctions,
-        AdminId: Admin ? Admin?.id : null,
+        Admin: Admin ? Admin?.id : null,
         users: addedWorkers,
       },
       {
