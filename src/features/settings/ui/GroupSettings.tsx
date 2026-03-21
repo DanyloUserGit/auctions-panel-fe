@@ -1,54 +1,30 @@
 import {
-  Box,
-  FormControlLabel,
-  Paper,
-  Slider,
-  Stack,
-  Switch,
-  Typography,
+  Alert,
+  Stack
 } from '@mui/material';
+import { useState } from 'react';
+import SelectGroup from './SelectGroup';
+import SelectedGroupSettings from './SelectedGroupSettings';
 
 export function GroupSettings() {
-  return (
-    <Stack spacing={3}>
-      <Paper sx={{ p: 3, borderRadius: '20px' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-          Ліміти сесій
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-          Максимальна кількість активних WebRTC сесій для вашої групи.
-        </Typography>
-        <Box sx={{ px: 2 }}>
-          <Slider
-            defaultValue={5}
-            step={1}
-            marks
-            min={1}
-            max={20}
-            valueLabelDisplay="auto"
-          />
-        </Box>
-      </Paper>
+  const [selectedGroupId, setSelectedGroup] = useState<string | ''>('');
 
-      <Paper sx={{ p: 3, borderRadius: '20px' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-          Доступ та заборони
-        </Typography>
-        <Stack spacing={1}>
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label="Дозволити перегляд списку акаунтів"
-          />
-          <FormControlLabel
-            control={<Switch />}
-            label="Заборонити зміну налаштувань термінала"
-          />
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label="Автоматичне закриття сесії після закінчення аукціону"
-          />
-        </Stack>
-      </Paper>
+
+  return (
+    <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto', py: 4 }}>
+      <SelectGroup selectedGroupId={selectedGroupId} setSelectedGroup={setSelectedGroup} />
+
+      {!selectedGroupId ? (
+        <Alert severity="info" sx={{ borderRadius: '15px' }}>
+          Оберіть групу, щоб отримати доступ до його налаштувань.
+        </Alert>
+      ) : (
+        <SelectedGroupSettings
+          key={selectedGroupId}
+          groupId={selectedGroupId}
+        />
+      )}
+
     </Stack>
   );
 }

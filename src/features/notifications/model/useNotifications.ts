@@ -48,6 +48,9 @@ export const useUpdateNotificationsSettings = () => {
     mutationFn: (data: UpdateNotificationSettings) =>
       updateNotificationsSettings(data),
     mutationKey: ['notifications_settings'],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications-settings'] });
+    },
   });
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
@@ -64,10 +67,12 @@ export const useUpdateNotificationsRequirements = () => {
 
   const { mutate, isError, isPending } = useMutation({
     mutationFn: (data: {
-      id: string;
-      data: { typeId: string; isMandatory: boolean };
+      id: string; data: { typeId: string; isMandatory: boolean };
     }) => updateNotificationsRequirements(data.id, data.data),
     mutationKey: ['notifications_settings'],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications-settings'] });
+    },
   });
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });

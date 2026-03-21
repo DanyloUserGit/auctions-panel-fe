@@ -140,7 +140,7 @@ export default function AuctionDeleteModal({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Пошук акаунтів"
+              label="Пошук користувачів"
               placeholder="Введіть назву..."
               InputProps={{
                 ...params.InputProps,

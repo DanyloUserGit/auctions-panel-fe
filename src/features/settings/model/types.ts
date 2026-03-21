@@ -1,8 +1,8 @@
 export interface Path {
-    id: string,
-    path: string
+  id: string;
+  path: string;
 }
 export interface Selector {
-    id: string,
-    selector: string
+  id: string;
+  selector: string;
 }

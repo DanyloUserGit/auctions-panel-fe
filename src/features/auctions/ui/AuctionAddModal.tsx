@@ -121,7 +121,7 @@ export default function AuctionAddModal({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Пошук акаунтів"
+              label="Пошук користувачів"
               placeholder="Введіть назву..."
               InputProps={{
                 ...params.InputProps,

@@ -5,7 +5,7 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import LoginForm from '../features/auth/ui/LoginFrom';
-import NotificationsList from '../features/notifications/ui/NotificationList';
+import NotificationsPage from '../pages/NotificationPage';
 import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
           { path: 'inventory', element: <Inventory /> },
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
-          { path: 'notifications/list', element: <NotificationsList /> },
+          { path: 'notifications/list', element: <NotificationsPage /> },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },
           { path: 'logs', element: <AllActionsPage /> },

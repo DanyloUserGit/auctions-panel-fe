@@ -16,19 +16,16 @@ export const refreshUser = async (): Promise<boolean> => {
   const response = await api.post('/auth/refresh');
   return response.status === 200 || response.status === 204;
 };
-export const fetchUsersByQuery = async (q: string) => {
+export const fetchUsersByQuery = async (q: string): Promise<{ data: User[], meta: { total: number, page: number, lastPage: number } }> => {
   const responce = await api.get(`/users/search/`, { params: { query: q } });
+  console.log(responce.data)
   return responce.data || [];
 };
 export const fetchUserById = async (id: string): Promise<User> => {
-  console.log(id);
   const responce = await api.get(`/users/${id}`);
-  console.log(responce.data);
-
   return responce.data;
 };
 export const updateProfile = async (data: UpdateUser, id: string) => {
-  console.log(data);
   const responce = await api.patch(`/profile/edit`, { ...data, id });
   console.log(responce.data);
   return responce.data;
@@ -52,7 +49,6 @@ export const changePassword = async (data: {
 };
 export const fetchControlCard = async (id: string) => {
   const responce = await api.get(`/users/${id}/control-card`);
-  console.log(responce.data);
   return responce.data;
 };
 export const updateStatus = async (id: string) => {
@@ -72,6 +68,5 @@ export const handleBlockUser = async (user: User) => {
     isActive: !user.isActive,
     isBlocked: !user.isBlocked,
   });
-  console.log(responce.data);
   return responce.data;
 };

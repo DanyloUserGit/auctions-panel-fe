@@ -18,8 +18,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Can } from '../../auth/ui/Can';
 import { useAuth } from '../../auth/model/useAuth';
+import { Can } from '../../auth/ui/Can';
 import type { NotificationChannel, NotificationSetting } from '../model/types';
 
 interface Props {
@@ -33,7 +33,6 @@ interface Props {
 export default function NotificationsTable({ settings, handleToggle }: Props) {
   const { user } = useAuth();
   const isAdmin = user?.role == 'Admin' || user?.role == 'SuperAdmin';
-
   return (
     <TableContainer
       component={Paper}

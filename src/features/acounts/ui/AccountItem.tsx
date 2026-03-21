@@ -3,6 +3,7 @@ import {
   MailOutline,
   MoreVert,
   Person,
+  Star,
 } from '@mui/icons-material';
 import {
   Avatar,
@@ -17,9 +18,10 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import type { Account } from '../model/types';
-import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
 import { useModal } from '../../../shared/hooks/useModal';
+import type { Account } from '../model/types';
+import { useAddToFavorite } from '../model/useAcounts';
+import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
 
 interface AccountItemProps {
   account: Account;
@@ -44,6 +46,7 @@ export default function AccountItem({
     event.stopPropagation();
     setAnchorEl(null);
   };
+  const { mutate: addToFavorite } = useAddToFavorite()
 
   return (
     <Grid>
@@ -88,6 +91,20 @@ export default function AccountItem({
                 <DeleteOutline fontSize="small" color="error" />
               </ListItemIcon>
               <Typography variant="inherit">Видалити</Typography>
+            </MenuItem>
+            <MenuItem
+              onClick={(e) => {
+                handleCloseMenu(e);
+                addToFavorite(account.id)
+              }}
+              sx={{ color: 'warning.main' }}
+            >
+              <ListItemIcon>
+                <Star fontSize="small" color="warning" />
+              </ListItemIcon>
+              <Typography variant="inherit" sx={{ color: 'warning', fontWeight: 500 }}>
+                Додати в обране
+              </Typography>
             </MenuItem>
           </Menu>
         </Box>
