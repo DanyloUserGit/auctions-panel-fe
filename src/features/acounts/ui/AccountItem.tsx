@@ -1,9 +1,9 @@
 import {
   DeleteOutline,
   MailOutline,
-  MoreVert,
   Person,
   Star,
+  StarBorder,
 } from '@mui/icons-material';
 import {
   Avatar,
@@ -12,104 +12,105 @@ import {
   CardActionArea,
   Grid,
   IconButton,
-  ListItemIcon,
-  Menu,
-  MenuItem,
+  Stack,
   Typography,
+  Tooltip,
 } from '@mui/material';
-import { useState } from 'react';
 import { useModal } from '../../../shared/hooks/useModal';
 import type { Account } from '../model/types';
-import { useAddToFavorite } from '../model/useAcounts';
+import { useAddToFavorite, useRemoveFromFavorite } from '../model/useAcounts';
 import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
 
 interface AccountItemProps {
   account: Account;
   handleSelectAccount: (accountId: string) => void;
-  onDelete?: (account: Account) => void;
+  isFavorite?: boolean;
 }
 
 export default function AccountItem({
   account,
   handleSelectAccount,
+  isFavorite = false,
 }: AccountItemProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
   const { isOpen, open: handleOpen, close: handleClose } = useModal(false);
 
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setAnchorEl(event.currentTarget);
+  const { mutate: addToFavorite } = useAddToFavorite();
+  const { mutate: removeFromFavorite } = useRemoveFromFavorite();
+
+  // Анімація для кнопок
+  const iconButtonSx = {
+    transition: 'transform 0.2s ease-in-out',
+    '&:hover': {
+      transform: 'scale(1.2)',
+      bgcolor: 'transparent',
+    },
+    '&:active': {
+      transform: 'scale(0.9)',
+    },
   };
 
-  const handleCloseMenu = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setAnchorEl(null);
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isFavorite) {
+      removeFromFavorite(account.id);
+    } else {
+      addToFavorite(account.id);
+    }
   };
-  const { mutate: addToFavorite } = useAddToFavorite();
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleOpen();
+  };
 
   return (
     <Grid>
       <Card
         sx={{
-          borderRadius: '12px',
-          border: '1px solid #e0e0e0',
-          boxShadow: 'none',
-          transition: '0.2s',
+          borderRadius: '16px',
+          border: '1px solid',
+          borderColor: isFavorite ? 'warning.light' : 'divider',
+          bgcolor: isFavorite ? 'rgba(255, 193, 7, 0.03)' : 'background.paper',
+          transition: 'all 0.3s ease',
           position: 'relative',
+          overflow: 'visible', // Щоб анімація збільшення не обрізалася
           '&:hover': {
-            borderColor: 'var(--color-primary)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            borderColor: isFavorite ? 'warning.main' : 'primary.main',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
           },
         }}
       >
-        {/* Кнопка меню (три крапки) */}
-        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
-          <IconButton
-            size="small"
-            onClick={handleOpenMenu}
-            sx={{ color: 'text.secondary' }}
-          >
-            <MoreVert fontSize="small" />
-          </IconButton>
+        {/* Кнопка "Обране" зліва */}
+        <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
+          <Tooltip title={isFavorite ? "Видалити з обраного" : "Додати в обране"}>
+            <IconButton
+              size="small"
+              onClick={toggleFavorite}
+              sx={{ ...iconButtonSx }}
+            >
+              {isFavorite ? (
+                <Star fontSize="small" sx={{ color: 'warning.main' }} />
+              ) : (
+                <StarBorder fontSize="small" sx={{ color: 'text.disabled' }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
 
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleCloseMenu}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          >
-            <MenuItem
-              onClick={(e) => {
-                handleCloseMenu(e);
-                handleOpen();
+        {/* Кнопка "Видалити" справа */}
+        <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
+          <Tooltip title="Видалити акаунт">
+            <IconButton
+              size="small"
+              onClick={handleDeleteClick}
+              sx={{
+                ...iconButtonSx,
+                '&:hover': { ...iconButtonSx['&:hover'], color: 'error.main' }
               }}
-              sx={{ color: 'error.main' }}
             >
-              <ListItemIcon>
-                <DeleteOutline fontSize="small" color="error" />
-              </ListItemIcon>
-              <Typography variant="inherit">Видалити</Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={(e) => {
-                handleCloseMenu(e);
-                addToFavorite(account.id);
-              }}
-              sx={{ color: 'warning.main' }}
-            >
-              <ListItemIcon>
-                <Star fontSize="small" color="warning" />
-              </ListItemIcon>
-              <Typography
-                variant="inherit"
-                sx={{ color: 'warning', fontWeight: 500 }}
-              >
-                Додати в обране
-              </Typography>
-            </MenuItem>
-          </Menu>
+              <DeleteOutline fontSize="small" sx={{ color: 'text.disabled' }} />
+            </IconButton>
+          </Tooltip>
         </Box>
 
         <ConfirmDeleteAccountModal
@@ -120,47 +121,48 @@ export default function AccountItem({
 
         <CardActionArea
           onClick={() => handleSelectAccount(account.id)}
-          sx={{ p: 2 }}
+          sx={{ p: 3, pt: 5, borderRadius: '16px' }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Stack spacing={1.5} alignItems="center" textAlign="center">
             <Avatar
               sx={{
-                width: 50,
-                height: 50,
-                bgcolor: '#f4f6f8',
-                color: 'text.secondary',
+                width: 56,
+                height: 56,
+                bgcolor: isFavorite ? 'warning.lighter' : 'action.hover',
+                color: isFavorite ? 'warning.main' : 'primary.main',
+                border: isFavorite ? '2px solid' : '1px solid',
+                borderColor: isFavorite ? 'warning.light' : 'divider',
+                transition: 'all 0.3s ease',
               }}
             >
-              <Person sx={{ fontSize: 28 }} />
+              <Person sx={{ fontSize: 30 }} />
             </Avatar>
 
-            <Box sx={{ overflow: 'hidden', flexGrow: 1, pr: 3 }}>
+            <Box sx={{ width: '100%' }}>
               <Typography
                 variant="subtitle1"
                 sx={{
                   fontWeight: 700,
+                  fontSize: '0.95rem',
                   lineHeight: 1.2,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
+                  mb: 0.5
                 }}
               >
-                {account.email ? `${account.email}` : ''}
+                {account.email?.split('@')[0] || 'Користувач'}
               </Typography>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  mt: 0.5,
-                }}
+              <Stack
+                direction="row"
+                spacing={0.5}
+                alignItems="center"
+                justifyContent="center"
+                sx={{ opacity: 0.6 }}
               >
-                <MailOutline sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <MailOutline sx={{ fontSize: 14 }} />
                 <Typography
                   variant="caption"
-                  color="text.secondary"
                   sx={{
+                    maxWidth: '140px',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -168,9 +170,9 @@ export default function AccountItem({
                 >
                   {account.email}
                 </Typography>
-              </Box>
+              </Stack>
             </Box>
-          </Box>
+          </Stack>
         </CardActionArea>
       </Card>
     </Grid>

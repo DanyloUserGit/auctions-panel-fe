@@ -47,9 +47,6 @@ export const WorkerEditModal = ({
   const { data: groups, isLoading: isLoadingGroups } = useGroups();
 
   const isSA = currentUser?.role === 'SuperAdmin';
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
 
   const {
     register,

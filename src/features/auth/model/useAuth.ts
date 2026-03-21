@@ -164,7 +164,8 @@ export const useUserById = (id: string | null) => {
   });
 };
 
-export const useSearchUsers = (query: string) => {
+export const useSearchUsers = (query: string, page: number, rowsPerPage: number) => {
+  console.log(page, rowsPerPage)
   return useQuery({
     queryKey: [...authKeys.users, 'search', query],
     queryFn: () => fetchUsersByQuery(query),

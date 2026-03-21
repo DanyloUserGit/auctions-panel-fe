@@ -46,7 +46,7 @@ export default function GroupItem({
   onEdit,
   onDelete,
 }: GroupTabProps) {
-  const { data: admin, isLoading: isAdminLoading } = useUserById(group.AdminId);
+  const { data: admin, isLoading: isAdminLoading } = useUserById(group.Admin);
   const { mutate: updateGroup } = useEditGroup(); // Хук для зміни isActive
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

@@ -15,7 +15,7 @@ import { useAuctionsData } from '../features/auctions/model/useAuctions';
 import AuctionsList from '../features/auctions/ui/AuctionsList';
 import { Can } from '../features/auth/ui/Can';
 import type { Group } from '../features/groups/model/types';
-import { useGroups } from '../features/groups/model/useGroups';
+import { useGroupByQuery, useGroups } from '../features/groups/model/useGroups';
 import AddGroupModal from '../features/groups/ui/AddGroupModal';
 import AuctionsGroup from '../features/groups/ui/AuctionsGroup';
 import EditGroupModal from '../features/groups/ui/EditGroupModal';
@@ -40,23 +40,20 @@ export default function AuctionsPage() {
     location.state?.view || 'auctions',
   );
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
-
+  const { data, isLoading: isLoadingGroupSearch } = useGroupByQuery(debouncedSearch)
+  useEffect(() => console.log(data), [data])
   const isMobile = useMobile();
 
-  // Обробка пошуку та сортування груп
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups ?? [];
     if (debouncedSearch.trim()) {
-      const searchLower = debouncedSearch.toLowerCase();
-      result = result.filter((group: Group) =>
-        group.title.toLowerCase().includes(searchLower),
-      );
+      result = data || []
     }
     if (isAlphabetical) {
       return [...result].sort((a, b) => a.title.localeCompare(b.title));
     }
     return result;
-  }, [groups, debouncedSearch, isAlphabetical]);
+  }, [data, groups, debouncedSearch, isAlphabetical]);
 
   // Визначення активної групи
   const activeGroupId = useMemo(() => {
@@ -73,7 +70,6 @@ export default function AuctionsPage() {
     (group: Group) => group.id === activeGroupId,
   );
 
-  // Завантаження даних (аукціони та сесії)
   const { items: auctions, isLoading: IsLoadingAuctions } =
     useAuctionsData(activeGroupId);
   const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(
@@ -121,11 +117,11 @@ export default function AuctionsPage() {
     close: handleCloseCreateGroup,
   } = useModal(false);
 
-  if (IsLoadingAuctions || isLoadingSessions) return <Loader />;
+  if (IsLoadingAuctions || isLoadingSessions || isLoadingGroupSearch) return <Loader />;
 
   return (
     <Box sx={{ p: { xs: 2, sm: 0 } }}>
-      {/* СЕКЦІЯ ЗАГОЛОВКА: Стабільна висота та відступи */}
+
       <Box
         sx={{
           display: 'flex',
@@ -134,7 +130,7 @@ export default function AuctionsPage() {
           alignItems: { xs: 'flex-start', md: 'center' },
           gap: 2,
           pt: 1,
-          pb: 4, // Стабільний відступ знизу до контенту
+          pb: 4,
           minHeight: '80px',
         }}
       >
@@ -165,6 +161,7 @@ export default function AuctionsPage() {
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={2}
+
           alignItems="center"
           sx={{ width: { xs: '100%', md: 'auto' } }}
         >
@@ -204,12 +201,14 @@ export default function AuctionsPage() {
                 onClick={handleOpenCreateGroup}
                 sx={{
                   height: 45,
-                  px: 3,
+                  px: { xs: 3, sm: 1.5, md: 3 },
+                  fontSize: { xs: '0.875rem', sm: '0.8rem', md: '0.875rem' },
                   borderRadius: '12px',
-                  whiteSpace: 'nowrap',
                   width: { xs: '100%', sm: 'auto' },
+                  ml: { sm: 1, md: 2 },
                   backgroundColor: 'var(--color-primary)',
                   '&:hover': { backgroundColor: 'var(--color-accent)' },
+                  minWidth: 'fit-content',
                 }}
               >
                 Створити групу
