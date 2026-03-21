@@ -12,6 +12,7 @@ import {
 } from '../model/sockets';
 import { useSession } from '../model/store';
 import type { SessionConnectData } from '../model/types';
+import { useTabsStore } from '../model/useTabsStore';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -20,6 +21,8 @@ export const SessionContainer: FC = () => {
 
   const hasJoined = useRef(false);
   const sessionConnect = useSession();
+
+  const { addTab, tabs } = useTabsStore();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -35,6 +38,15 @@ export const SessionContainer: FC = () => {
       console.warn('Немає даних для підключення чи створення сесії.');
       navigate('/');
       return;
+    }
+
+    if (sessionId && !tabs.find((item) => item.id == sessionId)) {
+      console.log(tabs);
+      addTab({
+        id: sessionId,
+        key: (tabs.length + 1).toString(),
+        title: `Вкладка ${tabs.length + 1}`,
+      });
     }
 
     const payload = sessionId

@@ -6,7 +6,18 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
+import {
+  Autocomplete,
+  CircularProgress,
+  Paper,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { useAutoCompleteWithQuery } from '../../../shared/hooks/useAutoCompleteWithQuery';
+import {
+  fetchAuctionsById,
+  fetchAuctionsByQuery,
+} from '../../auctions/model/api-auctions';
 import {
   fetchAuctionsById,
   fetchAuctionsByQuery,
