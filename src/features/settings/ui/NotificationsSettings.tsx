@@ -1,13 +1,10 @@
 import { Security } from '@mui/icons-material';
-import { Alert, Box, Paper, Stack, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Box, Paper, Stack, Typography } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader } from '../../../shared/ui/Loader';
 import { useAuth } from '../../auth/model/useAuth';
 import { Can } from '../../auth/ui/Can';
-import type {
-  NotificationChannel,
-  NotificationSetting,
-} from '../../notifications/model/types';
+import type { NotificationChannel } from '../../notifications/model/types';
 import {
   useNotificationsSettings,
   useUpdateNotificationsRequirements,
@@ -18,77 +15,76 @@ import NotificationsTable from '../../notifications/ui/NotificationsTable';
 export default function NotificationsSettings() {
   const { data, isLoading } = useNotificationsSettings();
   const { mutate: updateGeneral } = useUpdateNotificationsSettings();
+  const { mutate: updateRequirements } = useUpdateNotificationsRequirements();
+
   const { user } = useAuth();
   const groupId = user?.auctionGroupId;
 
-  const { mutate: updateRequirements } = useUpdateNotificationsRequirements();
+  const queryClient = useQueryClient();
 
-  // 1. Ініціалізуємо порожнім масивом
-  const [settings, setSettings] = useState<NotificationSetting[]>([]);
-
-  // 2. Використовуємо useEffect для синхронізації даних із сервера у локальний стейт
-  useEffect(() => {
-    if (data && Array.isArray(data)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSettings(data);
-    }
-  }, [data]);
+  const settings = data ?? [];
 
   const handleToggle = (
     id: string,
     field: 'isEnabled' | NotificationChannel | 'isMandatory',
   ) => {
-    // Шукаємо елемент у поточному стейті
     const currentItem = settings.find((s) => s.id === id);
     if (!currentItem) return;
 
     if (field === 'isMandatory') {
       const newValue = !currentItem.isMandatory;
 
-      // Оновлюємо стейт
-      setSettings((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, isMandatory: newValue } : s)),
+      updateRequirements(
+        {
+          id: groupId || '',
+          data: {
+            typeId: currentItem.notificationTypeId,
+            isMandatory: newValue,
+          },
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['notifications_settings'],
+            });
+          },
+        },
       );
 
-      // Викликаємо мутацію
-      updateRequirements({
-        id: groupId || '',
-        data: {
-          typeId: currentItem.notificationTypeId,
-          isMandatory: newValue,
-        },
-      });
       return;
     }
 
-    // Для інших полів (isEnabled або канали)
     const updatedItem = { ...currentItem };
 
     if (field === 'isEnabled') {
       updatedItem.isEnabled = !currentItem.isEnabled;
     } else {
-      const currentChannels = currentItem.channels || [];
-      updatedItem.channels = currentChannels.includes(field)
-        ? currentChannels.filter((c) => c !== field)
-        : [...currentChannels, field];
+      const channels = currentItem.channels || [];
+      updatedItem.channels = channels.includes(field)
+        ? channels.filter((c) => c !== field)
+        : [...channels, field];
     }
 
-    // Оновлюємо стейт
-    setSettings((prev) => prev.map((s) => (s.id === id ? updatedItem : s)));
-
-    // Викликаємо мутацію
-    updateGeneral({
-      typeId: updatedItem.notificationTypeId,
-      isEnabled: updatedItem.isEnabled,
-      channels: updatedItem.channels,
-    });
+    updateGeneral(
+      {
+        typeId: updatedItem.notificationTypeId,
+        isEnabled: updatedItem.isEnabled,
+        channels: updatedItem.channels,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['notifications_settings'],
+          });
+        },
+      },
+    );
   };
 
   if (isLoading) return <Loader />;
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}>
-      {/* Ваш JSX код без змін */}
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -134,10 +130,7 @@ export default function NotificationsSettings() {
 
       <NotificationsTable settings={settings} handleToggle={handleToggle} />
 
-      <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }}>
-        Для активації Telegram-сповіщень необхідно підключити бота{' '}
-        <b>@AuctionMasterBot</b> у вашому профілі.
-      </Alert>
+
     </Box>
   );
 }

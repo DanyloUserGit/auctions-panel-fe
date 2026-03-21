@@ -13,7 +13,7 @@ import {
   Typography,
   type SelectChangeEvent,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { sendResetLink } from '../../auth/model/api-user';
 import { useAuth } from '../../auth/model/useAuth';
@@ -49,6 +49,7 @@ export default function ProfileEdit() {
   //       : user?.rights) as UserRights,
   //   }
   // })
+  useEffect(() => console.log(user), [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,12 +67,23 @@ export default function ProfileEdit() {
     lastName: user?.lastName || '',
     email: user?.email || '',
     role: user?.role || 'User',
-    phone: user?.phone,
+    phone: user?.phone || "",
     rights: (Array.isArray(user?.rights)
       ? user.rights[0]
       : user?.rights) as UserRights,
   });
-
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.role || 'User',
+        phone: user.phone,
+        rights: (Array.isArray(user.rights) ? user.rights[0] : user.rights) as UserRights,
+      });
+    }
+  }, [user]);
   const handleChangePassword = async () => {
     await sendResetLink();
   };
@@ -149,6 +161,10 @@ export default function ProfileEdit() {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              disabled={isPendingProfile || isPendingRole}
+
+              slotProps={{ inputLabel: { shrink: true } }}
+
             />
           </Grid>
           <Grid size={{ xs: 12 }}>

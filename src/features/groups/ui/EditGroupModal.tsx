@@ -61,8 +61,8 @@ export default function EditGroupModal({
         setAddedAuctions(current_group.auctions || []);
 
         // 2. Завантажуємо адміна
-        if (current_group.Admin) {
-          const adminData = await fetchUserById(current_group.Admin);
+        if (current_group.AdminId) {
+          const adminData = await fetchUserById(current_group.AdminId);
           setAdmin(adminData);
         } else {
           setAdmin(null);

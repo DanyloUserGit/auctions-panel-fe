@@ -18,9 +18,9 @@ import { useSearchUsers, useUsers } from '../features/auth/model/useAuth';
 import { ROLES } from '../features/auth/model/user-schema';
 import { WorkerControlModal } from '../features/Workers/ui/WorkerControlModal';
 import { WorkerEditModal } from '../features/Workers/ui/WorkerEditModal';
-import { useModal } from '../shared/hooks/useModal';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
 import WorkersList from '../features/Workers/ui/WorkersList';
+import { useModal } from '../shared/hooks/useModal';
 import { useMobile } from '../shared/hooks/useMobile';
 
 export default function EmployeesSection() {
@@ -44,16 +44,17 @@ export default function EmployeesSection() {
     rowsPerPage,
   );
 
-  // Debounce для пошуку
+  // Debounce пошуку
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(0); // Скидаємо сторінку при новому пошуку
+      setPage(0);
     }, 500);
+
     return () => clearTimeout(handler);
   }, [search]);
 
-  // 1. Фільтрація базового списку (локальна або отримана з пошуку)
+  // Фільтрація
   const filteredUsers = useMemo(() => {
     const baseList = debouncedSearch.trim()
       ? searchResults?.data || []
@@ -69,18 +70,17 @@ export default function EmployeesSection() {
     });
   }, [users, searchResults, debouncedSearch, roleFilter, statusFilter]);
 
-  // 2. Логіка відображення (пагінація)
+  // Пагінація
   const showUsers = useMemo(() => {
-    // Якщо працює серверний пошук, сервер вже повернув відрізаний шматок даних
     if (debouncedSearch.trim()) {
       return filteredUsers;
     }
-    // Якщо пошуку немає, пагінуємо локальний список користувачів власноруч
+
     const start = page * rowsPerPage;
     return filteredUsers.slice(start, start + rowsPerPage);
   }, [filteredUsers, page, rowsPerPage, debouncedSearch]);
 
-  // 3. Визначаємо загальну кількість записів для TablePagination
+  // Загальна кількість
   const totalCount = useMemo(() => {
     if (debouncedSearch.trim()) {
       return searchResults?.meta?.total || 0;
@@ -89,22 +89,26 @@ export default function EmployeesSection() {
   }, [debouncedSearch, searchResults, filteredUsers]);
 
   const effectiveId = selectedWorkerId || users?.[0]?.id || '';
+
   const handleChangeWorker = (id: string) => {
     setSelectedWorkerId(id);
   };
+
   const currentUser = users?.find((u) => u.id === effectiveId);
 
-  // Модальні вікна
+  // Модалки
   const {
     isOpen: isControlCardOpen,
     open: OpenControlCard,
     close: CloseControlCard,
   } = useModal(false);
+
   const {
     isOpen: isAddUserOpen,
     open: OpenAddUser,
     close: CloseAddUser,
   } = useModal(false);
+
   const {
     isOpen: isEditUserOpen,
     open: OpenEditUser,
@@ -139,6 +143,7 @@ export default function EmployeesSection() {
             Працівники
           </Typography>
         )}
+
         <Button
           onClick={OpenAddUser}
           variant="contained"
@@ -246,7 +251,7 @@ export default function EmployeesSection() {
         sx={{ mt: 2 }}
       />
 
-      {/* Модальні вікна */}
+      {/* Модалки */}
       <WorkerControlModal
         id={String(effectiveId)}
         open={isControlCardOpen}
