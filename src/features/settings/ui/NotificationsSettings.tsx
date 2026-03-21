@@ -89,25 +89,45 @@ export default function NotificationsSettings() {
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}>
       {/* Ваш JSX код без змін */}
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 4 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        sx={{ mb: 4 }}
+      >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>Сповіщення</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            Сповіщення
+          </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Керуйте тим, як і де ви отримуєте інформацію про активність в аукціонах.
+            Керуйте тим, як і де ви отримуєте інформацію про активність в
+            аукціонах.
           </Typography>
         </Box>
       </Stack>
 
       <Can roles={['Admin', 'SuperAdmin']}>
-        <Paper sx={{ p: 2, mb: 4, bgcolor: 'rgba(25, 118, 210, 0.05)', border: '1px dashed #1976d2' }}>
+        <Paper
+          sx={{
+            p: 2,
+            mb: 4,
+            bgcolor: 'rgba(25, 118, 210, 0.05)',
+            border: '1px dashed #1976d2',
+          }}
+        >
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
             <Security color="primary" fontSize="small" />
-            <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="subtitle2"
+              color="primary.main"
+              sx={{ fontWeight: 700 }}
+            >
               Адміністрування групи
             </Typography>
           </Stack>
           <Typography variant="caption" display="block">
-            Позначте сповіщення як <b>обов'язкові</b>, щоб користувачі групи не могли їх вимкнути.
+            Позначте сповіщення як <b>обов'язкові</b>, щоб користувачі групи не
+            могли їх вимкнути.
           </Typography>
         </Paper>
       </Can>
@@ -115,7 +135,8 @@ export default function NotificationsSettings() {
       <NotificationsTable settings={settings} handleToggle={handleToggle} />
 
       <Alert severity="info" sx={{ mt: 3, borderRadius: '10px' }}>
-        Для активації Telegram-сповіщень необхідно підключити бота <b>@AuctionMasterBot</b> у вашому профілі.
+        Для активації Telegram-сповіщень необхідно підключити бота{' '}
+        <b>@AuctionMasterBot</b> у вашому профілі.
       </Alert>
     </Box>
   );

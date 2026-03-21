@@ -1,5 +1,14 @@
 import { Add, DescriptionOutlined, InfoOutlined } from '@mui/icons-material';
-import { Box, Button, Paper, Stack, Typography, useTheme, useMediaQuery, Divider } from '@mui/material';
+import {
+  Box,
+  Button,
+  Paper,
+  Stack,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  Divider,
+} from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useModal } from '../../../shared/hooks/useModal';
@@ -18,7 +27,9 @@ export default function InfoFaqUI() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isExtraSmall = useMediaQuery('(max-width:360px)'); // Для зовсім маленьких пристроїв
 
-  const [loadedContent, setLoadedContent] = useState<Record<string, string>>({});
+  const [loadedContent, setLoadedContent] = useState<Record<string, string>>(
+    {},
+  );
   const [loadingSlugs, setLoadingSlugs] = useState<Record<string, boolean>>({});
 
   const handleAccordionChange =
@@ -37,13 +48,14 @@ export default function InfoFaqUI() {
     };
 
   return (
-    <Box sx={{
-      maxWidth: 900,
-      mx: 'auto',
-      px: { xs: 1.5, sm: 2, md: 0 },
-      pb: { xs: 4, md: 6 }
-    }}>
-
+    <Box
+      sx={{
+        maxWidth: 900,
+        mx: 'auto',
+        px: { xs: 1.5, sm: 2, md: 0 },
+        pb: { xs: 4, md: 6 },
+      }}
+    >
       <Paper
         elevation={0}
         sx={{
@@ -54,7 +66,7 @@ export default function InfoFaqUI() {
           border: '1px solid',
           borderColor: 'info.light',
           borderRadius: { xs: '12px', sm: '16px' },
-          opacity: 0.95
+          opacity: 0.95,
         }}
       >
         <Stack
@@ -63,13 +75,18 @@ export default function InfoFaqUI() {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            sx={{ minWidth: 0 }}
+          >
             <InfoOutlined
               color="info"
               sx={{
                 fontSize: { xs: 20, sm: 26 },
                 flexShrink: 0,
-                display: isExtraSmall ? 'none' : 'block'
+                display: isExtraSmall ? 'none' : 'block',
               }}
             />
             <Typography
@@ -79,7 +96,7 @@ export default function InfoFaqUI() {
                 whiteSpace: 'nowrap',
                 fontSize: { xs: '0.75rem', sm: '0.9rem', md: '1rem' },
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                textOverflow: 'ellipsis',
               }}
             >
               Швидкий старт
@@ -89,7 +106,7 @@ export default function InfoFaqUI() {
           <Button
             component={Link}
             to="/learning"
-            size={isMobile ? "small" : "medium"}
+            size={isMobile ? 'small' : 'medium'}
             variant="contained"
             color="info"
             sx={{
@@ -101,7 +118,7 @@ export default function InfoFaqUI() {
               height: { xs: 30, sm: 38 },
               boxShadow: 'none',
               textTransform: 'none', // Менше формальності, краще читається
-              '&:hover': { boxShadow: 'none' }
+              '&:hover': { boxShadow: 'none' },
             }}
           >
             Відкрити гайд
@@ -111,26 +128,32 @@ export default function InfoFaqUI() {
 
       <Box sx={{ mb: 4 }}>
         <Stack
-          direction={{ xs: "column", sm: "row" }}
+          direction={{ xs: 'column', sm: 'row' }}
           spacing={{ xs: 2, sm: 0 }}
-          alignItems={{ xs: "stretch", sm: "center" }}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
           justifyContent="space-between"
           sx={{ mb: { xs: 2, md: 4 } }}
         >
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <DescriptionOutlined color="primary" sx={{ fontSize: { xs: 24, sm: 28 } }} />
-            <Typography variant="h6" sx={{
-              fontWeight: 800,
-              fontSize: { xs: '1.2rem', sm: '1.5rem' },
-              letterSpacing: '-0.5px'
-            }}>
+            <DescriptionOutlined
+              color="primary"
+              sx={{ fontSize: { xs: 24, sm: 28 } }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: '1.2rem', sm: '1.5rem' },
+                letterSpacing: '-0.5px',
+              }}
+            >
               Довідкова інформація
             </Typography>
           </Stack>
 
           <Can roles={['SuperAdmin', 'Admin']}>
             <Button
-              size={isMobile ? "medium" : "small"}
+              size={isMobile ? 'medium' : 'small'}
               startIcon={<Add />}
               onClick={open}
               variant="contained"
@@ -138,7 +161,7 @@ export default function InfoFaqUI() {
                 borderRadius: '12px',
                 px: 3,
                 py: { xs: 1, sm: 0.5 },
-                boxShadow: 'none'
+                boxShadow: 'none',
               }}
             >
               Додати сторінку

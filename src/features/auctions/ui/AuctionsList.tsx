@@ -46,8 +46,7 @@ export default function AuctionsList({
         ))
       ) : (
         /* Якщо аукціонів немає — показуємо повідомлення */
-        <Can roles={["User"]}>
-
+        <Can roles={['User']}>
           <Grid size={{ xs: 12 }}>
             <Box
               sx={{
@@ -71,7 +70,6 @@ export default function AuctionsList({
             </Box>
           </Grid>
         </Can>
-
       )}
 
       <Can roles={['Admin', 'SuperAdmin']}>

@@ -30,7 +30,6 @@ export default function FavoriteAccounts() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
 
-
   const navigate = useNavigate();
   const handleCloseMenu = () => {
     setAnchorEl(null);
@@ -50,14 +49,13 @@ export default function FavoriteAccounts() {
     handleCloseMenu();
     RemoveFromFavorite(id);
   };
-  const isMobile = useMobile()
+  const isMobile = useMobile();
 
   if (isLoading) return <Loader />;
   return (
     <Box sx={{ py: 4 }}>
       {/* Заголовок */}
-      {
-        !isMobile &&
+      {!isMobile && (
         <>
           <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
             <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
@@ -74,9 +72,7 @@ export default function FavoriteAccounts() {
           </Stack>
           <Divider sx={{ my: 4 }} />
         </>
-
-      }
-
+      )}
 
       {accounts.length > 0 ? (
         <Grid container spacing={3}>
