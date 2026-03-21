@@ -147,8 +147,9 @@ export default function SelectedGroupSettings({ groupId }: Props) {
                 control={
                   <Switch
                     checked={canGaManageAccounts}
-                    onChange={(e) => setCanGaManageAccounts(e.target.checked)}
+                    onChange={() => { setCanGaManageAccounts(!canGaManageAccounts); updateGroup({ id: groupId, group: { canGaManageAccounts: canGaManageAccounts } }) }}
                     color="secondary"
+                    value={group.canGaManageAccounts}
                   />
                 }
                 label={
@@ -177,10 +178,10 @@ export default function SelectedGroupSettings({ groupId }: Props) {
               }
               label="Відображати список акаунтів для учасників"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Switch defaultChecked color="error" />}
               label="Заборонити зміну конфігурації термінала"
-            />
+            /> */}
           </Stack>
         </Stack>
       </Paper>
