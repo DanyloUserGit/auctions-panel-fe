@@ -1,7 +1,7 @@
 import { Button, CircularProgress, Typography } from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
-import { useGroups } from '../model/useGroups';
 import type { Group } from '../model/types';
+import { useDeleteGroup } from '../model/useGroups';
 
 interface DeleteGroupModalProps {
   isModalOpen: boolean;
@@ -14,7 +14,7 @@ export default function ConfirmDeleteGroupModal({
   handleClose,
   currentGroup,
 }: DeleteGroupModalProps) {
-  const { DeleteGroupMutation } = useGroups();
+  const DeleteGroupMutation = useDeleteGroup();
 
   const handleSubmit = async () => {
     await DeleteGroupMutation.mutate(currentGroup.id);

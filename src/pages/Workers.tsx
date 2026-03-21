@@ -1,8 +1,7 @@
-import { Add, Assessment, Search } from '@mui/icons-material';
+import { Add, Search } from '@mui/icons-material';
 import {
   Box,
   Button,
-  Chip,
   FormControl,
   IconButton,
   InputAdornment,
@@ -10,65 +9,52 @@ import {
   MenuItem,
   Paper,
   Select,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
-import { useUsers } from '../features/auth/model/useAuth';
-import { ROLES, type UserRole } from '../features/auth/model/user-schema';
-import { UserActionsMenu } from '../features/Workers/ui/UserActionsMenu';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchUsers, useUsers } from '../features/auth/model/useAuth';
+import { ROLES } from '../features/auth/model/user-schema';
 import { WorkerControlModal } from '../features/Workers/ui/WorkerControlModal';
 import { WorkerEditModal } from '../features/Workers/ui/WorkerEditModal';
 import { useModal } from '../shared/hooks/useModal';
 
-import { type ChipProps } from '@mui/material';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
+import WorkersList from '../features/Workers/ui/WorkersList';
 import { useMobile } from '../shared/hooks/useMobile';
-
-const roleColors: Record<UserRole, ChipProps['color']> = {
-  SuperAdmin: 'error',
-  Admin: 'primary',
-  User: 'default',
-};
 
 export default function EmployeesSection() {
   const isMobile = useMobile();
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const { users } = useUsers();
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
+  const { data: searchResults } = useSearchUsers(debouncedSearch);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
   const filteredUsers = useMemo(() => {
-    if (!users) return [];
+    const baseList = debouncedSearch.trim()
+      ? searchResults?.data || []
+      : users || [];
 
-    return users.filter((user) => {
-      const searchTerm = search.toLowerCase();
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-      const email = user.email.toLowerCase();
-
-      const matchesSearch =
-        fullName.includes(searchTerm) || email.includes(searchTerm);
-
+    return baseList.filter((user) => {
       const matchesRole = roleFilter === 'All' || user.role === roleFilter;
-
-      // 2. Логіка фільтрації за статусом
       const matchesStatus =
         statusFilter === 'All' ||
         (statusFilter === 'Blocked' ? user.isBlocked : !user.isBlocked);
 
-      return matchesSearch && matchesRole && matchesStatus;
+      return matchesRole && matchesStatus;
     });
-  }, [users, search, roleFilter, statusFilter]);
-
+  }, [users, searchResults, debouncedSearch, roleFilter, statusFilter]);
   const showUsers = filteredUsers;
+
   const effectiveId = selectedWorkerId || users?.[0]?.id || '';
   const handleChangeWorker = (id: string) => {
     setSelectedWorkerId(id);
@@ -116,7 +102,6 @@ export default function EmployeesSection() {
         </Button>
       </Box>
 
-      {/* Фільтри та Пошук */}
       <Paper
         sx={{
           p: 2,
@@ -177,111 +162,28 @@ export default function EmployeesSection() {
           </Select>
         </FormControl>
       </Paper>
+      <WorkersList
+        users={showUsers}
+        handleChangeWorker={handleChangeWorker}
+        OpenControlCard={OpenControlCard}
+        OpenEditUser={OpenEditUser}
+      />
 
-      <TableContainer
-        component={Paper}
-        sx={{ borderRadius: '15px', overflow: 'hidden' }}
-      >
-        <Table>
-          <TableHead sx={{ bgcolor: '#f8fafc' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Користувач</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Роль</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Статус</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>
-                Дії
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {showUsers && showUsers?.length > 0 ? (
-              showUsers.map((user) => (
-                <TableRow key={user.id} hover>
-                  <TableCell>
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: 600 }}
-                      >{`${user.firstName} ${user.lastName}`}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {user.email}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={user.role}
-                      size="small"
-                      color={roleColors[user.role] || 'default'}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={user.isBlocked ? 'Заблокований' : 'Активний'}
-                      size="small"
-                      sx={{
-                        bgcolor: user.isActive ? '#e1f5fe' : '#ffebee',
-                        color: user.isActive ? '#01579b' : '#b71c1c',
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      justifyContent="flex-end"
-                    >
-                      <Tooltip
-                        title="Картка контролю"
-                        onClick={() => {
-                          handleChangeWorker(String(user.id));
-                          OpenControlCard();
-                        }}
-                      >
-                        <IconButton size="small" color="primary">
-                          <Assessment />
-                        </IconButton>
-                      </Tooltip>
-                      <UserActionsMenu
-                        openEdit={() => {
-                          handleChangeWorker(String(user.id));
-                          OpenEditUser();
-                        }}
-                        user={user}
-                      />
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
-                  <Typography color="text.secondary">
-                    Працівників ще немає
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-
-        <WorkerControlModal
-          id={String(effectiveId)}
-          open={isControlCardOpen}
-          onClose={CloseControlCard}
-          isLoading={false}
+      <WorkerControlModal
+        id={String(effectiveId)}
+        open={isControlCardOpen}
+        onClose={CloseControlCard}
+        isLoading={false}
+      />
+      <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
+      {currentUser && (
+        <WorkerEditModal
+          key={effectiveId}
+          open={isEditUserOpen}
+          onClose={CloseEditUser}
+          user={currentUser}
         />
-        <WorkerCreateModal open={isAddUserOpen} onClose={CloseAddUser} />
-        {currentUser && (
-          <WorkerEditModal
-            key={effectiveId}
-            open={isEditUserOpen}
-            onClose={CloseEditUser}
-            user={currentUser}
-          />
-        )}
-      </TableContainer>
+      )}
     </Box>
   );
 }

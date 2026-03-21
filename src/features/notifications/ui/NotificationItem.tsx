@@ -11,6 +11,7 @@ import {
 import type { Notification } from '../model/types';
 
 import { useMarkAsRead } from '../model/useNotifications';
+import dayjs from 'dayjs';
 
 interface Props {
   item: Notification;
@@ -23,7 +24,10 @@ export default function NotificationItem({ item }: Props) {
     e.stopPropagation();
     markAsRead(item.id);
   };
-  const isRead = false;
+
+  const CreatedAtFormatted = item.createdAt
+    ? dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')
+    : 'Немає даних';
 
   return (
     <Box>
@@ -31,7 +35,7 @@ export default function NotificationItem({ item }: Props) {
         alignItems="flex-start"
         secondaryAction={
           <Box>
-            {!isRead && (
+            {!item.isRead && (
               <Tooltip title="Позначити як прочитане">
                 <IconButton
                   edge="end"
@@ -48,13 +52,13 @@ export default function NotificationItem({ item }: Props) {
         sx={{
           py: 2,
 
-          bgcolor: isRead ? 'transparent' : 'rgba(25, 118, 210, 0.04)',
+          bgcolor: item.isRead ? 'transparent' : 'rgba(25, 118, 210, 0.04)',
           '&:hover': { bgcolor: 'action.hover' },
           cursor: 'pointer',
           transition: 'background-color 0.3s',
         }}
       >
-        {!isRead && (
+        {!item.isRead && (
           <Box
             sx={{
               width: 8,
@@ -69,12 +73,12 @@ export default function NotificationItem({ item }: Props) {
         )}
 
         <ListItemText
-          sx={{ ml: isRead ? 0 : 2 }} // зміщення тексту, якщо є крапка
+          sx={{ ml: item.isRead ? 0 : 2 }} // зміщення тексту, якщо є крапка
           primary={
             <Typography
-              fontWeight={isRead ? 500 : 700}
+              fontWeight={item.isRead ? 500 : 700}
               variant="body1"
-              color={isRead ? 'text.primary' : 'primary.main'}
+              color={item.isRead ? 'text.primary' : 'primary.main'}
             >
               {item.type}
             </Typography>
@@ -86,8 +90,8 @@ export default function NotificationItem({ item }: Props) {
                 color="text.secondary"
                 sx={{
                   mt: 0.5,
-                  fontWeight: isRead ? 400 : 500,
-                  color: isRead ? 'text.secondary' : 'text.primary',
+                  fontWeight: item.isRead ? 400 : 500,
+                  color: item.isRead ? 'text.secondary' : 'text.primary',
                 }}
               >
                 {item.message}
@@ -97,7 +101,7 @@ export default function NotificationItem({ item }: Props) {
                 color="text.disabled"
                 sx={{ mt: 1, display: 'block' }}
               >
-                {item.createdAt}
+                {CreatedAtFormatted}
               </Typography>
             </>
           }

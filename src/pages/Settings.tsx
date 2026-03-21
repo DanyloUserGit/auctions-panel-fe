@@ -1,7 +1,7 @@
 import { Gavel, Groups, Notifications, Person } from '@mui/icons-material';
 import { Box, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
-import { useState } from 'react';
-import { Can } from '../features/auth/ui/Can';
+import { useState, useMemo } from 'react';
+import { useAuth } from '../features/auth/model/useAuth';
 import ProfileEdit from '../features/profile/ui/ProfileEdit';
 import { AuctionSettings } from '../features/settings/ui/AuctionSettings';
 import { GroupSettings } from '../features/settings/ui/GroupSettings';
@@ -11,8 +11,47 @@ import { useMobile } from '../shared/hooks/useMobile';
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
   const isMobile = useMobile();
+  const { user } = useAuth();
+
+  // Описуємо всі можливі таби з їхніми компонентами та правами доступу
+  const allTabs = useMemo(
+    () => [
+      {
+        label: 'Профіль та Безпека',
+        icon: <Person />,
+        component: <ProfileEdit />,
+        roles: ['User', 'Admin', 'SuperAdmin'],
+      },
+      {
+        label: 'Сповіщення',
+        icon: <Notifications />,
+        component: <NotificationsSettings />,
+        roles: ['User', 'Admin', 'SuperAdmin'],
+      },
+      {
+        label: 'Налаштування групи',
+        icon: <Groups />,
+        component: <GroupSettings />,
+        roles: ['Admin', 'SuperAdmin'],
+      },
+      {
+        label: 'Правила аукціонів',
+        icon: <Gavel />,
+        component: <AuctionSettings />,
+        roles: ['Admin', 'SuperAdmin'],
+      },
+    ],
+    [],
+  );
+
+  // Фільтруємо таби, щоб звичайний користувач не бачив адмінські пункти
+  const visibleTabs = useMemo(
+    () => allTabs.filter((tab) => tab.roles.includes(user?.role || 'User')),
+    [allTabs, user?.role],
+  );
+
   return (
-    <Box sx={{ p: { xs: 0, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
       {!isMobile && (
         <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
           Налаштування
@@ -20,6 +59,7 @@ export default function SettingsPage() {
       )}
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
+        {/* Ліва панель навігації */}
         <Paper
           sx={{
             width: { xs: '100%', md: 300 },
@@ -28,6 +68,9 @@ export default function SettingsPage() {
             height: 'fit-content',
             position: { md: 'sticky' },
             top: 24,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
           }}
         >
           <Tabs
@@ -37,56 +80,57 @@ export default function SettingsPage() {
             sx={{
               borderRight: 0,
               '& .MuiTab-root': {
-                padding: '12px 16px',
+                padding: '10px 16px',
                 display: 'flex',
-                justifyContent: 'start',
-                alignItems: 'flex-start',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
                 textAlign: 'left',
                 borderRadius: '12px',
                 mb: 1,
-                minHeight: 48,
+                minHeight: 44,
                 transition: '0.2s',
+                textTransform: 'none', // Прибираємо Caps Lock
+                fontSize: 14, // Компактний шрифт
+                fontWeight: 500,
+                color: 'text.secondary',
+                '&.Mui-selected': {
+                  color: 'primary.main',
+                  bgcolor: 'rgba(25, 118, 210, 0.08)',
+                  fontWeight: 700,
+                },
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
               },
-              '& .Mui-selected': { bgcolor: 'primary.lighter' },
+              '& .MuiTabs-indicator': {
+                display: 'none', // Прибираємо стандартну лінію, бо у нас стиль кнопок
+              },
             }}
           >
-            <Tab
-              icon={<Person sx={{ fontSize: 20 }} />}
-              iconPosition="start"
-              label="Профіль та Безпека"
-            />
-            <Tab
-              icon={<Notifications sx={{ fontSize: 20 }} />}
-              iconPosition="start"
-              label="Сповіщення"
-            />
-
-            <Tab
-              icon={<Groups sx={{ fontSize: 20 }} />}
-              iconPosition="start"
-              label="Налаштування групи"
-            />
-            <Tab
-              icon={<Gavel sx={{ fontSize: 20 }} />}
-              iconPosition="start"
-              label="Правила аукціонів"
-            />
+            {visibleTabs.map((tab) => (
+              <Tab
+                key={tab.label}
+                icon={tab.icon}
+                iconPosition="start"
+                label={tab.label}
+                disableRipple // Прибирає ефект хвилі для більш "солідного" вигляду
+                sx={{
+                  '& .MuiSvgIcon-root': {
+                    fontSize: 20, // Розмір іконки
+                    mr: 1.5,
+                  },
+                }}
+              />
+            ))}
           </Tabs>
         </Paper>
 
         {/* Права панель контенту */}
-        <Box sx={{ flexGrow: 1 }}>
-          {activeTab === 0 && <ProfileEdit />}
-          {activeTab === 1 && <NotificationsSettings />}
-          {activeTab === 2 && (
-            <Can roles={['Admin', 'SuperAdmin']}>
-              <GroupSettings />
-            </Can>
-          )}
-          {activeTab === 3 && (
-            <Can roles={['Admin', 'SuperAdmin']}>
-              <AuctionSettings />
-            </Can>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          {visibleTabs[activeTab] ? (
+            visibleTabs[activeTab].component
+          ) : (
+            <Typography>Оберіть розділ налаштувань</Typography>
           )}
         </Box>
       </Stack>
