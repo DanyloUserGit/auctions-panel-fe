@@ -16,10 +16,12 @@ import {
 
 export const auctionSettingsKeys = {
   all: ['auctions', 'settings'] as const,
-  forbiddenPaths: (id?: string) => [...auctionSettingsKeys.all, id, 'forbidden-paths'] as const,
-  forbiddenSelectors: (id?: string) => [...auctionSettingsKeys.all, id, 'forbidden-selectors'] as const,
-  allowedPaths: (id?: string) => [...auctionSettingsKeys.all, id, 'allowed-paths'] as const,
-
+  forbiddenPaths: (id?: string) =>
+    [...auctionSettingsKeys.all, id, 'forbidden-paths'] as const,
+  forbiddenSelectors: (id?: string) =>
+    [...auctionSettingsKeys.all, id, 'forbidden-selectors'] as const,
+  allowedPaths: (id?: string) =>
+    [...auctionSettingsKeys.all, id, 'allowed-paths'] as const,
 };
 
 export const useForbiddenPaths = (auctionId: string) => {
@@ -70,7 +72,6 @@ export const useAllowedPaths = (auctionId: string) => {
 // 3. Mutations з правильною інвалідацією через variables.id
 
 export const useAddAuctionUser = () => {
-
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, userId }: { id: string; userId: string }) =>
@@ -84,7 +85,6 @@ export const useAddAuctionUser = () => {
 };
 
 export const useAddAuctionSelector = () => {
-
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, selector }: { id: string; selector: string }) =>
@@ -97,7 +97,6 @@ export const useAddAuctionSelector = () => {
 };
 
 export const useAddAllowedPath = () => {
-
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, path }: { id: string; path: string }) =>
@@ -110,7 +109,6 @@ export const useAddAllowedPath = () => {
 };
 
 export const useAddForbiddenPath = () => {
-
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, path }: { id: string; path: string }) =>
@@ -121,8 +119,6 @@ export const useAddForbiddenPath = () => {
       }),
   });
 };
-
-
 
 export const useRemoveAllowedPath = () => {
   const queryClient = useQueryClient();
@@ -164,7 +160,6 @@ export const useRemoveForbiddenSelector = () => {
 };
 
 export const useRemoveAuctionUser = () => {
-
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, userId }: { id: string; userId: string }) =>

@@ -71,9 +71,9 @@ export function useEditGroup() {
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
       queryClient.invalidateQueries({ queryKey: authKeys.users });
 
-      if (variables.group.AdminId) {
+      if (variables.group.Admin) {
         queryClient.invalidateQueries({
-          queryKey: authKeys.controlCard(variables.group.AdminId),
+          queryKey: authKeys.controlCard(variables.group.Admin),
         });
       }
     },

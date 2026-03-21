@@ -3,11 +3,9 @@ import type { Account, AccountCreate, AccountUpdate } from './types';
 
 export const fetchAcountsByAuction = async (id: string) => {
   const responce = await api.get(`/auction-auth/${id}`);
-  console.log(responce.data);
   return responce.data;
 };
 export const createAcount = async (data: AccountCreate) => {
-  console.log(data);
   const responce = await api.post(`/auction-auth`, data);
   return responce.data;
 };
@@ -23,7 +21,6 @@ export const addToFavourite = async (accountId: string) => {
   const responce = await api.post(`/auction-auth/select-account`, {
     accountId,
   });
-  console.log(responce.data);
   return responce.data;
 };
 export const GetFavourite = async (): Promise<Account[]> => {

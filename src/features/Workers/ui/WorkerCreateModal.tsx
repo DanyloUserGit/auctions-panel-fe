@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
@@ -48,9 +48,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   });
 
   const isSA = currentUser?.role === 'SuperAdmin';
-  useEffect(() => {
-    fetchGroupByQuery('Group').then((res) => console.log(res));
-  }, []);
+
 
   const {
     register,

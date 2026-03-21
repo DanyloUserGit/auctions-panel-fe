@@ -1,25 +1,22 @@
 import { Assessment } from '@mui/icons-material';
 import {
-  TableBody,
-  TableRow,
-  TableCell,
   Box,
-  Typography,
   Chip,
-  Stack,
-  Tooltip,
   IconButton,
-  type ChipProps,
-  Table,
-  TableHead,
-  TableContainer,
   Paper,
-  TablePagination,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+  type ChipProps
 } from '@mui/material';
-import { UserActionsMenu } from './UserActionsMenu';
 import type { User, UserRole } from '../../auth/model/user-schema';
-import { useMobile } from '../../../shared/hooks/useMobile';
-import { useState } from 'react';
+import { UserActionsMenu } from './UserActionsMenu';
 const roleColors: Record<UserRole, ChipProps['color']> = {
   SuperAdmin: 'error',
   Admin: 'primary',
@@ -37,23 +34,11 @@ export default function WorkersList({
   OpenControlCard,
   OpenEditUser,
 }: Props) {
-  const isMobile = useMobile();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
   return (
     <TableContainer
       component={Paper}
-      sx={{ borderRadius: '15px', overflow: 'hidden' }}
+      sx={{ borderRadius: '15px', overflow: 'scroll' }}
     >
       <Table>
         <TableHead sx={{ bgcolor: '#f8fafc' }}>
@@ -134,16 +119,7 @@ export default function WorkersList({
           )}
         </TableBody>
       </Table>
-      <TablePagination
-        component="div"
-        count={users.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage={isMobile ? '' : 'Рядків на сторінці:'}
-        sx={{ mt: 2 }}
-      />
+
     </TableContainer>
   );
 }

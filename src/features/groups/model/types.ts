@@ -4,7 +4,7 @@ import type { User } from '../../auth/model/user-schema';
 export interface Group {
   id: string;
   title: string;
-  AdminId: string;
+  Admin: string;
   auctions: Auction[];
   accounts: User[];
   canGaManageAccounts: boolean;
@@ -20,14 +20,14 @@ export interface Group {
 export interface GroupCreate {
   title: string;
   auctions: Auction[];
-  AdminId: string | null;
+  Admin: string | null;
   users: User[];
 }
 export interface GroupEdit {
   title?: string;
-  auctions?: Auction[];
-  AdminId?: string;
-  users?: User[];
+  auctions?: string[];
+  Admin?: string;
+  users?: string[];
   canGaManageAccounts?: boolean;
   // rules: {}
   sessionLimit?: number;

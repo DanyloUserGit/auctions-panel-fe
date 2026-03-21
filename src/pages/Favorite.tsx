@@ -10,16 +10,17 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { type MouseEvent, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import type { Account } from '../features/acounts/model/types';
 import {
   useFavoriteAccounts,
   useRemoveFromFavorite,
 } from '../features/acounts/model/useAcounts';
 import FavoriteItem from '../features/acounts/ui/FavoriteItem';
 import { useSession } from '../features/sessions/model/store';
+import { useMobile } from '../shared/hooks/useMobile';
 import { Loader } from '../shared/ui/Loader';
-import type { Account } from '../features/acounts/model/types';
-import { useNavigate } from 'react-router';
 
 export default function FavoriteAccounts() {
   const { items: accounts, isLoading } = useFavoriteAccounts();
@@ -29,11 +30,7 @@ export default function FavoriteAccounts() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
 
-  const handleOpenMenu = (event: MouseEvent<HTMLElement>, id: string) => {
-    event.stopPropagation(); // Щоб не спрацював CardActionArea
-    setAnchorEl(event.currentTarget);
-    setActiveAccountId(id);
-  };
+
   const navigate = useNavigate();
   const handleCloseMenu = () => {
     setAnchorEl(null);
@@ -53,37 +50,44 @@ export default function FavoriteAccounts() {
     handleCloseMenu();
     RemoveFromFavorite(id);
   };
+  const isMobile = useMobile()
 
   if (isLoading) return <Loader />;
   return (
     <Box sx={{ py: 4 }}>
       {/* Заголовок */}
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
-        <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
-          <Person fontSize="large" />
-        </Avatar>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            Вибрані акаунти
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Ваші пріоритетні облікові записи для швидкого доступу
-          </Typography>
-        </Box>
-      </Stack>
-      <Divider sx={{ my: 4 }} />
+      {
+        !isMobile &&
+        <>
+          <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
+            <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+              <Person fontSize="large" />
+            </Avatar>
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 800 }}>
+                Вибрані акаунти
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Ваші пріоритетні облікові записи для швидкого доступу
+              </Typography>
+            </Box>
+          </Stack>
+          <Divider sx={{ my: 4 }} />
+        </>
+
+      }
+
+
       {accounts.length > 0 ? (
         <Grid container spacing={3}>
           {accounts.map((account) => (
             <FavoriteItem
               account={account}
-              handleOpenMenu={handleOpenMenu}
               handleSelectAccount={handleSelectAccount}
             />
           ))}
         </Grid>
       ) : (
-        /* Гарний напис, коли немає обраних */
         <Box
           sx={{
             display: 'flex',
