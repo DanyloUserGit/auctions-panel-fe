@@ -49,7 +49,7 @@ export default function ProfileEdit() {
   //       : user?.rights) as UserRights,
   //   }
   // })
-  useEffect(() => console.log(user), [user])
+  useEffect(() => console.log(user), [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,7 +67,7 @@ export default function ProfileEdit() {
     lastName: user?.lastName || '',
     email: user?.email || '',
     role: user?.role || 'User',
-    phone: user?.phone || "",
+    phone: user?.phone || '',
     rights: (Array.isArray(user?.rights)
       ? user.rights[0]
       : user?.rights) as UserRights,
@@ -80,7 +80,9 @@ export default function ProfileEdit() {
         email: user.email || '',
         role: user.role || 'User',
         phone: user.phone,
-        rights: (Array.isArray(user.rights) ? user.rights[0] : user.rights) as UserRights,
+        rights: (Array.isArray(user.rights)
+          ? user.rights[0]
+          : user.rights) as UserRights,
       });
     }
   }, [user]);
@@ -162,9 +164,7 @@ export default function ProfileEdit() {
               value={formData.phone}
               onChange={handleChange}
               disabled={isPendingProfile || isPendingRole}
-
               slotProps={{ inputLabel: { shrink: true } }}
-
             />
           </Grid>
           <Grid size={{ xs: 12 }}>

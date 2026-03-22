@@ -14,7 +14,7 @@ export const fetchGroupByQuery = async (q: string): Promise<Group[]> => {
 export const fetchGroupByid = async (id: string): Promise<Group[]> => {
   if (!id) return [];
   const responce = await api.get(`/auction-groups/${id}`);
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
 export const createGroup = async (newGroup: GroupCreate) => {
@@ -39,8 +39,8 @@ export const deleteGroup = async (groupId: string) => {
 export const blockGroup = async (groupId: string) => {
   const data = await api.post(`/auction-groups/${groupId}/block-group`);
   return data;
-}
+};
 export const unblockGroup = async (groupId: string) => {
   const data = await api.post(`/auction-groups/${groupId}/unblock-group`);
   return data;
-}
+};

@@ -147,7 +147,13 @@ export default function SelectedGroupSettings({ groupId }: Props) {
                 control={
                   <Switch
                     checked={canGaManageAccounts}
-                    onChange={() => { setCanGaManageAccounts(!canGaManageAccounts); updateGroup({ id: groupId, group: { canGaManageAccounts: canGaManageAccounts } }) }}
+                    onChange={() => {
+                      setCanGaManageAccounts(!canGaManageAccounts);
+                      updateGroup({
+                        id: groupId,
+                        group: { canGaManageAccounts: canGaManageAccounts },
+                      });
+                    }}
                     color="secondary"
                     value={group.canGaManageAccounts}
                   />

@@ -169,7 +169,6 @@ export const useSearchUsers = (
   page: number,
   rowsPerPage: number,
 ) => {
-
   console.log(page, rowsPerPage);
   return useQuery({
     queryKey: [...authKeys.users, 'search', query],
