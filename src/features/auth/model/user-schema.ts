@@ -36,9 +36,9 @@ export const updateUserSchema = z.object({
   password: z.string().optional(),
   phone: z
     .string()
-    .regex(
-      /^(?:\\+38)?(?:\\(0\\d{2}\\)|0\\d{2})[ -]?\\d{3}[ -]?\\d{2}[ -]?\\d{2}$/,
-    )
+    // .regex(
+    //   /^(?:\\+38)?(?:\\(0\\d{2}\\)|0\\d{2})[ -]?\\d{3}[ -]?\\d{2}[ -]?\\d{2}$/,
+    // )
     .optional()
     .or(z.literal('')),
   city: z.string().optional(),

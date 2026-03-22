@@ -1,19 +1,20 @@
 import {
   AccountCircle,
+  Block, // Додано іконку блокування
+  CheckCircle,
   DeleteOutline,
   Edit,
   Gavel,
+  History,
+  InfoOutlined,
   MailOutline,
   MoreVert,
   People,
   Sensors,
-  History,
-  InfoOutlined,
-  Block, // Додано іконку блокування
-  CheckCircle, // Додано іконку розблокування
 } from '@mui/icons-material';
 import {
   Box,
+  Chip,
   Divider,
   IconButton,
   ListItemIcon,
@@ -22,14 +23,13 @@ import {
   Paper,
   Tooltip,
   Typography,
-  Chip,
 } from '@mui/material';
-import { useState, type ReactNode } from 'react';
 import dayjs from 'dayjs';
+import { useState, type ReactNode } from 'react';
 import { useUserById } from '../../auth/model/useAuth';
 import { Can } from '../../auth/ui/Can';
 import type { Group } from '../model/types';
-import { useEditGroup } from '../model/useGroups'; // Імпортуємо хук для редагування
+import { useBlockGroup, useUnblockGroup } from '../model/useGroups';
 
 interface GroupTabProps {
   group: Group;
@@ -46,8 +46,10 @@ export default function GroupItem({
   onEdit,
   onDelete,
 }: GroupTabProps) {
-  const { data: admin, isLoading: isAdminLoading } = useUserById(group.Admin);
-  const { mutate: updateGroup } = useEditGroup(); // Хук для зміни isActive
+  const { data: admin, isLoading: isAdminLoading } = useUserById(group.AdminId);
+  const { mutate: blockGroup } = useBlockGroup()
+  const { mutate: unblockGroup } = useUnblockGroup()
+
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -67,13 +69,11 @@ export default function GroupItem({
     setAnchorEl(null);
   };
 
-  // Обробник перемикання статусу групи
+
   const handleToggleActive = (event: React.MouseEvent) => {
     handleCloseMenu(event);
-    updateGroup({
-      id: group.id,
-      group: { isActive: !group.isActive },
-    });
+    const action = group.isActive ? blockGroup : unblockGroup
+    action(group.id)
   };
 
   const lastActivityFormatted = group.lastActivity

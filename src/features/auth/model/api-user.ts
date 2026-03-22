@@ -23,7 +23,6 @@ export const fetchUsersByQuery = async (
   meta: { total: number; page: number; lastPage: number };
 }> => {
   const responce = await api.get(`/users/search/`, { params: { query: q } });
-  console.log(responce.data);
   return responce.data || [];
 };
 export const fetchUserById = async (id: string): Promise<User> => {
@@ -67,6 +66,7 @@ export const createUser = async (data: CreateUser) => {
 };
 export const updateUser = async (id: string, data: UpdateUser) => {
   const responce = await api.patch(`users/${id}`, data);
+  console.log(responce.data)
   return responce.data;
 };
 export const handleBlockUser = async (user: User) => {

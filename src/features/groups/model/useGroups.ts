@@ -7,6 +7,8 @@ import {
   createGroup,
   editGroup,
   deleteGroup,
+  blockGroup,
+  unblockGroup,
 } from './api-groups';
 import type { GroupCreate, GroupEdit } from './types';
 
@@ -90,6 +92,35 @@ export function useDeleteGroup() {
       queryClient.removeQueries({ queryKey: groupsKeys.detail(deletedId) });
       queryClient.invalidateQueries({ queryKey: groupsKeys.all });
       queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+export function useBlockGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (groupId: string) => blockGroup(groupId),
+    onSuccess: (_, groupId) => {
+      // Оновлюємо список усіх груп
+      queryClient.invalidateQueries({ queryKey: groupsKeys.all });
+      // Оновлюємо конкретну групу (деталі), якщо вона відкрита
+      queryClient.invalidateQueries({ queryKey: groupsKeys.detail(groupId) });
+      // Оновлюємо користувачів, бо статус групи може впливати на їх доступ
+      queryClient.invalidateQueries({ queryKey: authKeys.users });
+    },
+  });
+}
+
+// Хук для розблокування групи
+export function useUnblockGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (groupId: string) => unblockGroup(groupId),
+    onSuccess: (_, groupId) => {
+      queryClient.invalidateQueries({ queryKey: groupsKeys.all });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.detail(groupId) });
+      queryClient.invalidateQueries({ queryKey: authKeys.users });
     },
   });
 }
