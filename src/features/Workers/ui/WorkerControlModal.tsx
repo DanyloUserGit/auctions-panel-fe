@@ -40,7 +40,6 @@ export const WorkerControlModal = ({
 }: WorkerControlModalProps) => {
   if (!id) onClose();
   const { userData: data } = useControlCard(String(id));
-
   const renderSkeleton = () => (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, md: 5 }}>

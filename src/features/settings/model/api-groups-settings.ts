@@ -28,7 +28,6 @@ export const grantAccountAccess = async (groupId: string, userId: string) => {
     `/auction-groups/${groupId}/grant-account-access`,
     { userId: userId },
   );
-  console.log(response.data);
   return response.data;
 };
 

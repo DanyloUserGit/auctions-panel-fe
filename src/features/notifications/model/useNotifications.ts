@@ -26,20 +26,17 @@ export const useNotifications = (page: string = '1', limit: string = '20') => {
 };
 
 export const useNotificationsSettings = () => {
-  const queryClient = useQueryClient();
-
   const query = useQuery({
     queryKey: ['notifications_settings'],
-    queryFn: () => fetchNotificationsSettings(),
+    queryFn: async () => {
+      const data = await fetchNotificationsSettings();
+      return Array.isArray(data)
+        ? data.sort((a, b) => a.id.localeCompare(b.id))
+        : data;
+    },
   });
 
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
-  };
-  return {
-    ...query,
-    refresh,
-  };
+  return query;
 };
 export const useUpdateNotificationsSettings = () => {
   const queryClient = useQueryClient();
@@ -49,7 +46,7 @@ export const useUpdateNotificationsSettings = () => {
       updateNotificationsSettings(data),
     mutationKey: ['notifications_settings'],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
     },
   });
   const refresh = () => {
@@ -62,17 +59,19 @@ export const useUpdateNotificationsSettings = () => {
     isPending,
   };
 };
+interface UpdateNotificationsRequirementsProps {
+  id: string;
+  data: { typeId: string; isMandatory: boolean };
+}
 export const useUpdateNotificationsRequirements = () => {
   const queryClient = useQueryClient();
 
   const { mutate, isError, isPending } = useMutation({
-    mutationFn: (data: {
-      id: string;
-      data: { typeId: string; isMandatory: boolean };
-    }) => updateNotificationsRequirements(data.id, data.data),
+    mutationFn: (data: UpdateNotificationsRequirementsProps) =>
+      updateNotificationsRequirements(data.id, data.data),
     mutationKey: ['notifications_settings'],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
     },
   });
   const refresh = () => {

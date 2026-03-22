@@ -4,7 +4,7 @@ import type { User } from '../../auth/model/user-schema';
 export interface Group {
   id: string;
   title: string;
-  Admin: string;
+  AdminId: string;
   auctions: Auction[];
   accounts: User[];
   canGaManageAccounts: boolean;
