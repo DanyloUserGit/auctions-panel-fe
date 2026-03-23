@@ -31,12 +31,7 @@ export const useForbiddenPaths = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
-  return useQuery({
-    queryKey: auctionSettingsKeys.forbiddenPaths(auctionId),
-    queryFn: () => fetchForbiddenPaths(auctionId),
-    staleTime: 1000,
-    enabled: !!auctionId,
-  });
+
 };
 
 export const useForbiddenSelectors = (auctionId: string) => {
@@ -46,12 +41,7 @@ export const useForbiddenSelectors = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
-  return useQuery({
-    queryKey: auctionSettingsKeys.forbiddenSelectors(auctionId),
-    queryFn: () => fetchForbiddenSelectors(auctionId),
-    staleTime: 1000,
-    enabled: !!auctionId,
-  });
+
 };
 
 export const useAllowedPaths = (auctionId: string) => {
@@ -61,15 +51,9 @@ export const useAllowedPaths = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
-  return useQuery({
-    queryKey: auctionSettingsKeys.allowedPaths(auctionId),
-    queryFn: () => fetchAllowedPaths(auctionId),
-    staleTime: 1000,
-    enabled: !!auctionId,
-  });
+
 };
 
-// 3. Mutations з правильною інвалідацією через variables.id
 
 export const useAddAuctionUser = () => {
   const queryClient = useQueryClient();
@@ -78,7 +62,6 @@ export const useAddAuctionUser = () => {
       addAuctionUser(id, { userId }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: auctionsKeys.all });
-      // Оновлюємо конкретний аукціон, щоб побачити нового юзера
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
     },
   });
@@ -165,7 +148,6 @@ export const useRemoveAuctionUser = () => {
     mutationFn: ({ id, userId }: { id: string; userId: string }) =>
       removeAuctionUser(id, { userId }),
     onSuccess: (_, variables) => {
-      // Оновлюємо всі пов'язані дані, щоб юзер зник всюди
       queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
       queryClient.invalidateQueries({
         queryKey: auctionSettingsKeys.all,

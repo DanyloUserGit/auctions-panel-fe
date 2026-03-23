@@ -6,13 +6,10 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { useAutoCompleteWithQuery } from '../../../shared/hooks/useAutoCompleteWithQuery';
-import {
-  fetchAuctionsById,
-  fetchAuctionsByQuery,
-} from '../../auctions/model/api-auctions';
-import type { Auction } from '../../auctions/model/types';
-import { useAuction } from '../../auctions/model/useAuctions';
+import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
+import { fetchAuctionsByQuery, fetchAuctionsById } from '../../../auctions/model/api-auctions';
+import type { Auction } from '../../../auctions/model/types';
+import { useAuction } from '../../../auctions/model/useAuctions';
 
 interface Props {
   selectedAuction: string;

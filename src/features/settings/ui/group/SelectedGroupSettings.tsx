@@ -12,22 +12,18 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useAutoComplete } from '../../../../shared/hooks/useAutoComplete';
+import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
+import { fetchAuctionsByQuery } from '../../../auctions/model/api-auctions';
+import type { Auction } from '../../../auctions/model/types';
+import { fetchUsersByQuery } from '../../../auth/model/api-user';
+import { authKeys } from '../../../auth/model/useAuth';
+import type { User } from '../../../auth/model/user-schema';
+import { Can } from '../../../auth/ui/Can';
+import { useGroupById, useEditGroup } from '../../../groups/model/useGroups';
+import { useAddAuctionToGroup, useRemoveAuctionFromGroup, useRevokeAccountAccess, useGrantAccountAccess } from '../../model/useGroupSettigs';
 
-import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
-import { useAutoCompleteWithQuery } from '../../../shared/hooks/useAutoCompleteWithQuery';
-import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
-import type { Auction } from '../../auctions/model/types';
-import { fetchUsersByQuery } from '../../auth/model/api-user';
-import { authKeys } from '../../auth/model/useAuth';
-import type { User } from '../../auth/model/user-schema';
-import { Can } from '../../auth/ui/Can';
-import { useEditGroup, useGroupById } from '../../groups/model/useGroups';
-import {
-  useAddAuctionToGroup,
-  useGrantAccountAccess,
-  useRemoveAuctionFromGroup,
-  useRevokeAccountAccess,
-} from '../model/useGroupSettigs';
+
 
 interface Props {
   groupId: string;
@@ -147,7 +143,13 @@ export default function SelectedGroupSettings({ groupId }: Props) {
                 control={
                   <Switch
                     checked={canGaManageAccounts}
-                    onChange={() => { setCanGaManageAccounts(!canGaManageAccounts); updateGroup({ id: groupId, group: { canGaManageAccounts: canGaManageAccounts } }) }}
+                    onChange={() => {
+                      setCanGaManageAccounts(!canGaManageAccounts);
+                      updateGroup({
+                        id: groupId,
+                        group: { canGaManageAccounts: canGaManageAccounts },
+                      });
+                    }}
                     color="secondary"
                     value={group.canGaManageAccounts}
                   />
