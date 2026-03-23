@@ -16,6 +16,7 @@ export const userSchema = z.object({
   phone: z.string(),
   city: z.string(),
   auctionGroupId: z.uuid(),
+  auctionGroup: z.string().or(z.literal('')),
   sessionLimit: z.number(),
   sessionRights: z.enum(RIGHTS),
   isActive: z.boolean(),
@@ -28,7 +29,7 @@ export const userSchema = z.object({
 });
 
 export type User = z.infer<typeof userSchema>;
-
+const phoneRegex = /^(?:\+?38)?(?:0\d{9})$/;
 export const updateUserSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -36,15 +37,24 @@ export const updateUserSchema = z.object({
   password: z.string().optional(),
   phone: z
     .string()
-    // .regex(
-    //   /^(?:\\+38)?(?:\\(0\\d{2}\\)|0\\d{2})[ -]?\\d{3}[ -]?\\d{2}[ -]?\\d{2}$/,
-    // )
     .optional()
-    .or(z.literal('')),
+    .or(z.literal(''))
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const cleanPhone = val.replace(/[ \-()]/g, '');
+        return phoneRegex.test(cleanPhone);
+      },
+      {
+        message: "Невірний формат номера телефону",
+      }
+    ),
   city: z.string().optional(),
   role: z.enum(ROLES).optional(),
   rights: z.enum(RIGHTS).optional(),
   auctionGroupId: z.uuid().optional().nullable().or(z.literal('')),
+  auctionGroup: z.string().or(z.literal('')).optional(),
+
   sessionLimit: z.number().optional(),
 });
 
@@ -70,7 +80,8 @@ export const createUserSchema = z.object({
   rights: z.enum(RIGHTS),
   phone: z.string().optional(),
   city: z.string().optional(),
-  auctionGroupId: z.uuid().optional(),
+  auctionGroupId: z.string().uuid().or(z.literal('')).optional(),
+  auctionGroup: z.string().or(z.literal('')).optional(),
   sessionLimit: z.number().optional(),
 });
 export type CreateUser = z.infer<typeof createUserSchema>;

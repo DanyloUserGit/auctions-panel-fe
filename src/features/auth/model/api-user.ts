@@ -1,6 +1,14 @@
 import { api } from '../../../shared/http';
+import type { LoginInput } from './login-schema';
 import type { ChangeRole, CreateUser, UpdateUser, User } from './user-schema';
 
+export const login = async (data: LoginInput, token: string) => {
+  const response = await api.post('/auth/login', { ...data, token }, {
+    withCredentials: true,
+  });
+  console.log('Успішний вхід:', response.data);
+  return response.data
+}
 export const fetchCurrentUser = async (): Promise<User> => {
   const responce = await api.get('/auth/me');
   return responce.data;
@@ -16,14 +24,19 @@ export const refreshUser = async (): Promise<boolean> => {
   const response = await api.post('/auth/refresh');
   return response.status === 200 || response.status === 204;
 };
-export const fetchUsersByQuery = async (
-  q: string,
-): Promise<{
+interface fetchUsersByQueryResponce {
   data: User[];
   meta: { total: number; page: number; lastPage: number };
-}> => {
-  const responce = await api.get(`/users/search/`, { params: { query: q } });
-  return responce.data || [];
+}
+export const fetchUsersByQuery = async (query: string, page: number = 1, limit: number = 10): Promise<fetchUsersByQueryResponce> => {
+  const response = await api.get(`/users/search/`, {
+    params: {
+      query,
+      page,
+      limit
+    }
+  });
+  return response.data;
 };
 export const fetchUserById = async (id: string): Promise<User> => {
   const responce = await api.get(`/users/${id}`);
@@ -60,13 +73,13 @@ export const updateStatus = async (id: string) => {
   const responce = await api.get(`/users/${id}/status`);
   return responce.data;
 };
-export const createUser = async (data: CreateUser) => {
+export const createUser = async (data: CreateUser): Promise<User> => {
   const responce = await api.post(`/users`, data);
   return responce.data;
 };
 export const updateUser = async (id: string, data: UpdateUser) => {
   const responce = await api.patch(`users/${id}`, data);
-  console.log(responce.data)
+  console.log(responce.data);
   return responce.data;
 };
 export const handleBlockUser = async (user: User) => {

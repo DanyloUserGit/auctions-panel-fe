@@ -129,8 +129,6 @@ export default function NotificationsSettings() {
       </Can>
 
       <NotificationsTable settings={settings} handleToggle={handleToggle} />
-
-
     </Box>
   );
 }

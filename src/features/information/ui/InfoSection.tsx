@@ -2,15 +2,15 @@ import { Add, DescriptionOutlined, InfoOutlined } from '@mui/icons-material';
 import {
   Box,
   Button,
+  Divider,
   Paper,
   Stack,
   Typography,
-  useTheme,
-  useMediaQuery,
-  Divider,
+  useMediaQuery
 } from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { useMobile } from '../../../shared/hooks/useMobile';
 import { useModal } from '../../../shared/hooks/useModal';
 import { Can } from '../../auth/ui/Can';
 import { useInfoPages } from '../../trainings/model/useTraining';
@@ -23,9 +23,8 @@ export default function InfoFaqUI() {
   const { data: infoPages } = useInfoPages();
   const { isOpen, open, close } = useModal(false);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isExtraSmall = useMediaQuery('(max-width:360px)'); // Для зовсім маленьких пристроїв
+  const isMobile = useMobile();
+  const isExtraSmall = useMediaQuery('(max-width:360px)');
 
   const [loadedContent, setLoadedContent] = useState<Record<string, string>>(
     {},
@@ -117,7 +116,7 @@ export default function InfoFaqUI() {
               fontSize: { xs: '0.7rem', sm: '0.8125rem' },
               height: { xs: 30, sm: 38 },
               boxShadow: 'none',
-              textTransform: 'none', // Менше формальності, краще читається
+              textTransform: 'none',
               '&:hover': { boxShadow: 'none' },
             }}
           >
@@ -134,22 +133,25 @@ export default function InfoFaqUI() {
           justifyContent="space-between"
           sx={{ mb: { xs: 2, md: 4 } }}
         >
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <DescriptionOutlined
-              color="primary"
-              sx={{ fontSize: { xs: 24, sm: 28 } }}
-            />
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 800,
-                fontSize: { xs: '1.2rem', sm: '1.5rem' },
-                letterSpacing: '-0.5px',
-              }}
-            >
-              Довідкова інформація
-            </Typography>
-          </Stack>
+          {
+            !isMobile &&
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <DescriptionOutlined
+                color="primary"
+                sx={{ fontSize: { xs: 24, sm: 28 } }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: { xs: '1.2rem', sm: '1.5rem' },
+                  letterSpacing: '-0.5px',
+                }}
+              >
+                Довідкова інформація
+              </Typography>
+            </Stack>
+          }
 
           <Can roles={['SuperAdmin', 'Admin']}>
             <Button

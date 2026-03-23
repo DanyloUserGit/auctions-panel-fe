@@ -32,35 +32,31 @@ export default function EmployeesSection() {
   const [statusFilter, setStatusFilter] = useState('All');
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [limit, setlimit] = useState(10);
 
-  // Дані
   const { users } = useUsers();
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
 
+  // 1. Отримуємо дані з сервера при пошуку
   const { data: searchResults } = useSearchUsers(
     debouncedSearch,
-    page + 1,
-    rowsPerPage,
+    page + 1, // API сторінки зазвичай починаються з 1
+    limit,
   );
 
-  // Debounce пошуку
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(0);
+      setPage(0); // Скидаємо сторінку при новому пошуку
     }, 500);
-
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Фільтрація
+  // 2. Фільтрація базового списку (коли пошук пустий)
   const filteredUsers = useMemo(() => {
-    const baseList = debouncedSearch.trim()
-      ? searchResults?.data || []
-      : users || [];
+    if (!users) return [];
 
-    return baseList.filter((user) => {
+    return users.filter((user) => {
       const matchesRole = roleFilter === 'All' || user.role === roleFilter;
       const matchesStatus =
         statusFilter === 'All' ||
@@ -68,25 +64,33 @@ export default function EmployeesSection() {
 
       return matchesRole && matchesStatus;
     });
-  }, [users, searchResults, debouncedSearch, roleFilter, statusFilter]);
+  }, [users, roleFilter, statusFilter]);
 
-  // Пагінація
   const showUsers = useMemo(() => {
     if (debouncedSearch.trim()) {
-      return filteredUsers;
+      return searchResults?.data || [];
     }
 
-    const start = page * rowsPerPage;
-    return filteredUsers.slice(start, start + rowsPerPage);
-  }, [filteredUsers, page, rowsPerPage, debouncedSearch]);
+    const start = page * limit;
+    return filteredUsers.slice(start, start + limit);
+  }, [filteredUsers, searchResults, page, limit, debouncedSearch]);
 
-  // Загальна кількість
   const totalCount = useMemo(() => {
     if (debouncedSearch.trim()) {
       return searchResults?.meta?.total || 0;
     }
     return filteredUsers.length;
   }, [debouncedSearch, searchResults, filteredUsers]);
+
+  const handleRoleChange = (val: string) => {
+    setRoleFilter(val);
+    setPage(0);
+  };
+
+  const handleStatusChange = (val: string) => {
+    setStatusFilter(val);
+    setPage(0);
+  };
 
   const effectiveId = selectedWorkerId || users?.[0]?.id || '';
 
@@ -96,24 +100,9 @@ export default function EmployeesSection() {
 
   const currentUser = users?.find((u) => u.id === effectiveId);
 
-  // Модалки
-  const {
-    isOpen: isControlCardOpen,
-    open: OpenControlCard,
-    close: CloseControlCard,
-  } = useModal(false);
-
-  const {
-    isOpen: isAddUserOpen,
-    open: OpenAddUser,
-    close: CloseAddUser,
-  } = useModal(false);
-
-  const {
-    isOpen: isEditUserOpen,
-    open: OpenEditUser,
-    close: CloseEditUser,
-  } = useModal(false);
+  const { isOpen: isControlCardOpen, open: OpenControlCard, close: CloseControlCard, } = useModal(false);
+  const { isOpen: isAddUserOpen, open: OpenAddUser, close: CloseAddUser, } = useModal(false);
+  const { isOpen: isEditUserOpen, open: OpenEditUser, close: CloseEditUser, } = useModal(false);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -122,7 +111,7 @@ export default function EmployeesSection() {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setlimit(parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -199,10 +188,7 @@ export default function EmployeesSection() {
           <Select
             value={roleFilter}
             label="Роль"
-            onChange={(e) => {
-              setRoleFilter(e.target.value);
-              setPage(0);
-            }}
+            onChange={(e) => handleRoleChange(e.target.value)}
           >
             <MenuItem value="All">Всі ролі</MenuItem>
             {ROLES.map((role) => (
@@ -221,10 +207,7 @@ export default function EmployeesSection() {
           <Select
             value={statusFilter}
             label="Статус"
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(0);
-            }}
+            onChange={(e) => handleStatusChange(e.target.value)}
           >
             <MenuItem value="All">Всі статуси</MenuItem>
             <MenuItem value="Active">Активні</MenuItem>
@@ -245,10 +228,13 @@ export default function EmployeesSection() {
         count={totalCount}
         page={page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={limit}
         onRowsPerPageChange={handleChangeRowsPerPage}
         labelRowsPerPage={isMobile ? '' : 'Рядків на сторінці:'}
-        sx={{ mt: 2 }}
+        sx={{
+          mt: 2,
+          '.MuiTablePagination-selectLabel': { display: isMobile ? 'none' : 'block' }
+        }}
       />
 
       {/* Модалки */}
