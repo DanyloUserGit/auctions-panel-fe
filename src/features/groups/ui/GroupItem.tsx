@@ -47,9 +47,8 @@ export default function GroupItem({
   onDelete,
 }: GroupTabProps) {
   const { data: admin, isLoading: isAdminLoading } = useUserById(group.AdminId);
-  const { mutate: blockGroup } = useBlockGroup()
-  const { mutate: unblockGroup } = useUnblockGroup()
-
+  const { mutate: blockGroup } = useBlockGroup();
+  const { mutate: unblockGroup } = useUnblockGroup();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -69,11 +68,10 @@ export default function GroupItem({
     setAnchorEl(null);
   };
 
-
   const handleToggleActive = (event: React.MouseEvent) => {
     handleCloseMenu(event);
-    const action = group.isActive ? blockGroup : unblockGroup
-    action(group.id)
+    const action = group.isActive ? blockGroup : unblockGroup;
+    action(group.id);
   };
 
   const lastActivityFormatted = group.lastActivity

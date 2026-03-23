@@ -9,18 +9,44 @@ import {
   fetchUsers,
   fetchUsersByQuery,
   handleBlockUser,
+  login,
   refreshUser,
   updateUser,
 } from './api-user';
 import type { CreateUser, UpdateUser, User } from './user-schema';
 import { groupsKeys } from '../../groups/model/useGroups';
+import type { LoginInput } from './login-schema';
 
 export const authKeys = {
   me: ['auth', 'me'] as const,
   users: ['users'] as const,
   controlCard: (id: string) => ['auth', 'users', 'control-card', id] as const,
+  login: ['login'] as const
 };
+interface LoginPayload {
+  data: LoginInput;
+  token: string;
+}
 
+export const useLogin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // Чітко вказуємо функцію мутації
+    mutationFn: ({ data, token }: LoginPayload) => login(data, token),
+    mutationKey: authKeys.login,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authKeys.me });
+      // queryClient.setQueryData(authKeys.me, response.data);
+    },
+
+    onError: (error) => {
+      // Тут можна додати глобальне сповіщення (Toast), якщо потрібно
+      console.error('Login failed:', error);
+    }
+  });
+};
 export const useAuth = () => {
   const queryClient = useQueryClient();
 
@@ -167,13 +193,11 @@ export const useUserById = (id: string | null) => {
 export const useSearchUsers = (
   query: string,
   page: number,
-  rowsPerPage: number,
+  limit: number,
 ) => {
-
-  console.log(page, rowsPerPage);
   return useQuery({
     queryKey: [...authKeys.users, 'search', query],
-    queryFn: () => fetchUsersByQuery(query),
+    queryFn: () => fetchUsersByQuery(query, page, limit),
     enabled: !!query.trim(),
     staleTime: 5 * 60 * 1000,
   });

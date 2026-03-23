@@ -14,26 +14,16 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useAutoCompleteWithQuery } from '../../../shared/hooks/useAutoCompleteWithQuery';
-import { Loader } from '../../../shared/ui/Loader';
-import { useAuction } from '../../auctions/model/useAuctions';
-import { fetchUsersByQuery } from '../../auth/model/api-user';
-import { authKeys } from '../../auth/model/useAuth';
-import type { User } from '../../auth/model/user-schema';
-import {
-  useAddAllowedPath,
-  useAddAuctionSelector,
-  useAddAuctionUser,
-  useAddForbiddenPath,
-  useAllowedPaths,
-  useForbiddenPaths,
-  useForbiddenSelectors,
-  useRemoveAllowedPath,
-  useRemoveAuctionUser,
-  useRemoveForbiddenPath,
-  useRemoveForbiddenSelector,
-} from '../model/useAuctionSettings';
-import type { Path, Selector } from '../model/types';
+import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
+import { Loader } from '../../../../shared/ui/Loader';
+import { useAuction } from '../../../auctions/model/useAuctions';
+import { fetchUsersByQuery } from '../../../auth/model/api-user';
+import { authKeys } from '../../../auth/model/useAuth';
+import type { User } from '../../../auth/model/user-schema';
+import type { Path, Selector } from '../../model/types';
+import { useAllowedPaths, useForbiddenPaths, useForbiddenSelectors, useAddAllowedPath, useRemoveAllowedPath, useAddForbiddenPath, useRemoveForbiddenPath, useAddAuctionSelector, useRemoveForbiddenSelector, useAddAuctionUser, useRemoveAuctionUser } from '../../model/useAuctionSettings';
+
+
 
 export default function SelectedAuctionSettings({
   selectedAuction,

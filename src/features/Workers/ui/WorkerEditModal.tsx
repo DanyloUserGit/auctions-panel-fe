@@ -5,6 +5,7 @@ import {
   Button,
   CircularProgress,
   FormControl,
+  FormHelperText,
   Grid,
   InputLabel,
   MenuItem,
@@ -13,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Controller,
   useForm,
@@ -30,6 +31,8 @@ import {
 } from '../../auth/model/user-schema';
 import type { Group } from '../../groups/model/types';
 import { useGroups } from '../../groups/model/useGroups';
+import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
+import { fetchGroupByQuery } from '../../groups/model/api-groups';
 
 interface CreateUserModalProps {
   open: boolean;
@@ -45,14 +48,16 @@ export const WorkerEditModal = ({
   const { user: currentUser } = useAuth();
   const { mutate: updateUser, isPending, error } = useUpdateUser();
   const { data: groups, isLoading: isLoadingGroups } = useGroups();
-
   const isSA = currentUser?.role === 'SuperAdmin';
-
+  const [adminGroup, setAdminGroup] = useState<Group | null>(null);
+  const AdminGroupSearch = useAutoComplete<Group>({
+    fetchFn: fetchGroupByQuery,
+  });
   const {
     register,
     handleSubmit,
     control,
-    setValue,
+    // setValue,
     reset,
     formState: { errors },
   } = useForm<UpdateUser>({
@@ -65,6 +70,7 @@ export const WorkerEditModal = ({
       phone: user.phone,
       role: user.role,
       rights: user.rights,
+      auctionGroup: user.auctionGroup,
       auctionGroupId: user.auctionGroupId,
     },
   });
@@ -88,21 +94,32 @@ export const WorkerEditModal = ({
   };
 
   const onSubmit = (data: UpdateUser) => {
-    console.log(data);
     const payload = {
       ...data,
       auctionGroupId: selectedGroup?.id || null,
+      auctionGroup: adminGroup?.id
     };
-
-    updateUser(
-      { id: user.id, data: payload },
-      {
-        onSuccess: () => {
-          reset();
-          onClose();
+    if (selectedGroup) {
+      payload.auctionGroupId = selectedGroup.id
+    }
+    if (adminGroup) {
+      payload.auctionGroup = adminGroup.id
+    }
+    console.log(payload)
+    try {
+      updateUser(
+        { id: user.id, data: payload },
+        {
+          onSuccess: () => {
+            reset();
+            onClose();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.log(error)
+    }
+
   };
 
   return (
@@ -117,13 +134,16 @@ export const WorkerEditModal = ({
     >
       <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
         <Grid container spacing={2.5}>
+          {/* Глобальна помилка від API */}
           {error && (
-            <Grid size={12}>
-              <Alert severity="error">Помилка: {error.message}</Alert>
+            <Grid size={{ xs: 12 }}>
+              <Alert severity="error" sx={{ borderRadius: '8px' }}>
+                {error.message || 'Сталася помилка при оновленні'}
+              </Alert>
             </Grid>
           )}
+          <Grid size={{ xs: 6 }}>
 
-          <Grid size={6}>
             <TextField
               fullWidth
               label="Ім'я"
@@ -132,7 +152,8 @@ export const WorkerEditModal = ({
               helperText={errors.firstName?.message}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={{ xs: 6 }}>
+
             <TextField
               fullWidth
               label="Прізвище"
@@ -142,7 +163,8 @@ export const WorkerEditModal = ({
             />
           </Grid>
 
-          <Grid size={12}>
+          <Grid size={{ xs: 12 }}>
+
             <TextField
               fullWidth
               label="Email"
@@ -151,8 +173,8 @@ export const WorkerEditModal = ({
               helperText={errors.email?.message}
             />
           </Grid>
+          <Grid size={{ xs: 6, sm: 12 }}>
 
-          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Місто"
@@ -162,6 +184,7 @@ export const WorkerEditModal = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
+
             <TextField
               fullWidth
               label="Телефон"
@@ -170,40 +193,58 @@ export const WorkerEditModal = ({
               helperText={errors.phone?.message}
             />
           </Grid>
-          {/* Пошук Групи (тільки для SA) */}
+
+          {/* Поле вибору адміна групи */}
+          <Grid size={{ xs: 6 }}>
+
+            <Autocomplete
+              options={AdminGroupSearch.getFilteredOptions(adminGroup)}
+              loading={AdminGroupSearch.isLoading}
+              onInputChange={(_, val) => AdminGroupSearch.debouncedFetch(val, adminGroup)}
+              onChange={(_, val) => setAdminGroup(val)}
+              getOptionLabel={(o) => o.title || ''}
+              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Адмін групи (вибір групи)"
+                // Тут можна додати валідацію, якщо це поле обов'язкове
+                />
+              )}
+            />
+          </Grid>
+
+          {/* Вибір Групи (тільки для SA) */}
           {isSA && (
-            <Grid size={12}>
-              <Autocomplete
-                filterOptions={(x) => x}
-                value={selectedGroup}
-                options={groups || []}
-                loading={isLoadingGroups}
-                onChange={(_, val) => {
-                  setValue('auctionGroupId', val?.id || '');
-                }}
-                getOptionLabel={(o) => o.title || ''}
-                isOptionEqualToValue={(o, v) => o.id === v.id}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Група аукціонів"
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {isLoadingGroups ? (
-                            <CircularProgress size={20} />
-                          ) : null}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
+            <Grid size={{ xs: 12 }}>
+
+              <Controller
+                name="auctionGroupId"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    options={groups || []}
+                    loading={isLoadingGroups}
+                    value={groups?.find((g) => g.id === value) || null}
+                    onChange={(_, val) => onChange(val?.id || '')}
+                    getOptionLabel={(o) => o.title || ''}
+                    isOptionEqualToValue={(o, v) => o.id === v.id}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Група аукціонів"
+                        error={!!errors.auctionGroupId}
+                        helperText={errors.auctionGroupId?.message}
+                      />
+                    )}
                   />
                 )}
               />
             </Grid>
           )}
-          <Grid size={isSA ? 12 : 12}>
+
+          <Grid size={{ xs: 12 }}>
+
             <FormControl fullWidth error={!!errors.role}>
               <InputLabel>Роль</InputLabel>
               <Controller
@@ -211,20 +252,23 @@ export const WorkerEditModal = ({
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
-                      (role) => (
-                        <MenuItem key={role} value={role}>
-                          {role}
-                        </MenuItem>
-                      ),
-                    )}
+                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map((role) => (
+                      <MenuItem key={role} value={role}>
+                        {role}
+                      </MenuItem>
+                    ))}
                   </Select>
                 )}
               />
+              {errors.role && (
+                <FormHelperText>{errors.role.message}</FormHelperText>
+              )}
             </FormControl>
           </Grid>
 
-          <Grid size={12}>
+          {/* Інформаційний блок */}
+          <Grid size={{ xs: 12 }}>
+
             <Paper
               variant="outlined"
               sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
@@ -240,18 +284,18 @@ export const WorkerEditModal = ({
               </Typography>
             </Paper>
           </Grid>
-
-          <Grid size={12}>
+          <Grid size={{ xs: 12 }}>
             <Button
               fullWidth
               type="submit"
               variant="contained"
               disabled={isPending}
+              sx={{ py: 1.5, borderRadius: '10px', fontWeight: 700 }}
             >
               {isPending ? (
-                <CircularProgress size={24} />
+                <CircularProgress size={24} color="inherit" />
               ) : (
-                'Створити працівника'
+                'Зберегти зміни'
               )}
             </Button>
           </Grid>
@@ -259,4 +303,5 @@ export const WorkerEditModal = ({
       </form>
     </BaseModal>
   );
+
 };

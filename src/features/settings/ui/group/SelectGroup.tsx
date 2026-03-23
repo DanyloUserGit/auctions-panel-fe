@@ -1,9 +1,9 @@
 import { Search } from '@mui/icons-material';
 import { Autocomplete, Paper, Stack, TextField } from '@mui/material';
-import { useAutoCompleteWithQuery } from '../../../shared/hooks/useAutoCompleteWithQuery';
-import { fetchGroupByQuery } from '../../groups/model/api-groups';
-import type { Group } from '../../groups/model/types';
-import { useGroupById } from '../../groups/model/useGroups';
+import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
+import { fetchGroupByQuery } from '../../../groups/model/api-groups';
+import type { Group } from '../../../groups/model/types';
+import { useGroupById } from '../../../groups/model/useGroups';
 
 interface Props {
   selectedGroupId: string;

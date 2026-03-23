@@ -40,24 +40,23 @@ export default function AuctionsPage() {
     location.state?.view || 'auctions',
   );
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
-  const { data, isLoading: isLoadingGroupSearch } =
-    useGroupByQuery(debouncedSearch);
-  useEffect(() => console.log(data), [data]);
+  const { data: searchData } = useGroupByQuery(debouncedSearch);
   const isMobile = useMobile();
 
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups ?? [];
     if (debouncedSearch.trim()) {
-      result = data || [];
+      console.log(debouncedSearch)
+      result = searchData || [];
     }
     if (isAlphabetical) {
       return [...result].sort((a, b) => a.title.localeCompare(b.title));
     }
     return result;
-  }, [data, groups, debouncedSearch, isAlphabetical]);
+  }, [searchData, groups, debouncedSearch, isAlphabetical]);
 
-  // Визначення активної групи
   const activeGroupId = useMemo(() => {
+
     if (filteredGroups?.length === 0) return '';
     if (
       selectedGroupId &&
@@ -98,7 +97,6 @@ export default function AuctionsPage() {
     setView('sessions');
   };
 
-  // Ефект для дебаунсу пошуку
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
@@ -118,9 +116,7 @@ export default function AuctionsPage() {
     close: handleCloseCreateGroup,
   } = useModal(false);
 
-  if (IsLoadingAuctions || isLoadingSessions || isLoadingGroupSearch)
-    return <Loader />;
-
+  if (isLoadingSessions || IsLoadingAuctions) return <Loader />
   return (
     <Box sx={{ p: { xs: 2, sm: 0 } }}>
       <Box
@@ -238,7 +234,9 @@ export default function AuctionsPage() {
       )}
 
       {/* ОСНОВНИЙ КОНТЕНТ (Аукціони / Акаунти / Сесії) */}
+
       <Box sx={{ mt: 2 }}>
+
         {view === 'auctions' && (
           <AuctionsList
             currentGroupId={activeGroupId}
@@ -246,6 +244,7 @@ export default function AuctionsPage() {
             onAuctionClick={handleAuctionClick}
           />
         )}
+
 
         {view === 'accounts' && selectedAuction && (
           <AccountList
