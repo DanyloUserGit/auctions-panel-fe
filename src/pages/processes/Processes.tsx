@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import type { Car } from './model/types';
 import { useProcessesData } from './model/useData';
 
+import { ArrowBack } from '@mui/icons-material';
+import PrintIcon from '@mui/icons-material/Print';
 import {
   Box,
-  Typography,
-  TextField,
   Button,
   Chip,
+  CircularProgress,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -15,13 +17,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
+  TextField,
+  Typography,
 } from '@mui/material';
-import PrintIcon from '@mui/icons-material/Print';
+import { useNavigate } from 'react-router';
 
 export const Processes = () => {
   const [filterActive, setFilterActive] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const { data, isLoading, isError, error } = useProcessesData('ALL_KEY');
 
@@ -106,11 +110,16 @@ export const Processes = () => {
   return (
     <Box className="max-w-[1400px] mx-auto p-4 md:p-6 bg-white min-h-screen flex flex-col gap-4">
       <Box className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', my: 3, gap: 1 }}>
+          <IconButton
+            onClick={() => navigate(-1)}
+            sx={{ color: 'text.secondary' }}
+          >
+            <ArrowBack />
+          </IconButton>
           <Typography
-            variant="h4"
-            component="h1"
-            className="font-bold text-gray-800"
+            variant="h5"
+            sx={{ fontWeight: 800, letterSpacing: '-0.5px' }}
           >
             Процеси
           </Typography>

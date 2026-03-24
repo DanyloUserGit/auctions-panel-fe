@@ -100,9 +100,21 @@ export default function EmployeesSection() {
 
   const currentUser = users?.find((u) => u.id === effectiveId);
 
-  const { isOpen: isControlCardOpen, open: OpenControlCard, close: CloseControlCard, } = useModal(false);
-  const { isOpen: isAddUserOpen, open: OpenAddUser, close: CloseAddUser, } = useModal(false);
-  const { isOpen: isEditUserOpen, open: OpenEditUser, close: CloseEditUser, } = useModal(false);
+  const {
+    isOpen: isControlCardOpen,
+    open: OpenControlCard,
+    close: CloseControlCard,
+  } = useModal(false);
+  const {
+    isOpen: isAddUserOpen,
+    open: OpenAddUser,
+    close: CloseAddUser,
+  } = useModal(false);
+  const {
+    isOpen: isEditUserOpen,
+    open: OpenEditUser,
+    close: CloseEditUser,
+  } = useModal(false);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -233,7 +245,9 @@ export default function EmployeesSection() {
         labelRowsPerPage={isMobile ? '' : 'Рядків на сторінці:'}
         sx={{
           mt: 2,
-          '.MuiTablePagination-selectLabel': { display: isMobile ? 'none' : 'block' }
+          '.MuiTablePagination-selectLabel': {
+            display: isMobile ? 'none' : 'block',
+          },
         }}
       />
 

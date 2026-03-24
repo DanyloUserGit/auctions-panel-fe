@@ -17,13 +17,11 @@ export const fetchAuctionsByQuery = async (q: string): Promise<Auction[]> => {
   return responce.data;
 };
 export const createAuction = async (data: AuctionCreate) => {
-  console.log(data);
   const responce = await api.post('auctions', data);
   return responce.data;
 };
 export const editAuction = async (id: string, data: AuctionEdit) => {
   const responce = await api.patch(`auctions/${id}`, data);
-  console.log(responce.data);
   return responce.data;
 };
 
@@ -40,7 +38,5 @@ export const fetchAuctionsByGroup = async (
 
 export const fetchAuctionsById = async (id: string): Promise<Auction> => {
   const responce = await api.get(`/auctions/${id}`);
-  console.log(responce.data);
-  console.log(responce.data);
   return responce.data;
 };

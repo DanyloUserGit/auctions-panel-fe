@@ -53,8 +53,6 @@ export function MaterialEditorModal({
       isPublished,
     };
 
-    console.log('Відправка матеріалу:', payload);
-
     mutate(payload, {
       onSuccess: () => {
         setTitle('');

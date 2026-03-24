@@ -21,9 +21,12 @@ import { authKeys } from '../../../auth/model/useAuth';
 import type { User } from '../../../auth/model/user-schema';
 import { Can } from '../../../auth/ui/Can';
 import { useGroupById, useEditGroup } from '../../../groups/model/useGroups';
-import { useAddAuctionToGroup, useRemoveAuctionFromGroup, useRevokeAccountAccess, useGrantAccountAccess } from '../../model/useGroupSettigs';
-
-
+import {
+  useAddAuctionToGroup,
+  useRemoveAuctionFromGroup,
+  useRevokeAccountAccess,
+  useGrantAccountAccess,
+} from '../../model/useGroupSettigs';
 
 interface Props {
   groupId: string;

@@ -27,7 +27,6 @@ export default function Home() {
 
     const unsubscribe = subscribeToGlobalNotifications({
       onReceived: (data) => {
-        console.log('Отримано сповіщення:', data);
         showNotification(data.message);
 
         queryClient.invalidateQueries({ queryKey: ['notifications'] });

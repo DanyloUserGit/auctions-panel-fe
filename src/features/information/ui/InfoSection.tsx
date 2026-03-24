@@ -6,7 +6,7 @@ import {
   Paper,
   Stack,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -133,8 +133,7 @@ export default function InfoFaqUI() {
           justifyContent="space-between"
           sx={{ mb: { xs: 2, md: 4 } }}
         >
-          {
-            !isMobile &&
+          {!isMobile && (
             <Stack direction="row" spacing={1.5} alignItems="center">
               <DescriptionOutlined
                 color="primary"
@@ -151,7 +150,7 @@ export default function InfoFaqUI() {
                 Довідкова інформація
               </Typography>
             </Stack>
-          }
+          )}
 
           <Can roles={['SuperAdmin', 'Admin']}>
             <Button

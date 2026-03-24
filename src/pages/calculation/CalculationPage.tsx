@@ -1,6 +1,18 @@
 import { ArrowBack } from '@mui/icons-material';
-import { Box, IconButton, Typography } from '@mui/material';
-import React, { useEffect, useState, type ChangeEvent } from 'react';
+import {
+  Box,
+  IconButton,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Paper,
+  type SelectChangeEvent,
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getBrands, getEstimate, getModels } from './model/api';
 import type { ICalculationForm, ICalculationResult } from './model/types';
@@ -50,10 +62,12 @@ const CalculationPage: React.FC = () => {
   }, [form.marka, form.table, db]);
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<string>,
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name as string]: value }));
   };
 
   const calculate = async () => {
@@ -61,8 +75,6 @@ const CalculationPage: React.FC = () => {
     try {
       const response = await getEstimate(db, form);
       setResult(response.data);
-    } catch (error) {
-      console.log('Помилка розрахунку: ', error);
     } finally {
       setLoading(false);
     }
@@ -85,127 +97,135 @@ const CalculationPage: React.FC = () => {
         </Typography>
       </Box>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-5" style={{ marginBottom: '15px' }}>
         {/* Вибір таблиці */}
-        <div>
-          <label className="block text-sm font-medium">
-            Тип авто (Таблиця)
-          </label>
-          <select
+        <FormControl fullWidth>
+          <InputLabel id="table-select-label">Тип авто (Таблиця)</InputLabel>
+          <Select
+            labelId="table-select-label"
             name="table"
             value={form.table}
+            label="Тип авто (Таблиця)"
             onChange={handleInputChange}
-            className="w-full border p-2 rounded"
           >
             {tables.map((t) => (
-              <option key={t} value={t}>
+              <MenuItem key={t} value={t}>
                 {t}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-        </div>
+          </Select>
+        </FormControl>
 
         {/* Вибір Марки */}
-        <div>
-          <label className="block text-sm font-medium">Марка</label>
-          <select
+        <FormControl fullWidth>
+          <InputLabel id="marka-select-label">Марка</InputLabel>
+          <Select
+            labelId="marka-select-label"
             name="marka"
             value={form.marka}
+            label="Марка"
             onChange={handleInputChange}
-            className="w-full border p-2 rounded"
           >
-            <option value="">Оберіть марку</option>
+            <MenuItem value="">
+              <em>Оберіть марку</em>
+            </MenuItem>
             {brands.map((b) => (
-              <option key={b} value={b}>
+              <MenuItem key={b} value={b}>
                 {b}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-        </div>
+          </Select>
+        </FormControl>
 
         {/* Вибір Моделі */}
-        <div>
-          <label className="block text-sm font-medium">Модель</label>
-          <select
+        <FormControl fullWidth>
+          <InputLabel id="model-select-label">Модель</InputLabel>
+          <Select
+            labelId="model-select-label"
             name="model"
             value={form.model}
+            label="Модель"
             onChange={handleInputChange}
-            className="w-full border p-2 rounded"
+            disabled={!form.marka}
           >
-            <option value="">Оберіть модель</option>
+            <MenuItem value="">
+              <em>Оберіть модель</em>
+            </MenuItem>
             {models.map((m) => (
-              <option key={m} value={m}>
+              <MenuItem key={m} value={m}>
                 {m}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-        </div>
+          </Select>
+        </FormControl>
 
         {/* Рік випуску */}
-        <div>
-          <label className="block text-sm font-medium">Рік</label>
-          <input
-            type="number"
-            name="year"
-            value={form.year}
-            onChange={handleInputChange}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        <TextField
+          fullWidth
+          label="Рік"
+          type="number"
+          name="year"
+          value={form.year}
+          onChange={handleInputChange}
+        />
 
-        {/* Нові поля: Об'єм та Паливо */}
-        <div>
-          <label className="block text-sm font-medium">
-            Об'єм двигуна (см³)
-          </label>
-          <input
-            type="number"
-            name="engineVolume"
-            value={form.engineVolume}
-            onChange={handleInputChange}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        {/* Об'єм двигуна */}
+        <TextField
+          fullWidth
+          label="Об'єм двигуна (см³)"
+          type="number"
+          name="engineVolume"
+          value={form.engineVolume}
+          onChange={handleInputChange}
+        />
 
-        <div>
-          <label className="block text-sm font-medium">Тип палива</label>
-          <select
+        {/* Тип палива */}
+        <FormControl fullWidth>
+          <InputLabel id="fuel-type-label">Тип палива</InputLabel>
+          <Select
+            labelId="fuel-type-label"
             name="fuelType"
             value={form.fuelType}
+            label="Тип палива"
             onChange={handleInputChange}
-            className="w-full border p-2 rounded"
           >
-            <option value="petrol">Бензин</option>
-            <option value="diesel">Дизель</option>
-          </select>
-        </div>
+            <MenuItem value="petrol">Бензин</MenuItem>
+            <MenuItem value="diesel">Дизель</MenuItem>
+          </Select>
+        </FormControl>
 
-        <div>
-          <label className="block text-sm font-medium">
-            Ціна на аукціоні (USD)
-          </label>
-          <input
-            type="number"
-            name="auctionPrice"
-            value={form.auctionPrice}
-            onChange={handleInputChange}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        {/* Ціна на аукціоні */}
+        <TextField
+          fullWidth
+          label="Ціна на аукціоні (USD)"
+          type="number"
+          name="auctionPrice"
+          value={form.auctionPrice}
+          onChange={handleInputChange}
+        />
       </div>
 
-      <button
+      <Button
+        variant="contained"
         onClick={calculate}
         disabled={loading}
-        className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700"
+        size="large"
+        className="mt-8 w-full py-3"
+        sx={{ fontWeight: 'bold' }}
       >
         {loading ? 'Рахуємо...' : 'Розрахувати вартість'}
-      </button>
+      </Button>
 
       {result && (
-        <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
-          <h2 className="text-xl font-bold mb-4">Результати розрахунку:</h2>
-          <div className="space-y-2">
+        <Paper
+          elevation={0}
+          className="mt-8 p-6 bg-blue-50 border border-blue-200"
+          sx={{ borderRadius: '12px' }}
+        >
+          <Typography variant="h6" className="font-bold mb-4">
+            Результати розрахунку:
+          </Typography>
+          <div className="space-y-3">
             <div className="flex justify-between">
               <span>Оціночна вартість (БД):</span>
               <span className="font-bold">{result.basePriceFromDb} USD</span>
@@ -222,7 +242,7 @@ const CalculationPage: React.FC = () => {
               <span>ПДВ (20%):</span>
               <span>+{result.details.vat} USD</span>
             </div>
-            <div className="flex justify-between font-bold pt-2 border-t">
+            <div className="flex justify-between font-bold pt-3 border-t border-blue-200">
               <span>Всього розмитнення:</span>
               <span>{result.details.totalCustoms} USD</span>
             </div>
@@ -231,7 +251,7 @@ const CalculationPage: React.FC = () => {
               <span>{result.totalInUkraine} USD</span>
             </div>
           </div>
-        </div>
+        </Paper>
       )}
     </>
   );
