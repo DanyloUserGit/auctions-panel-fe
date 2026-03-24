@@ -1,4 +1,10 @@
-import { Gavel, Groups, Notifications, Person, Public } from '@mui/icons-material';
+import {
+  Gavel,
+  Groups,
+  Notifications,
+  Person,
+  Public,
+} from '@mui/icons-material';
 import { Box, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useAuth } from '../features/auth/model/useAuth';

@@ -62,7 +62,9 @@ const CalculationPage: React.FC = () => {
   }, [form.marka, form.table, db]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<string>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name as string]: value }));
@@ -97,7 +99,7 @@ const CalculationPage: React.FC = () => {
         </Typography>
       </Box>
 
-      <div className="grid grid-cols-2 gap-5" style={{marginBottom: "15px"}}>
+      <div className="grid grid-cols-2 gap-5" style={{ marginBottom: '15px' }}>
         {/* Вибір таблиці */}
         <FormControl fullWidth>
           <InputLabel id="table-select-label">Тип авто (Таблиця)</InputLabel>

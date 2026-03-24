@@ -46,8 +46,8 @@ export const updateUserSchema = z.object({
         return phoneRegex.test(cleanPhone);
       },
       {
-        message: "Невірний формат номера телефону",
-      }
+        message: 'Невірний формат номера телефону',
+      },
     ),
   city: z.string().optional(),
   role: z.enum(ROLES).optional(),

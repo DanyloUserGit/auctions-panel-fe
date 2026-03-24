@@ -76,7 +76,11 @@ const BalancesPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        <TableContainer component={Paper} elevation={0} className="border border-gray-200">
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          className="border border-gray-200"
+        >
           <Table className="w-full">
             <TableHead className="bg-gray-100">
               <TableRow>
@@ -84,16 +88,28 @@ const BalancesPage: React.FC = () => {
                 <TableCell className="uppercase text-gray-700 text-sm font-semibold">
                   Клієнт
                 </TableCell>
-                <TableCell align="right" className="uppercase text-green-700 text-sm font-semibold">
+                <TableCell
+                  align="right"
+                  className="uppercase text-green-700 text-sm font-semibold"
+                >
                   USD
                 </TableCell>
-                <TableCell align="right" className="uppercase text-blue-700 text-sm font-semibold">
+                <TableCell
+                  align="right"
+                  className="uppercase text-blue-700 text-sm font-semibold"
+                >
                   EUR
                 </TableCell>
-                <TableCell align="right" className="uppercase text-red-700 text-sm font-semibold">
+                <TableCell
+                  align="right"
+                  className="uppercase text-red-700 text-sm font-semibold"
+                >
                   PLN
                 </TableCell>
-                <TableCell align="right" className="uppercase text-gray-800 text-sm font-semibold">
+                <TableCell
+                  align="right"
+                  className="uppercase text-gray-800 text-sm font-semibold"
+                >
                   UAH
                 </TableCell>
               </TableRow>
@@ -149,7 +165,9 @@ const BalancesPage: React.FC = () => {
                         </TableCell>
                         <TableCell
                           align="right"
-                          className={record.isPlus ? 'text-green-600' : 'text-red-600'}
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.usd > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.usd)}`
@@ -157,7 +175,9 @@ const BalancesPage: React.FC = () => {
                         </TableCell>
                         <TableCell
                           align="right"
-                          className={record.isPlus ? 'text-green-600' : 'text-red-600'}
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.eur > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.eur)}`
@@ -165,7 +185,9 @@ const BalancesPage: React.FC = () => {
                         </TableCell>
                         <TableCell
                           align="right"
-                          className={record.isPlus ? 'text-green-600' : 'text-red-600'}
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.pln > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.pln)}`
@@ -173,7 +195,9 @@ const BalancesPage: React.FC = () => {
                         </TableCell>
                         <TableCell
                           align="right"
-                          className={record.isPlus ? 'text-green-600' : 'text-red-600'}
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.uah > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.uah)}`
@@ -185,7 +209,11 @@ const BalancesPage: React.FC = () => {
               ))}
               {balances.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" className="py-6 text-gray-500">
+                  <TableCell
+                    colSpan={6}
+                    align="center"
+                    className="py-6 text-gray-500"
+                  >
                     Немає даних для відображення
                   </TableCell>
                 </TableRow>

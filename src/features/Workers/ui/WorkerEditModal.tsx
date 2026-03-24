@@ -97,15 +97,15 @@ export const WorkerEditModal = ({
     const payload = {
       ...data,
       auctionGroupId: selectedGroup?.id || null,
-      auctionGroup: adminGroup?.id
+      auctionGroup: adminGroup?.id,
     };
     if (selectedGroup) {
-      payload.auctionGroupId = selectedGroup.id
+      payload.auctionGroupId = selectedGroup.id;
     }
     if (adminGroup) {
-      payload.auctionGroup = adminGroup.id
+      payload.auctionGroup = adminGroup.id;
     }
-    console.log(payload)
+    console.log(payload);
     try {
       updateUser(
         { id: user.id, data: payload },
@@ -117,9 +117,8 @@ export const WorkerEditModal = ({
         },
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   };
 
   return (
@@ -143,7 +142,6 @@ export const WorkerEditModal = ({
             </Grid>
           )}
           <Grid size={{ xs: 6 }}>
-
             <TextField
               fullWidth
               label="Ім'я"
@@ -153,7 +151,6 @@ export const WorkerEditModal = ({
             />
           </Grid>
           <Grid size={{ xs: 6 }}>
-
             <TextField
               fullWidth
               label="Прізвище"
@@ -164,7 +161,6 @@ export const WorkerEditModal = ({
           </Grid>
 
           <Grid size={{ xs: 12 }}>
-
             <TextField
               fullWidth
               label="Email"
@@ -174,7 +170,6 @@ export const WorkerEditModal = ({
             />
           </Grid>
           <Grid size={{ xs: 6, sm: 12 }}>
-
             <TextField
               fullWidth
               label="Місто"
@@ -184,7 +179,6 @@ export const WorkerEditModal = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-
             <TextField
               fullWidth
               label="Телефон"
@@ -196,11 +190,12 @@ export const WorkerEditModal = ({
 
           {/* Поле вибору адміна групи */}
           <Grid size={{ xs: 6 }}>
-
             <Autocomplete
               options={AdminGroupSearch.getFilteredOptions(adminGroup)}
               loading={AdminGroupSearch.isLoading}
-              onInputChange={(_, val) => AdminGroupSearch.debouncedFetch(val, adminGroup)}
+              onInputChange={(_, val) =>
+                AdminGroupSearch.debouncedFetch(val, adminGroup)
+              }
               onChange={(_, val) => setAdminGroup(val)}
               getOptionLabel={(o) => o.title || ''}
               isOptionEqualToValue={(o, v) => o?.id === v?.id}
@@ -208,7 +203,7 @@ export const WorkerEditModal = ({
                 <TextField
                   {...params}
                   label="Адмін групи (вибір групи)"
-                // Тут можна додати валідацію, якщо це поле обов'язкове
+                  // Тут можна додати валідацію, якщо це поле обов'язкове
                 />
               )}
             />
@@ -217,7 +212,6 @@ export const WorkerEditModal = ({
           {/* Вибір Групи (тільки для SA) */}
           {isSA && (
             <Grid size={{ xs: 12 }}>
-
               <Controller
                 name="auctionGroupId"
                 control={control}
@@ -244,7 +238,6 @@ export const WorkerEditModal = ({
           )}
 
           <Grid size={{ xs: 12 }}>
-
             <FormControl fullWidth error={!!errors.role}>
               <InputLabel>Роль</InputLabel>
               <Controller
@@ -252,11 +245,13 @@ export const WorkerEditModal = ({
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map((role) => (
-                      <MenuItem key={role} value={role}>
-                        {role}
-                      </MenuItem>
-                    ))}
+                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
+                      (role) => (
+                        <MenuItem key={role} value={role}>
+                          {role}
+                        </MenuItem>
+                      ),
+                    )}
                   </Select>
                 )}
               />
@@ -268,7 +263,6 @@ export const WorkerEditModal = ({
 
           {/* Інформаційний блок */}
           <Grid size={{ xs: 12 }}>
-
             <Paper
               variant="outlined"
               sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
@@ -303,5 +297,4 @@ export const WorkerEditModal = ({
       </form>
     </BaseModal>
   );
-
 };

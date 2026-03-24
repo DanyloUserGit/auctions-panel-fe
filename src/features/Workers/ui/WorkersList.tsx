@@ -38,7 +38,9 @@ export default function WorkersList({
     <TableContainer
       component={Paper}
       sx={{
-        borderRadius: '15px', overflow: 'scroll', '&::-webkit-scrollbar': {
+        borderRadius: '15px',
+        overflow: 'scroll',
+        '&::-webkit-scrollbar': {
           display: 'none',
         },
       }}

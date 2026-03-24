@@ -26,7 +26,7 @@ const closedDrawerWidth = 72;
 
 export default function Sidebar() {
   const isMobile = useMobile();
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const handleNavigation = (path: string) => {
@@ -64,7 +64,7 @@ export default function Sidebar() {
           icon: <AccountBalanceWallet />,
           path: '/accounting',
         },
-        { text: 'Процеси', icon: <Autorenew />, path: '/processes', },
+        { text: 'Процеси', icon: <Autorenew />, path: '/processes' },
         {
           text: 'Баланси',
           icon: <AccountBalanceWallet className="text-primary" />,

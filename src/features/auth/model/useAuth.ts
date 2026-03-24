@@ -21,7 +21,7 @@ export const authKeys = {
   me: ['auth', 'me'] as const,
   users: ['users'] as const,
   controlCard: (id: string) => ['auth', 'users', 'control-card', id] as const,
-  login: ['login'] as const
+  login: ['login'] as const,
 };
 interface LoginPayload {
   data: LoginInput;
@@ -44,7 +44,7 @@ export const useLogin = () => {
     onError: (error) => {
       // Тут можна додати глобальне сповіщення (Toast), якщо потрібно
       console.error('Login failed:', error);
-    }
+    },
   });
 };
 export const useAuth = () => {
@@ -190,11 +190,7 @@ export const useUserById = (id: string | null) => {
   });
 };
 
-export const useSearchUsers = (
-  query: string,
-  page: number,
-  limit: number,
-) => {
+export const useSearchUsers = (query: string, page: number, limit: number) => {
   return useQuery({
     queryKey: [...authKeys.users, 'search', query],
     queryFn: () => fetchUsersByQuery(query, page, limit),

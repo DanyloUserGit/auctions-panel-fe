@@ -3,12 +3,16 @@ import type { LoginInput } from './login-schema';
 import type { ChangeRole, CreateUser, UpdateUser, User } from './user-schema';
 
 export const login = async (data: LoginInput, token: string) => {
-  const response = await api.post('/auth/login', { ...data, token }, {
-    withCredentials: true,
-  });
+  const response = await api.post(
+    '/auth/login',
+    { ...data, token },
+    {
+      withCredentials: true,
+    },
+  );
   console.log('Успішний вхід:', response.data);
-  return response.data
-}
+  return response.data;
+};
 export const fetchCurrentUser = async (): Promise<User> => {
   const responce = await api.get('/auth/me');
   return responce.data;
@@ -28,13 +32,17 @@ interface fetchUsersByQueryResponce {
   data: User[];
   meta: { total: number; page: number; lastPage: number };
 }
-export const fetchUsersByQuery = async (query: string, page: number = 1, limit: number = 10): Promise<fetchUsersByQueryResponce> => {
+export const fetchUsersByQuery = async (
+  query: string,
+  page: number = 1,
+  limit: number = 10,
+): Promise<fetchUsersByQueryResponce> => {
   const response = await api.get(`/users/search/`, {
     params: {
       query,
       page,
-      limit
-    }
+      limit,
+    },
   });
   return response.data;
 };

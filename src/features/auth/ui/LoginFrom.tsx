@@ -34,12 +34,11 @@ export default function LoginForm() {
     }
 
     try {
-
       await login({ data, token: captchaToken });
       console.log('Успішний вхід');
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.log(error.response)
+        console.log(error.response);
         setError('root', {
           type: 'server',
           message: error.response?.data?.message || 'Помилка авторизації',
@@ -51,11 +50,18 @@ export default function LoginForm() {
   return (
     <Container maxWidth="sm" sx={{ mt: 10 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography variant="h5" sx={{ color: 'var(--color-primary)', fontWeight: 'bold', mb: 2 }}>
+        <Typography
+          variant="h5"
+          sx={{ color: 'var(--color-primary)', fontWeight: 'bold', mb: 2 }}
+        >
           Вхід
         </Typography>
 
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+        >
           <TextField
             fullWidth
             label="Пошта"

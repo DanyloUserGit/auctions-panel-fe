@@ -21,7 +21,7 @@ import { useAuth, useCreateUser } from '../../auth/model/useAuth';
 import {
   type CreateUser,
   createUserSchema,
-  ROLES
+  ROLES,
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
@@ -70,7 +70,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
       email: '',
       password: '',
       auctionGroupId: '',
-      auctionGroup: ""
+      auctionGroup: '',
     },
   });
 
@@ -78,16 +78,15 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     const payload = {
       ...data,
       auctionGroupId: selectedGroup?.id || '',
-      auctionGroup: adminGroup?.id || ""
+      auctionGroup: adminGroup?.id || '',
     };
     if (selectedGroup?.id) {
-      payload.auctionGroupId = selectedGroup.id
+      payload.auctionGroupId = selectedGroup.id;
     }
     if (adminGroup?.id) {
-      payload.auctionGroup = adminGroup.id
+      payload.auctionGroup = adminGroup.id;
     }
     createUser(payload);
-
 
     reset();
     setSelectedGroup(null);
@@ -176,14 +175,14 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
             />
           </Grid>
           <Grid size={12}>
-
             <Autocomplete
               options={AdminGroupSearch.getFilteredOptions(adminGroup)}
               loading={AdminGroupSearch.isLoading}
-              onInputChange={(_, val) => AdminGroupSearch.debouncedFetch(val, adminGroup)}
+              onInputChange={(_, val) =>
+                AdminGroupSearch.debouncedFetch(val, adminGroup)
+              }
               onChange={(_, val) => setAdminGroup(val)}
               getOptionLabel={(o) => o.title || ''}
-
               isOptionEqualToValue={(o, v) => o?.id === v?.id}
               renderInput={(params) => (
                 <TextField {...params} label="Адмін групи" />

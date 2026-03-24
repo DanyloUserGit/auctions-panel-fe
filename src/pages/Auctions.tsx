@@ -46,7 +46,7 @@ export default function AuctionsPage() {
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups ?? [];
     if (debouncedSearch.trim()) {
-      console.log(debouncedSearch)
+      console.log(debouncedSearch);
       result = searchData || [];
     }
     if (isAlphabetical) {
@@ -56,7 +56,6 @@ export default function AuctionsPage() {
   }, [searchData, groups, debouncedSearch, isAlphabetical]);
 
   const activeGroupId = useMemo(() => {
-
     if (filteredGroups?.length === 0) return '';
     if (
       selectedGroupId &&
@@ -116,7 +115,7 @@ export default function AuctionsPage() {
     close: handleCloseCreateGroup,
   } = useModal(false);
 
-  if (isLoadingSessions || IsLoadingAuctions) return <Loader />
+  if (isLoadingSessions || IsLoadingAuctions) return <Loader />;
   return (
     <Box sx={{ p: { xs: 2, sm: 0 } }}>
       <Box
@@ -236,7 +235,6 @@ export default function AuctionsPage() {
       {/* ОСНОВНИЙ КОНТЕНТ (Аукціони / Акаунти / Сесії) */}
 
       <Box sx={{ mt: 2 }}>
-
         {view === 'auctions' && (
           <AuctionsList
             currentGroupId={activeGroupId}
@@ -244,7 +242,6 @@ export default function AuctionsPage() {
             onAuctionClick={handleAuctionClick}
           />
         )}
-
 
         {view === 'accounts' && selectedAuction && (
           <AccountList
