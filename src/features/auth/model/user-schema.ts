@@ -1,4 +1,5 @@
 import z from 'zod';
+import type { Group } from '../../groups/model/types';
 
 export const ROLES = ['Admin', 'User', 'SuperAdmin'] as const;
 export type UserRole = (typeof ROLES)[number];
@@ -16,7 +17,7 @@ export const userSchema = z.object({
   phone: z.string(),
   city: z.string(),
   auctionGroupId: z.uuid(),
-  auctionGroup: z.string().or(z.literal('')),
+  managedGroup: z.string().or(z.literal('')),
   sessionLimit: z.number(),
   sessionRights: z.enum(RIGHTS),
   isActive: z.boolean(),
@@ -28,7 +29,27 @@ export const userSchema = z.object({
   sessionId: z.string(),
 });
 
-export type User = z.infer<typeof userSchema>;
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  rights: UserRights;
+  phone: string;
+  city: string;
+  auctionGroupId: string; // z.uuid() у TypeScript представлений як string
+  managedGroup: Group;   // оскільки .or(z.literal('')) — це все одно рядок
+  sessionLimit: number;
+  sessionRights: UserRights;
+  isActive: boolean;
+  isBlocked: boolean;
+  telegramChatId: string;
+  viberId: string;
+  lastLogin: Date;
+  lastActivity: Date;
+  sessionId: string;
+}
 const phoneRegex = /^(?:\+?38)?(?:0\d{9})$/;
 export const updateUserSchema = z.object({
   firstName: z.string().optional(),
@@ -53,7 +74,7 @@ export const updateUserSchema = z.object({
   role: z.enum(ROLES).optional(),
   rights: z.enum(RIGHTS).optional(),
   auctionGroupId: z.uuid().optional().nullable().or(z.literal('')),
-  auctionGroup: z.string().or(z.literal('')).optional(),
+  managedGroup: z.string().or(z.literal('')).optional(),
 
   sessionLimit: z.number().optional(),
 });
@@ -81,7 +102,7 @@ export const createUserSchema = z.object({
   phone: z.string().optional(),
   city: z.string().optional(),
   auctionGroupId: z.string().uuid().or(z.literal('')).optional(),
-  auctionGroup: z.string().or(z.literal('')).optional(),
+  managedGroup: z.string().or(z.literal('')).optional(),
   sessionLimit: z.number().optional(),
 });
 export type CreateUser = z.infer<typeof createUserSchema>;

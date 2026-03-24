@@ -6,7 +6,6 @@ import SelectedAuctionSettings from './SelectedAuctionSettings';
 export function AuctionSettings() {
   const [selectedAuctionId, setSelectedAuction] = useState<string | ''>('');
 
-  console.log(selectedAuctionId);
 
   return (
     <Stack spacing={3}>

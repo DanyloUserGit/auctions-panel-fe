@@ -19,7 +19,6 @@ export const fetchAllowedPaths = async (auctionId: string) => {
 };
 export const addAuctionUser = async (id: string, data: { userId: string }) => {
   const response = await api.post(`auctions/${id}/add-user`, data);
-  console.log(response.data);
   return response.data;
 };
 
@@ -35,7 +34,6 @@ export const addAuctionAllowedPath = async (
   id: string,
   data: { path: string },
 ) => {
-  console.log(data);
   const response = await api.post(`auctions/${id}/allowed`, data);
   return response.data;
 };
@@ -59,10 +57,7 @@ export const removeForbiddenPath = async (id: string) => {
 
 export const removeForbiddenSelector = async (id: string) => {
   if (!id) return;
-
-  console.log(id);
   const response = await api.delete(`auctions/remove-forbidden-selector/${id}`);
-  console.log(response.data);
   return response.data;
 };
 
@@ -72,6 +67,5 @@ export const removeAuctionUser = async (
 ) => {
   if (!id || !data.userId) return;
   const response = await api.delete(`auctions/${id}/remove-user`, { data });
-  console.log(response.data);
   return response.data;
 };

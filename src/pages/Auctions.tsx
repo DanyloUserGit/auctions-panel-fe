@@ -46,7 +46,6 @@ export default function AuctionsPage() {
   const filteredGroups = useMemo<Group[]>(() => {
     let result = groups ?? [];
     if (debouncedSearch.trim()) {
-      console.log(debouncedSearch);
       result = searchData || [];
     }
     if (isAlphabetical) {

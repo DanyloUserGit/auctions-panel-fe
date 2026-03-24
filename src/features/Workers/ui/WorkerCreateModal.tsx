@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
@@ -34,28 +34,18 @@ interface CreateUserModalProps {
 export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
   const { mutate: createUser, isPending, error } = useCreateUser();
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  const [adminGroup, setAdminGroup] = useState<Group | null>(null);
-  const AdminGroupSearch = useAutoComplete<Group>({
-    fetchFn: fetchGroupByQuery,
-  });
-  const {
-    options: groupOptions,
-    isLoading: isGroupsLoading,
-    debouncedFetch: debouncedFetchGroups,
-    setOptions: setGroupOptions,
-  } = useAutoComplete<Group>({
-    fetchFn: fetchGroupByQuery,
-    debounceTime: 400,
-  });
-
   const isSA = currentUser?.role === 'SuperAdmin';
+
+  const GroupSearch = useAutoComplete<Group>({
+    fetchFn: fetchGroupByQuery,
+  });
 
   const {
     register,
     handleSubmit,
     control,
     reset,
+    watch,
     setValue,
     formState: { errors },
   } = useForm<CreateUser>({
@@ -70,37 +60,45 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
       email: '',
       password: '',
       auctionGroupId: '',
-      auctionGroup: '',
+      managedGroup: '',
     },
   });
 
-  const onSubmit = async (data: CreateUser) => {
-    const payload = {
-      ...data,
-      auctionGroupId: selectedGroup?.id || '',
-      auctionGroup: adminGroup?.id || '',
-    };
-    if (selectedGroup?.id) {
-      payload.auctionGroupId = selectedGroup.id;
-    }
-    if (adminGroup?.id) {
-      payload.auctionGroup = adminGroup.id;
-    }
-    createUser(payload);
+  const selectedRole = watch('role');
 
-    reset();
-    setSelectedGroup(null);
-    setAdminGroup(null);
-    setGroupOptions([]);
-    onClose();
-  };
+  const canManageGroup = selectedRole === 'Admin';
+  const isAuctionMember = selectedRole === 'User' || selectedRole === 'SuperAdmin';
+
+  useEffect(() => {
+    if (canManageGroup) {
+      setValue('auctionGroupId', '');
+    } else if (isAuctionMember) {
+      setValue('managedGroup', '');
+    }
+  }, [selectedRole, canManageGroup, isAuctionMember, setValue]);
 
   const handleClose = () => {
     reset();
-    setSelectedGroup(null);
-    setGroupOptions([]);
+    GroupSearch.setOptions([]);
     onClose();
   };
+
+  const onSubmit = (data: CreateUser) => {
+    const payload: Partial<CreateUser> = { ...data };
+
+    if (payload.managedGroup && payload.managedGroup.trim() !== '') {
+      delete payload.auctionGroupId;
+    }
+
+    if (isAuctionMember) {
+      delete payload.managedGroup;
+    }
+
+    createUser(payload as CreateUser, {
+      onSuccess: () => handleClose(),
+    });
+  };
+
   return (
     <BaseModal
       open={open}
@@ -112,7 +110,9 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
         <Grid container spacing={2.5}>
           {error && (
             <Grid size={12}>
-              <Alert severity="error">Помилка: {error.message}</Alert>
+              <Alert severity="error" sx={{ borderRadius: '8px' }}>
+                Помилка: {error.message}
+              </Alert>
             </Grid>
           )}
 
@@ -156,78 +156,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
             />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Місто"
-              {...register('city')}
-              error={!!errors.city}
-              helperText={errors.city?.message}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Телефон"
-              {...register('phone')}
-              error={!!errors.phone}
-              helperText={errors.phone?.message}
-            />
-          </Grid>
           <Grid size={12}>
-            <Autocomplete
-              options={AdminGroupSearch.getFilteredOptions(adminGroup)}
-              loading={AdminGroupSearch.isLoading}
-              onInputChange={(_, val) =>
-                AdminGroupSearch.debouncedFetch(val, adminGroup)
-              }
-              onChange={(_, val) => setAdminGroup(val)}
-              getOptionLabel={(o) => o.title || ''}
-              isOptionEqualToValue={(o, v) => o?.id === v?.id}
-              renderInput={(params) => (
-                <TextField {...params} label="Адмін групи" />
-              )}
-            />
-          </Grid>
-          {isSA && (
-            <Grid size={12}>
-              <Autocomplete
-                value={selectedGroup}
-                options={groupOptions}
-                loading={isGroupsLoading}
-                onInputChange={(_, val) =>
-                  debouncedFetchGroups(val, selectedGroup)
-                }
-                onChange={(_, val) => {
-                  setSelectedGroup(val);
-                  setValue('auctionGroupId', val?.id || '');
-                }}
-                getOptionLabel={(o) => o.title || ''}
-                isOptionEqualToValue={(o, v) => o.id === v.id}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Прив'язати до групи"
-                    error={!!errors.auctionGroupId}
-                    helperText={errors.auctionGroupId?.message}
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {isGroupsLoading ? (
-                            <CircularProgress color="inherit" size={20} />
-                          ) : null}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
-                  />
-                )}
-              />
-            </Grid>
-          )}
-
-          <Grid size={isSA ? 12 : 12}>
             <FormControl fullWidth error={!!errors.role}>
               <InputLabel>Роль</InputLabel>
               <Controller
@@ -235,18 +164,78 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
-                      (role) => (
-                        <MenuItem key={role} value={role}>
-                          {role}
-                        </MenuItem>
-                      ),
-                    )}
+                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map((role) => (
+                      <MenuItem key={role} value={role}>
+                        {role}
+                      </MenuItem>
+                    ))}
                   </Select>
                 )}
               />
             </FormControl>
           </Grid>
+
+          {canManageGroup && (
+            <Grid size={12}>
+              <Controller
+                name="managedGroup"
+                control={control}
+                render={({ field: { onChange, value } }) => {
+                  const selected = GroupSearch.options.find(g => g.id === value) || null;
+                  return (
+                    <Autocomplete
+                      options={GroupSearch.getFilteredOptions(selected)}
+                      loading={GroupSearch.isLoading}
+                      value={selected}
+                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, selected)}
+                      onChange={(_, val) => onChange(val?.id || '')}
+                      getOptionLabel={(o) => o.title || ''}
+                      isOptionEqualToValue={(o, v) => o?.id === v?.id}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Керована група "
+                          error={!!errors.managedGroup}
+                          helperText={errors.managedGroup?.message}
+                        />
+                      )}
+                    />
+                  );
+                }}
+              />
+            </Grid>
+          )}
+
+          {isAuctionMember && (
+            <Grid size={12}>
+              <Controller
+                name="auctionGroupId"
+                control={control}
+                render={({ field: { onChange, value } }) => {
+                  const selected = GroupSearch.options.find(g => g.id === value) || null;
+                  return (
+                    <Autocomplete
+                      options={GroupSearch.getFilteredOptions(selected)}
+                      loading={GroupSearch.isLoading}
+                      value={selected}
+                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, selected)}
+                      onChange={(_, val) => onChange(val?.id || '')}
+                      getOptionLabel={(o) => o.title || ''}
+                      isOptionEqualToValue={(o, v) => o?.id === v?.id}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Прив'язати до групи"
+                          error={!!errors.auctionGroupId}
+                          helperText={errors.auctionGroupId?.message}
+                        />
+                      )}
+                    />
+                  );
+                }}
+              />
+            </Grid>
+          )}
 
           <Grid size={12}>
             <Paper
@@ -271,9 +260,10 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
               type="submit"
               variant="contained"
               disabled={isPending}
+              sx={{ py: 1.5, fontWeight: 700, borderRadius: '10px' }}
             >
               {isPending ? (
-                <CircularProgress size={24} />
+                <CircularProgress size={24} color="inherit" />
               ) : (
                 'Створити працівника'
               )}

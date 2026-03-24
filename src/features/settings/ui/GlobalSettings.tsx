@@ -18,57 +18,53 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { useMobile } from '../../../shared/hooks/useMobile';
-import { Loader } from '../../../shared/ui/Loader';
 import { SEVERITY_OPTIONS, type GlobalSettingsDTO } from '../model/types';
+import { useMobile } from '../../../shared/hooks/useMobile';
 import {
   useGlobalSettings,
   useUpdateGlobalSettings,
 } from '../model/useGlobalSettings';
+import { Loader } from '../../../shared/ui/Loader';
 
 export default function GlobalSettings() {
-  const { data, isLoading } = useGlobalSettings();
-
-  if (isLoading || !data) {
-    return <Loader />;
-  }
-
-  return <GlobalSettingsForm initialData={data} />;
-}
-
-function GlobalSettingsForm({
-  initialData,
-}: {
-  initialData: GlobalSettingsDTO;
-}) {
   const isMobile = useMobile();
+  const { data, isLoading } = useGlobalSettings();
   const { mutate: update } = useUpdateGlobalSettings();
-  const [localSettings, setLocalSettings] =
-    useState<GlobalSettingsDTO>(initialData);
+
+  const [settings, setLocalSettings] = useState<GlobalSettingsDTO | null>(null);
+
+  if (data && !settings && !isLoading) {
+    setLocalSettings(data);
+  }
 
   const handleChange = (
     field: keyof GlobalSettingsDTO,
     value: string | number | boolean,
   ) => {
-    let finalValue = value;
-
-    if (field === 'inactivityTimeout' || field === 'globalSessionLimit') {
-      finalValue = value === '' ? '' : Number(value);
-    }
+    if (!settings) return;
 
     setLocalSettings({
-      ...localSettings,
-      [field]: finalValue,
+      ...settings,
+      [field]:
+        field === 'inactivityTimeout' || field === 'globalSessionLimit'
+          ? value === ''
+            ? ''
+            : Number(value)
+          : value,
     });
   };
 
   const handleSave = () => {
-    update(localSettings);
+    if (settings) {
+      update(settings);
+    }
   };
 
   const handleCancel = () => {
-    setLocalSettings(initialData);
+    setLocalSettings(data || null); // Скидаємо до версії з сервера
   };
+  // Показуємо завантаження, щоб уникнути помилок доступу до undefined
+  if (isLoading) return <Loader />;
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, mx: 'auto' }}>
@@ -109,7 +105,8 @@ function GlobalSettingsForm({
               fullWidth
               type="number"
               label="Час до завершення сесії"
-              value={localSettings.inactivityTimeout ?? ''}
+              // Використовуємо ?? '' щоб уникнути відображення 0 коли дані ще не завантажені
+              value={settings?.inactivityTimeout ?? ''}
               onChange={(e) =>
                 handleChange('inactivityTimeout', e.target.value)
               }
@@ -141,7 +138,7 @@ function GlobalSettingsForm({
               fullWidth
               type="number"
               label="Максимальна кількість одночасних сесій"
-              value={localSettings.globalSessionLimit ?? ''}
+              value={settings?.globalSessionLimit ?? ''}
               onChange={(e) =>
                 handleChange('globalSessionLimit', e.target.value)
               }
@@ -167,7 +164,7 @@ function GlobalSettingsForm({
             <FormControlLabel
               control={
                 <Switch
-                  checked={localSettings.gaCanAssignGa ?? false}
+                  checked={settings?.gaCanAssignGa ?? false}
                   onChange={(e) =>
                     handleChange('gaCanAssignGa', e.target.checked)
                   }
@@ -206,7 +203,7 @@ function GlobalSettingsForm({
               select
               fullWidth
               label="Рівень деталізації логів"
-              value={localSettings.loggingPolicy ?? 'Info'}
+              value={settings?.loggingPolicy ?? 'Info'}
               onChange={(e) => handleChange('loggingPolicy', e.target.value)}
             >
               {SEVERITY_OPTIONS.map((option) => (

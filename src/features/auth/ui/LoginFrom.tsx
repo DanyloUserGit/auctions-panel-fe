@@ -35,10 +35,8 @@ export default function LoginForm() {
 
     try {
       await login({ data, token: captchaToken });
-      console.log('Успішний вхід');
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.log(error.response);
         setError('root', {
           type: 'server',
           message: error.response?.data?.message || 'Помилка авторизації',

@@ -42,7 +42,6 @@ export default function ResetPassword() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid && token) {
-      console.log('Відправка нового пароля:', formData.password);
       mutate({ password: formData.password, token: token });
       setIsSuccess(true);
     }

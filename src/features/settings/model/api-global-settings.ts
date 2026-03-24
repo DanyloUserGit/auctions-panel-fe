@@ -6,8 +6,6 @@ export const fetchGlobalSettings = async () => {
   return responce.data;
 };
 export const updateGlobalSettings = async (data: GlobalSettingsDTO) => {
-  console.log(data);
   const responce = await api.patch('/global-settings', data);
-  console.log(responce.data);
   return responce.data;
 };

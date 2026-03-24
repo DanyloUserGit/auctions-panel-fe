@@ -26,7 +26,7 @@ export default function SettingsPage() {
         label: 'Загальне',
         icon: <Public />,
         component: <GlobalSettings />,
-        roles: ['User', 'Admin', 'SuperAdmin'],
+        roles: ['User', 'SuperAdmin'],
       },
       {
         label: 'Профіль та Безпека',

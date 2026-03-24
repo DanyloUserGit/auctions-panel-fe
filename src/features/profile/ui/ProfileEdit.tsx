@@ -37,7 +37,6 @@ export default function ProfileEdit() {
     useChangeRole();
   const isAdmin = user?.role === 'SuperAdmin';
 
-  useEffect(() => console.log(user), [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

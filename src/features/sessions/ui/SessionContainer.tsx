@@ -41,7 +41,6 @@ export const SessionContainer: FC = () => {
     }
 
     if (sessionId && !tabs.find((item) => item.id == sessionId)) {
-      console.log(tabs);
       addTab({
         id: sessionId,
         key: (tabs.length + 1).toString(),
@@ -94,7 +93,6 @@ export const SessionContainer: FC = () => {
           const track = event.track;
           console.log('✅ Отримано трек:', track.kind);
 
-          // 1. Спочатку одразу прив'язуємо стрім до тегу <video>
           if (videoRef.current) {
             videoRef.current.srcObject =
               event.streams && event.streams[0]
@@ -102,11 +100,9 @@ export const SessionContainer: FC = () => {
                 : new MediaStream([track]);
           }
 
-          // 2. Чекаємо, коли реально підуть дані
           track.onunmute = () => {
             setIsLoading(false);
 
-            // 3. Запускаємо відтворення ТІЛЬКИ ТУТ, коли відео розблоковано
             if (videoRef.current) {
               videoRef.current.play().catch((err) => {
                 console.warn('Автоплей заблоковано браузером:', err);
