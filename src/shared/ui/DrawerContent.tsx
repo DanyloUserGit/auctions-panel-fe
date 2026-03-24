@@ -19,20 +19,15 @@ import {
 import { useAuth } from '../../features/auth/model/useAuth';
 import { useNavigate } from 'react-router';
 import { Fragment } from 'react/jsx-runtime';
+import { useMemo } from 'react';
+import type { MenuGroup } from './Sidebar';
 
 interface Props {
   isOpen: boolean;
   isMobile: boolean;
   toggleDrawer: () => void;
   handleNavigation: (path: string) => void;
-  menuItems: {
-    group: string;
-    items: {
-      text: string;
-      icon: React.ReactNode;
-      path: string;
-    }[];
-  }[];
+  menuItems: MenuGroup[];
 }
 export default function DrawerContent({
   isOpen,
@@ -42,6 +37,18 @@ export default function DrawerContent({
   menuItems,
 }: Props) {
   const { user, logout } = useAuth();
+  const visibleMenuItems = useMemo(() => {
+    const userRole = user?.role || 'User';
+    return menuItems
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          const allowedRoles = item.roles;
+          return allowedRoles?.includes(userRole);
+        }),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [user?.role, menuItems]);
   const navigate = useNavigate();
 
   return (
@@ -110,7 +117,7 @@ export default function DrawerContent({
           '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
-        {menuItems.map((group) => (
+        {visibleMenuItems.map((group) => (
           <Fragment key={group.group}>
             <Box sx={{ mb: 2 }}>
               {(isOpen || isMobile) && (

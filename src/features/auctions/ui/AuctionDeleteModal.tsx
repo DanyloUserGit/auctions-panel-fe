@@ -17,7 +17,6 @@ export default function AuctionDeleteModal({
   const { mutate, isPending } = useDeleteAuction();
 
   const handleSubmit = async () => {
-    console.log(currentAuction);
     await mutate(currentAuction.id);
     handleClose();
   };

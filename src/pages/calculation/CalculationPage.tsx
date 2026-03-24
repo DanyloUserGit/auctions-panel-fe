@@ -61,8 +61,6 @@ const CalculationPage: React.FC = () => {
     try {
       const response = await getEstimate(db, form);
       setResult(response.data);
-    } catch (error) {
-      console.log('Помилка розрахунку: ', error);
     } finally {
       setLoading(false);
     }

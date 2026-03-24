@@ -19,10 +19,21 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useMobile } from '../hooks/useMobile';
 import DrawerContent from './DrawerContent';
+import type { UserRole } from '../../features/auth/model/user-schema';
 
 const drawerWidth = 280;
 const closedDrawerWidth = 72;
+export interface MenuItem {
+  text: string;
+  icon: React.ReactNode;
+  path: string;
+  roles: UserRole[]; // Тут TS буде суворим
+}
 
+export interface MenuGroup {
+  group: string;
+  items: MenuItem[];
+}
 export default function Sidebar() {
   const isMobile = useMobile();
   const [isOpen, setIsOpen] = useState(false); // На ПК відкритий, на мобільних закритий
@@ -43,54 +54,48 @@ export default function Sidebar() {
     if (!isMobile) setIsOpen(false);
   };
 
-  const menuItems = [
+  const menuItems: MenuGroup[] = [
     {
       group: 'Торгівля',
       items: [
-        { text: 'Аукціони', icon: <Gavel />, path: '/auctions' },
-        { text: 'Обране', icon: <Favorite />, path: '/favorites' },
-        { text: 'Замовлення', icon: <ShoppingCart />, path: '/orders' },
-        { text: 'Покупки', icon: <ReceiptLong />, path: '/purchases' },
-        { text: 'В наявності', icon: <Inventory />, path: '/inventory' },
+        { text: 'Аукціони', icon: <Gavel />, path: '/auctions', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Обране', icon: <Favorite />, path: '/favorites', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Замовлення', icon: <ShoppingCart />, path: '/orders', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Покупки', icon: <ReceiptLong />, path: '/purchases', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'В наявності', icon: <Inventory />, path: '/inventory', roles: ["Admin", "SuperAdmin", "User"] },
       ],
     },
     {
       group: 'Фінанси',
       items: [
-        {
-          text: 'Розрахунок',
-          icon: <AccountBalanceWallet />,
-          path: '/accounting',
-        },
-        { text: 'Процеси', icon: <Autorenew />, path: '/processes' },
+        { text: 'Розрахунок', icon: <AccountBalanceWallet />, path: '/accounting', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Процеси', icon: <Autorenew />, path: '/processes', roles: ["Admin", "SuperAdmin", "User"] },
         {
           text: 'Баланси',
           icon: <AccountBalanceWallet className="text-primary" />,
           path: '/balances',
+          roles: ["Admin", "SuperAdmin", "User"]
         },
       ],
     },
     {
       group: 'Система',
       items: [
-        {
-          text: 'Сповіщення',
-          icon: <Notifications />,
-          path: '/notifications/list',
-        },
-        { text: 'Інформація', icon: <Info />, path: '/info' },
-        { text: 'Навчання', icon: <School />, path: '/learning' },
+        { text: 'Сповіщення', icon: <Notifications />, path: '/notifications/list', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Інформація', icon: <Info />, path: '/info', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Навчання', icon: <School />, path: '/learning', roles: ["Admin", "SuperAdmin", "User"] },
       ],
     },
     {
       group: 'Адміністрування',
       items: [
-        { text: 'Налаштування', icon: <Settings />, path: '/settings' },
-        { text: 'Працівники', icon: <Group />, path: '/workers' },
-        { text: 'Всі дії', icon: <History />, path: '/logs' },
+        { text: 'Налаштування', icon: <Settings />, path: '/settings', roles: ["Admin", "SuperAdmin", "User"] },
+        { text: 'Працівники', icon: <Group />, path: '/workers', roles: ["Admin", "SuperAdmin"] },
+        { text: 'Всі дії', icon: <History />, path: '/logs', roles: ["Admin", "SuperAdmin"] },
       ],
     },
   ];
+
 
   return (
     <>

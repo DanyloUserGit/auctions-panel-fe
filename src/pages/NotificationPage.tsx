@@ -8,7 +8,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Loader } from '../shared/ui/Loader';
 import { useNotifications } from '../features/notifications/model/useNotifications';
@@ -25,7 +25,6 @@ export default function NotificationsPage() {
     isLoading,
     isFetching,
   } = useNotifications(page.toString(), limit);
-  useEffect(() => console.log(response), [response]);
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: 'smooth' });

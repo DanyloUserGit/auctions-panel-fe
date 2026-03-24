@@ -48,8 +48,6 @@ export default function AccountSelectModal({
           <ListItemButton
             key={account.id}
             onClick={() => {
-              // Логіка: якщо sessionActive — joinSession, інакше — startNewSession [cite: 105, 362, 363]
-              console.log('Запуск сесії для', account.login);
               onClose();
             }}
             sx={{

@@ -3,12 +3,15 @@ import type { LoginInput } from './login-schema';
 import type { ChangeRole, CreateUser, UpdateUser, User } from './user-schema';
 
 export const login = async (data: LoginInput, token: string) => {
-  const response = await api.post('/auth/login', { ...data, token }, {
-    withCredentials: true,
-  });
-  console.log('Успішний вхід:', response.data);
-  return response.data
-}
+  const response = await api.post(
+    '/auth/login',
+    { ...data, token },
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
 export const fetchCurrentUser = async (): Promise<User> => {
   const responce = await api.get('/auth/me');
   return responce.data;
@@ -28,13 +31,17 @@ interface fetchUsersByQueryResponce {
   data: User[];
   meta: { total: number; page: number; lastPage: number };
 }
-export const fetchUsersByQuery = async (query: string, page: number = 1, limit: number = 10): Promise<fetchUsersByQueryResponce> => {
+export const fetchUsersByQuery = async (
+  query: string,
+  page: number = 1,
+  limit: number = 10,
+): Promise<fetchUsersByQueryResponce> => {
   const response = await api.get(`/users/search/`, {
     params: {
       query,
       page,
-      limit
-    }
+      limit,
+    },
   });
   return response.data;
 };
@@ -43,9 +50,7 @@ export const fetchUserById = async (id: string): Promise<User> => {
   return responce.data;
 };
 export const updateProfile = async (data: UpdateUser, id: string) => {
-  console.log(data);
   const responce = await api.patch(`/profile/edit`, { ...data, id });
-  console.log(responce.data);
   return responce.data;
 };
 export const updateRole = async (data: ChangeRole) => {
@@ -79,7 +84,6 @@ export const createUser = async (data: CreateUser): Promise<User> => {
 };
 export const updateUser = async (id: string, data: UpdateUser) => {
   const responce = await api.patch(`users/${id}`, data);
-  console.log(responce.data);
   return responce.data;
 };
 export const handleBlockUser = async (user: User) => {

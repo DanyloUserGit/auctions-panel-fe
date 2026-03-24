@@ -38,8 +38,6 @@ export default function ProfileEdit() {
   const isAdmin = user?.role === 'SuperAdmin';
 
 
-  useEffect(() => console.log(user), [user]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
