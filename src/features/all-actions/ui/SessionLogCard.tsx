@@ -11,14 +11,14 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import type { SessionLog } from '../model/types';
+import type { AuctionSession } from '../model/types';
 import dayjs from 'dayjs';
 
 interface SessionCardProps {
-  session: SessionLog;
+  session: AuctionSession;
   canTerminate: boolean;
-  onViewLog: (session: SessionLog) => void;
-  onTerminate: (sessionId: string, userFullName: string) => void;
+  onViewLog: (session: AuctionSession) => void;
+  onTerminate: (sessionId: string) => void;
 }
 
 const SessionLogCard: React.FC<SessionCardProps> = ({
@@ -27,11 +27,16 @@ const SessionLogCard: React.FC<SessionCardProps> = ({
   onViewLog,
   onTerminate,
 }) => {
-  const { id, endedBy, auction, endedAt, isActive, group } = session;
-  const userFullName = `${endedBy?.email}`;
+  const { id, auction, createdAt, endedAt, isActive, auctionGroupId, users } =
+    session;
+  const mainUser = users?.[0];
 
   return (
-    <Card variant="outlined" sx={{ mb: 2, '&:hover': { boxShadow: 3 } }}>
+    <Card
+      id={id}
+      variant="outlined"
+      sx={{ mb: 2, '&:hover': { boxShadow: 3 } }}
+    >
       <CardContent>
         <Stack
           direction="row"
@@ -40,7 +45,9 @@ const SessionLogCard: React.FC<SessionCardProps> = ({
           mb={1}
         >
           <Typography variant="h6" component="div">
-            {isActive ? 'Поточна сесія' : `Завершив: ${userFullName}`}
+            {mainUser
+              ? `${mainUser.firstName} ${mainUser.lastName}`
+              : 'Сплив термін сесії'}
           </Typography>
           <Chip
             label={isActive ? 'Активна' : 'Завершена'}
@@ -51,20 +58,21 @@ const SessionLogCard: React.FC<SessionCardProps> = ({
 
         <Box sx={{ mb: 2 }}>
           <Typography color="text.secondary" variant="body2">
-            <strong>Аукціон:</strong> {auction.title}
+            <strong>Аукціон:</strong> {auction?.title || 'Без назви'}
           </Typography>
           <Typography color="text.secondary" variant="body2">
-            <strong>Час:</strong>{' '}
-            {dayjs(endedAt).format('YYYY-MM-DD (HH:mm:ss)')}
+            <strong>Початок:</strong>{' '}
+            {dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')}
           </Typography>
-          {group && (
+          {!isActive && endedAt && (
             <Typography color="text.secondary" variant="body2">
-              <strong>Група:</strong> {group}
+              <strong>Завершено:</strong>{' '}
+              {dayjs(endedAt).format('YYYY-MM-DD HH:mm:ss')}
             </Typography>
           )}
-          {isActive && (
+          {auctionGroupId && (
             <Typography color="text.secondary" variant="body2">
-              <strong>Відповідальний:</strong> {userFullName}
+              <strong>Група:</strong> {auctionGroupId}
             </Typography>
           )}
         </Box>
@@ -78,7 +86,7 @@ const SessionLogCard: React.FC<SessionCardProps> = ({
             startIcon={<VisibilityIcon />}
             onClick={() => onViewLog(session)}
           >
-            Лог
+            Переглянути лог
           </Button>
 
           {canTerminate && isActive && (
@@ -87,7 +95,7 @@ const SessionLogCard: React.FC<SessionCardProps> = ({
               color="error"
               size="small"
               startIcon={<StopCircleIcon />}
-              onClick={() => onTerminate(id, userFullName)}
+              onClick={() => onTerminate(id)}
             >
               Завершити
             </Button>
