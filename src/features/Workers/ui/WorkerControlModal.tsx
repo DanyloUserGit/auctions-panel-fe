@@ -1,12 +1,14 @@
 import {
   AccessTime,
-  Badge,
+
   Block,
   CheckCircle,
   Email,
   History,
   Security,
   Smartphone,
+  Groups as GroupsIcon,
+  SettingsApplications,
 } from '@mui/icons-material';
 import {
   Avatar,
@@ -38,23 +40,25 @@ export const WorkerControlModal = ({
   id,
   isLoading,
 }: WorkerControlModalProps) => {
-  if (!id) onClose();
+  if (!id && open) onClose();
+
   const { userData: data } = useControlCard(String(id));
+
+  const role = data?.profile?.role;
+  const isSA = role === 'SuperAdmin';
+  const isAdmin = role === 'Admin';
+  const isUser = role === 'User';
+
+  const showAuctionGroup = isUser || isSA;
+  const showManagedGroup = isAdmin;
+
   const renderSkeleton = () => (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, md: 5 }}>
-        <Skeleton
-          variant="rounded"
-          height={280}
-          sx={{ borderRadius: '15px' }}
-        />
+        <Skeleton variant="rounded" height={280} sx={{ borderRadius: '15px' }} />
       </Grid>
       <Grid size={{ xs: 12, md: 7 }}>
-        <Skeleton
-          variant="rounded"
-          height={280}
-          sx={{ borderRadius: '15px' }}
-        />
+        <Skeleton variant="rounded" height={280} sx={{ borderRadius: '15px' }} />
       </Grid>
     </Grid>
   );
@@ -70,7 +74,6 @@ export const WorkerControlModal = ({
         renderSkeleton()
       ) : data ? (
         <Grid container spacing={3}>
-          {/* Секція 1: Профіль (Використовуємо size) */}
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper
               variant="outlined"
@@ -88,20 +91,20 @@ export const WorkerControlModal = ({
                   height: 80,
                   mx: 'auto',
                   mb: 2,
-                  bgcolor: 'primary.main',
+                  bgcolor: isSA ? 'secondary.main' : 'primary.main',
                   fontSize: '2rem',
                   boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                 }}
               >
-                {data.profile.fullName[0]}
+                {data.profile.fullName?.[0] || '?'}
               </Avatar>
               <Typography variant="h6" sx={{ fontWeight: 800 }}>
                 {data.profile.fullName}
               </Typography>
               <Chip
-                label={data.profile.role}
+                label={role}
                 size="small"
-                color="primary"
+                color={isSA ? 'secondary' : 'primary'}
                 variant="filled"
                 sx={{ mt: 1, fontWeight: 600 }}
               />
@@ -110,28 +113,32 @@ export const WorkerControlModal = ({
                 <Stack spacing={2}>
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Email color="action" sx={{ fontSize: 18 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                       {data.profile.email}
                     </Typography>
                   </Stack>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Badge color="action" sx={{ fontSize: 18 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      {data.profile.group}
-                    </Typography>
-                  </Stack>
+
+                  {showAuctionGroup && (
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <GroupsIcon color="action" sx={{ fontSize: 18 }} />
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        <strong>Група аукціонів:</strong> {data.profile.auctionGroup || 'Немає'}
+                      </Typography>
+                    </Stack>
+                  )}
+
+                  {showManagedGroup && (
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <SettingsApplications color="action" sx={{ fontSize: 18 }} />
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        <strong>Адмін групи:</strong> {data.profile.managedGroup || 'Не призначено'}
+                      </Typography>
+                    </Stack>
+                  )}
+
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Smartphone color="action" sx={{ fontSize: 18 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                       {data.profile.phone || 'Не вказано'}
                     </Typography>
                   </Stack>
@@ -140,32 +147,23 @@ export const WorkerControlModal = ({
             </Paper>
           </Grid>
 
-          {/* Секція 2: Статус та Логи (Використовуємо size) */}
           <Grid size={{ xs: 12, md: 7 }}>
             <Stack spacing={2} sx={{ height: '100%' }}>
-              {/* Блок доступу */}
               <Paper
                 variant="outlined"
                 sx={{
                   p: 2.5,
                   borderRadius: '15px',
                   borderLeft: '4px solid',
-                  borderLeftColor: data.status.isActive
-                    ? 'success.main'
-                    : 'warning.main',
+                  borderLeftColor: data.status.isActive ? 'success.main' : 'error.main',
                 }}
               >
                 <Typography
                   variant="overline"
                   color="text.secondary"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    fontWeight: 700,
-                  }}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}
                 >
-                  <Security sx={{ fontSize: 16 }} /> Безпека та доступ
+                  <Security sx={{ fontSize: 16 }} /> Безпека та статус
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, my: 1.5 }}>
                   <Chip
@@ -182,49 +180,36 @@ export const WorkerControlModal = ({
                   <strong>Права:</strong> {data.status.rights}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Макс. сесій:</strong> {data.limits.sessionLimit}
+                  <strong>Максимально сесій:</strong> {data.limits.sessionLimit}
                 </Typography>
               </Paper>
 
-              {/* Блок активності */}
-              <Paper
-                variant="outlined"
-                sx={{ p: 2.5, borderRadius: '15px', flexGrow: 1 }}
-              >
+              <Paper variant="outlined" sx={{ p: 2.5, borderRadius: '15px', flexGrow: 1 }}>
                 <Typography
                   variant="overline"
                   color="text.secondary"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    fontWeight: 700,
-                    mb: 1,
-                  }}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700, mb: 1 }}
                 >
                   <History sx={{ fontSize: 16 }} /> Останні події
                 </Typography>
                 <List dense disablePadding>
-                  {data.recentEvents
-                    .slice(0, 3)
-                    .map((event: { id: string; createdAt: Date }) => (
+                  {data.recentEvents?.length > 0 ? (
+                    data.recentEvents.slice(0, 4).map((event: { id: string, action: string, createdAt: string }) => (
                       <ListItem key={event.id} sx={{ px: 0, py: 0.5 }}>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                           <AccessTime sx={{ fontSize: 14 }} />
                         </ListItemIcon>
                         <ListItemText
-                          primary={`Подія: ${event.id.slice(0, 8)}`}
-                          secondary={new Date(event.createdAt).toLocaleString(
-                            'uk-UA',
-                          )}
-                          primaryTypographyProps={{
-                            variant: 'caption',
-                            fontWeight: 700,
-                          }}
+                          primary={event.action || `ID: ${event.id.slice(0, 8)}`}
+                          secondary={new Date(event.createdAt).toLocaleString('uk-UA')}
+                          primaryTypographyProps={{ variant: 'caption', fontWeight: 700 }}
                           secondaryTypographyProps={{ variant: 'caption' }}
                         />
                       </ListItem>
-                    ))}
+                    ))
+                  ) : (
+                    <Typography variant="caption" color="text.secondary">Події відсутні</Typography>
+                  )}
                 </List>
               </Paper>
             </Stack>
@@ -232,9 +217,7 @@ export const WorkerControlModal = ({
         </Grid>
       ) : (
         <Box sx={{ py: 5, textAlign: 'center' }}>
-          <Typography color="text.secondary">
-            Дані працівника не знайдено
-          </Typography>
+          <Typography color="text.secondary">Інформація недоступна</Typography>
         </Box>
       )}
     </BaseModal>

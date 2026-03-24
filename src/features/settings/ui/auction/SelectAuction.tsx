@@ -7,7 +7,10 @@ import {
   TextField,
 } from '@mui/material';
 import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
-import { fetchAuctionsByQuery, fetchAuctionsById } from '../../../auctions/model/api-auctions';
+import {
+  fetchAuctionsByQuery,
+  fetchAuctionsById,
+} from '../../../auctions/model/api-auctions';
 import type { Auction } from '../../../auctions/model/types';
 import { useAuction } from '../../../auctions/model/useAuctions';
 

@@ -31,7 +31,6 @@ export const useForbiddenPaths = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
-
 };
 
 export const useForbiddenSelectors = (auctionId: string) => {
@@ -41,7 +40,6 @@ export const useForbiddenSelectors = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
-
 };
 
 export const useAllowedPaths = (auctionId: string) => {
@@ -51,9 +49,7 @@ export const useAllowedPaths = (auctionId: string) => {
     staleTime: 1000,
     enabled: !!auctionId,
   });
-
 };
-
 
 export const useAddAuctionUser = () => {
   const queryClient = useQueryClient();

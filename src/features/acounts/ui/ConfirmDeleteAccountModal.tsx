@@ -17,7 +17,6 @@ export default function ConfirmDeleteAccountModal({
   const { mutate, isPending } = useDeleteAcount();
 
   const handleSubmit = async () => {
-    console.log(currentAccount);
     await mutate(currentAccount.id);
     handleClose();
   };

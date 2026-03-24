@@ -44,7 +44,6 @@ export default function AuctionAddModal({
   const handleSubmit = () => {
     if (!title.trim()) return;
 
-    console.log(addedAcounts);
     mutate(
       {
         title,

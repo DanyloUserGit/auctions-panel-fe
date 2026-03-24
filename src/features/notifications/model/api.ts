@@ -25,7 +25,6 @@ export const updateNotificationsSettings = async (
   data: UpdateNotificationSettings,
 ) => {
   const response = await api.patch(`/notifications/settings`, data);
-  console.log(response.data);
   return response.data;
 };
 export const updateNotificationsRequirements = async (
@@ -33,16 +32,13 @@ export const updateNotificationsRequirements = async (
   data: { typeId: string; isMandatory: boolean },
 ) => {
   if (!id) return;
-  console.log(data, id);
   const response = await api.patch(
     `/notifications/group/${id}/requirements`,
     data,
   );
-  console.log(response.data);
   return response.data;
 };
 export const markAsRead = async (id: string) => {
   const response = await api.patch(`/notifications/${id}/read`);
-  console.log(response.data);
   return response.data;
 };
