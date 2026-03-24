@@ -1,11 +1,12 @@
-import { Gavel, Groups, Notifications, Person } from '@mui/icons-material';
+import { Gavel, Groups, Notifications, Person, Public } from '@mui/icons-material';
 import { Box, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '../features/auth/model/useAuth';
 import ProfileEdit from '../features/profile/ui/ProfileEdit';
-import { AuctionSettings } from '../features/settings/ui/AuctionSettings';
-import { GroupSettings } from '../features/settings/ui/GroupSettings';
+import GlobalSettings from '../features/settings/ui/GlobalSettings';
 import NotificationsSettings from '../features/settings/ui/NotificationsSettings';
+import { AuctionSettings } from '../features/settings/ui/auction/AuctionSettings';
+import { GroupSettings } from '../features/settings/ui/group/GroupSettings';
 import { useMobile } from '../shared/hooks/useMobile';
 
 export default function SettingsPage() {
@@ -13,9 +14,14 @@ export default function SettingsPage() {
   const isMobile = useMobile();
   const { user } = useAuth();
 
-  // Описуємо всі можливі таби з їхніми компонентами та правами доступу
   const allTabs = useMemo(
     () => [
+      {
+        label: 'Загальне',
+        icon: <Public />,
+        component: <GlobalSettings />,
+        roles: ['User', 'Admin', 'SuperAdmin'],
+      },
       {
         label: 'Профіль та Безпека',
         icon: <Person />,
@@ -44,7 +50,6 @@ export default function SettingsPage() {
     [],
   );
 
-  // Фільтруємо таби, щоб звичайний користувач не бачив адмінські пункти
   const visibleTabs = useMemo(
     () => allTabs.filter((tab) => tab.roles.includes(user?.role || 'User')),
     [allTabs, user?.role],

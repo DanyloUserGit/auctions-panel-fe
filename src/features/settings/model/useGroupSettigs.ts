@@ -8,9 +8,6 @@ import {
 import { authKeys } from '../../auth/model/useAuth';
 import { groupsKeys } from '../../groups/model/useGroups';
 
-/**
- * Хук для додавання аукціону до групи
- */
 export const useAddAuctionToGroup = (groupId: string) => {
   const queryClient = useQueryClient();
 
@@ -26,9 +23,6 @@ export const useAddAuctionToGroup = (groupId: string) => {
   });
 };
 
-/**
- * Хук для видалення аукціону з групи
- */
 export const useRemoveAuctionFromGroup = (groupId: string) => {
   const queryClient = useQueryClient();
 
@@ -43,9 +37,6 @@ export const useRemoveAuctionFromGroup = (groupId: string) => {
   });
 };
 
-/**
- * Хук для надання доступу до акаунтів (Grant)
- */
 export const useGrantAccountAccess = (groupId: string) => {
   const queryClient = useQueryClient();
 
@@ -60,9 +51,6 @@ export const useGrantAccountAccess = (groupId: string) => {
   });
 };
 
-/**
- * Хук для скасування доступу до акаунтів (Revoke)
- */
 export const useRevokeAccountAccess = (groupId: string) => {
   const queryClient = useQueryClient();
 

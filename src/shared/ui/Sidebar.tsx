@@ -1,5 +1,6 @@
 import {
   AccountBalanceWallet,
+  Analytics,
   Autorenew,
   Favorite,
   Gavel,
@@ -25,7 +26,7 @@ const closedDrawerWidth = 72;
 
 export default function Sidebar() {
   const isMobile = useMobile();
-  const [isOpen, setIsOpen] = useState(false); // На ПК відкритий, на мобільних закритий
+  const [isOpen, setIsOpen] = useState(false); 
   const location = useLocation();
   const navigate = useNavigate();
   const handleNavigation = (path: string) => {
@@ -52,6 +53,7 @@ export default function Sidebar() {
         { text: 'Замовлення', icon: <ShoppingCart />, path: '/orders' },
         { text: 'Покупки', icon: <ReceiptLong />, path: '/purchases' },
         { text: 'В наявності', icon: <Inventory />, path: '/inventory' },
+        { text: 'Аналітика', icon: <Analytics />, path: '/analytics' },
       ],
     },
     {
@@ -62,7 +64,7 @@ export default function Sidebar() {
           icon: <AccountBalanceWallet />,
           path: '/accounting',
         },
-        { text: 'Процеси', icon: <Autorenew />, path: '/processes' },
+        { text: 'Процеси', icon: <Autorenew />, path: '/processes', },
         {
           text: 'Баланси',
           icon: <AccountBalanceWallet className="text-primary" />,

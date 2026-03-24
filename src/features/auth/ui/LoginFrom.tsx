@@ -1,20 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Turnstile } from '@marsidev/react-turnstile';
 import {
   Alert,
+  Box,
   Button,
   Container,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { api } from '../../../shared/http';
-import { authKeys } from '../model/useAuth';
 import { loginSchema, type LoginInput } from '../model/login-schema';
-
+import { useLogin } from '../model/useAuth';
 export default function LoginForm() {
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const { mutateAsync: login } = useLogin();
+
   const {
     register,
     handleSubmit,
@@ -23,21 +26,23 @@ export default function LoginForm() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
-  const queryClient = useQueryClient();
 
   const onSubmit: SubmitHandler<LoginInput> = async (data) => {
+    if (!captchaToken) {
+      setError('root', { message: 'Підтвердіть, що ви не робот' });
+      return;
+    }
+
     try {
-      const response = await api.post('/auth/login', data, {
-        withCredentials: true,
-      });
-      console.log('Успішний вхід:', response);
-      await queryClient.invalidateQueries({ queryKey: authKeys.me });
+
+      await login({ data, token: captchaToken });
+      console.log('Успішний вхід');
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.error('Axios Error:', error.message);
+        console.log(error.response)
         setError('root', {
           type: 'server',
-          message: 'Користувача не знайдено',
+          message: error.response?.data?.message || 'Помилка авторизації',
         });
       }
     }
@@ -46,25 +51,14 @@ export default function LoginForm() {
   return (
     <Container maxWidth="sm" sx={{ mt: 10 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography
-          variant="h5"
-          component="h1"
-          gutterBottom
-          sx={{ color: 'var(--color-primary)', fontWeight: 'bold' }}
-        >
+        <Typography variant="h5" sx={{ color: 'var(--color-primary)', fontWeight: 'bold', mb: 2 }}>
           Вхід
         </Typography>
 
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-        >
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <TextField
             fullWidth
             label="Пошта"
-            type="email"
-            variant="outlined"
             {...register('email')}
             error={!!errors.email}
             helperText={errors.email?.message}
@@ -74,20 +68,30 @@ export default function LoginForm() {
             fullWidth
             label="Пароль"
             type="password"
-            variant="outlined"
             {...register('password')}
             error={!!errors.password}
             helperText={errors.password?.message}
           />
 
-          {errors.root && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {errors.root.message}
-            </Alert>
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
+            <Turnstile
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={(token) => {
+                setCaptchaToken(token);
+                if (errors.root) setError('root', { message: '' });
+              }}
+              onExpire={() => setCaptchaToken(null)}
+              options={{ theme: 'light', language: 'uk' }}
+            />
+          </Box>
+
+          {errors.root?.message && (
+            <Alert severity="error">{errors.root.message}</Alert>
           )}
 
           <Button
-            disabled={isSubmitting}
+            // Блокуємо кнопку, якщо йде запит АБО якщо капча ще не пройдена
+            disabled={isSubmitting || !captchaToken}
             type="submit"
             variant="contained"
             size="large"

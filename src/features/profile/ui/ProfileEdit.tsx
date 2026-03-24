@@ -37,18 +37,6 @@ export default function ProfileEdit() {
     useChangeRole();
   const isAdmin = user?.role === 'SuperAdmin';
 
-  // const { register, handleSubmit, control, reset } = useForm<UpdateUser>({
-  //   defaultValues: {
-  //     firstName: user?.firstName || '',
-  //     lastName: user?.lastName || '',
-  //     email: user?.email || '',
-  //     phone: user?.phone || '',
-  //     role: user?.role || 'User',
-  //     rights: (Array.isArray(user?.rights)
-  //       ? user.rights[0]
-  //       : user?.rights) as UserRights,
-  //   }
-  // })
   useEffect(() => console.log(user), [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

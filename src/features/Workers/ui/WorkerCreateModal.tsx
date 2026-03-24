@@ -21,7 +21,7 @@ import { useAuth, useCreateUser } from '../../auth/model/useAuth';
 import {
   type CreateUser,
   createUserSchema,
-  ROLES,
+  ROLES
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
@@ -34,9 +34,11 @@ interface CreateUserModalProps {
 export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
   const { mutate: createUser, isPending, error } = useCreateUser();
-
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-
+  const [adminGroup, setAdminGroup] = useState<Group | null>(null);
+  const AdminGroupSearch = useAutoComplete<Group>({
+    fetchFn: fetchGroupByQuery,
+  });
   const {
     options: groupOptions,
     isLoading: isGroupsLoading,
@@ -68,24 +70,30 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
       email: '',
       password: '',
       auctionGroupId: '',
+      auctionGroup: ""
     },
   });
 
-  const onSubmit = (data: CreateUser) => {
+  const onSubmit = async (data: CreateUser) => {
     const payload = {
       ...data,
       auctionGroupId: selectedGroup?.id || '',
+      auctionGroup: adminGroup?.id || ""
     };
+    if (selectedGroup?.id) {
+      payload.auctionGroupId = selectedGroup.id
+    }
+    if (adminGroup?.id) {
+      payload.auctionGroup = adminGroup.id
+    }
+    createUser(payload);
 
-    createUser(payload, {
-      onSuccess: () => {
-        reset();
-        setSelectedGroup(null);
-        setGroupOptions([]);
 
-        onClose();
-      },
-    });
+    reset();
+    setSelectedGroup(null);
+    setAdminGroup(null);
+    setGroupOptions([]);
+    onClose();
   };
 
   const handleClose = () => {
@@ -165,6 +173,21 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
               {...register('phone')}
               error={!!errors.phone}
               helperText={errors.phone?.message}
+            />
+          </Grid>
+          <Grid size={12}>
+
+            <Autocomplete
+              options={AdminGroupSearch.getFilteredOptions(adminGroup)}
+              loading={AdminGroupSearch.isLoading}
+              onInputChange={(_, val) => AdminGroupSearch.debouncedFetch(val, adminGroup)}
+              onChange={(_, val) => setAdminGroup(val)}
+              getOptionLabel={(o) => o.title || ''}
+
+              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              renderInput={(params) => (
+                <TextField {...params} label="Адмін групи" />
+              )}
             />
           </Grid>
           {isSA && (
