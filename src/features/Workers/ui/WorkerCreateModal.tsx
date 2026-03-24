@@ -67,7 +67,8 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const selectedRole = watch('role');
 
   const canManageGroup = selectedRole === 'Admin';
-  const isAuctionMember = selectedRole === 'User' || selectedRole === 'SuperAdmin';
+  const isAuctionMember =
+    selectedRole === 'User' || selectedRole === 'SuperAdmin';
 
   useEffect(() => {
     if (canManageGroup) {
@@ -164,11 +165,13 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map((role) => (
-                      <MenuItem key={role} value={role}>
-                        {role}
-                      </MenuItem>
-                    ))}
+                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
+                      (role) => (
+                        <MenuItem key={role} value={role}>
+                          {role}
+                        </MenuItem>
+                      ),
+                    )}
                   </Select>
                 )}
               />
@@ -181,13 +184,16 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 name="managedGroup"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const selected = GroupSearch.options.find(g => g.id === value) || null;
+                  const selected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(selected)}
                       loading={GroupSearch.isLoading}
                       value={selected}
-                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, selected)}
+                      onInputChange={(_, val) =>
+                        GroupSearch.debouncedFetch(val, selected)
+                      }
                       onChange={(_, val) => onChange(val?.id || '')}
                       getOptionLabel={(o) => o.title || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
@@ -212,13 +218,16 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 name="auctionGroupId"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const selected = GroupSearch.options.find(g => g.id === value) || null;
+                  const selected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(selected)}
                       loading={GroupSearch.isLoading}
                       value={selected}
-                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, selected)}
+                      onInputChange={(_, val) =>
+                        GroupSearch.debouncedFetch(val, selected)
+                      }
                       onChange={(_, val) => onChange(val?.id || '')}
                       getOptionLabel={(o) => o.title || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}

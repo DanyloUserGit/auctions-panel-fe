@@ -74,28 +74,28 @@ export default function AuctionsList({
 
       <Can roles={['Admin', 'SuperAdmin']}>
         {/* Кнопка додавання */}
-        {
-          currentGroupId ?
-            <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} /> :
-            <Grid size={{ xs: 12 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  py: 6,
-                  opacity: 0.6,
-                  textAlign: 'center',
-                }}
-              >
-                <Gavel sx={{ fontSize: 48, mb: 2 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Для початку виберіть або створіть групу
-                </Typography>
-              </Box>
-            </Grid>
-        }
+        {currentGroupId ? (
+          <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />
+        ) : (
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 6,
+                opacity: 0.6,
+                textAlign: 'center',
+              }}
+            >
+              <Gavel sx={{ fontSize: 48, mb: 2 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Для початку виберіть або створіть групу
+              </Typography>
+            </Box>
+          </Grid>
+        )}
 
         {/* Модалка */}
         <AuctionAddModal

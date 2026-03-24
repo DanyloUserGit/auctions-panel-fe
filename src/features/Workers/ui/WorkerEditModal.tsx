@@ -15,11 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect } from 'react';
-import {
-  Controller,
-  useForm,
-  type FieldErrors,
-} from 'react-hook-form';
+import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { useAuth, useUpdateUser } from '../../auth/model/useAuth';
@@ -78,7 +74,8 @@ export const WorkerEditModal = ({
   const selectedRole = watch('role');
 
   const canManageGroup = selectedRole === 'Admin';
-  const isAuctionMember = selectedRole === 'User' || selectedRole === 'SuperAdmin';
+  const isAuctionMember =
+    selectedRole === 'User' || selectedRole === 'SuperAdmin';
 
   useEffect(() => {
     if (canManageGroup) {
@@ -99,7 +96,7 @@ export const WorkerEditModal = ({
         role: user.role,
         rights: user.rights,
         auctionGroupId: user.auctionGroupId || '',
-        managedGroup: user.managedGroup?.id || ''
+        managedGroup: user.managedGroup?.id || '',
       });
 
       if (user.managedGroup) {
@@ -131,7 +128,7 @@ export const WorkerEditModal = ({
           reset();
           onClose();
         },
-      }
+      },
     );
   };
 
@@ -223,7 +220,9 @@ export const WorkerEditModal = ({
                   </Select>
                 )}
               />
-              {errors.role && <FormHelperText>{errors.role.message}</FormHelperText>}
+              {errors.role && (
+                <FormHelperText>{errors.role.message}</FormHelperText>
+              )}
             </FormControl>
           </Grid>
 
@@ -233,13 +232,16 @@ export const WorkerEditModal = ({
                 name="managedGroup"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const currentSelected = GroupSearch.options.find(g => g.id === value) || null;
+                  const currentSelected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(currentSelected)}
                       loading={GroupSearch.isLoading}
                       value={currentSelected}
-                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, currentSelected)}
+                      onInputChange={(_, val) =>
+                        GroupSearch.debouncedFetch(val, currentSelected)
+                      }
                       onChange={(_, val) => onChange(val?.id || '')}
                       getOptionLabel={(o) => o.title || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
@@ -264,13 +266,16 @@ export const WorkerEditModal = ({
                 name="auctionGroupId"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const currentSelected = GroupSearch.options.find(g => g.id === value) || null;
+                  const currentSelected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(currentSelected)}
                       loading={GroupSearch.isLoading}
                       value={currentSelected}
-                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, currentSelected)}
+                      onInputChange={(_, val) =>
+                        GroupSearch.debouncedFetch(val, currentSelected)
+                      }
                       onChange={(_, val) => onChange(val?.id || '')}
                       getOptionLabel={(o) => o.title || ''}
                       isOptionEqualToValue={(o, v) => o.id === v.id}
@@ -291,9 +296,19 @@ export const WorkerEditModal = ({
 
           {/* 7. Інфо блок */}
           <Grid size={12}>
-            <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}>
-              <Typography variant="caption" color="text.secondary">Права доступу:</Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700, color: 'primary.main' }}>Тільки перегляд (Read Only)</Typography>
+            <Paper
+              variant="outlined"
+              sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
+            >
+              <Typography variant="caption" color="text.secondary">
+                Права доступу:
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 700, color: 'primary.main' }}
+              >
+                Тільки перегляд (Read Only)
+              </Typography>
             </Paper>
           </Grid>
 
@@ -306,7 +321,11 @@ export const WorkerEditModal = ({
               disabled={isPending}
               sx={{ py: 1.5, borderRadius: '10px', fontWeight: 700 }}
             >
-              {isPending ? <CircularProgress size={24} color="inherit" /> : 'Зберегти зміни'}
+              {isPending ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Зберегти зміни'
+              )}
             </Button>
           </Grid>
         </Grid>

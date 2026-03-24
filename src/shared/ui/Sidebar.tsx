@@ -12,7 +12,7 @@ import {
   ReceiptLong,
   School,
   Settings,
-  ShoppingCart
+  ShoppingCart,
 } from '@mui/icons-material';
 import { AppBar, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
@@ -58,44 +58,108 @@ export default function Sidebar() {
     {
       group: 'Торгівля',
       items: [
-        { text: 'Аукціони', icon: <Gavel />, path: '/auctions', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Обране', icon: <Favorite />, path: '/favorites', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Замовлення', icon: <ShoppingCart />, path: '/orders', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Покупки', icon: <ReceiptLong />, path: '/purchases', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'В наявності', icon: <Inventory />, path: '/inventory', roles: ["Admin", "SuperAdmin", "User"] },
+        {
+          text: 'Аукціони',
+          icon: <Gavel />,
+          path: '/auctions',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Обране',
+          icon: <Favorite />,
+          path: '/favorites',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Замовлення',
+          icon: <ShoppingCart />,
+          path: '/orders',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Покупки',
+          icon: <ReceiptLong />,
+          path: '/purchases',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'В наявності',
+          icon: <Inventory />,
+          path: '/inventory',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
       ],
     },
     {
       group: 'Фінанси',
       items: [
-        { text: 'Розрахунок', icon: <AccountBalanceWallet />, path: '/accounting', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Процеси', icon: <Autorenew />, path: '/processes', roles: ["Admin", "SuperAdmin", "User"] },
+        {
+          text: 'Розрахунок',
+          icon: <AccountBalanceWallet />,
+          path: '/accounting',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Процеси',
+          icon: <Autorenew />,
+          path: '/processes',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
         {
           text: 'Баланси',
           icon: <AccountBalanceWallet className="text-primary" />,
           path: '/balances',
-          roles: ["Admin", "SuperAdmin", "User"]
+          roles: ['Admin', 'SuperAdmin', 'User'],
         },
       ],
     },
     {
       group: 'Система',
       items: [
-        { text: 'Сповіщення', icon: <Notifications />, path: '/notifications/list', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Інформація', icon: <Info />, path: '/info', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Навчання', icon: <School />, path: '/learning', roles: ["Admin", "SuperAdmin", "User"] },
+        {
+          text: 'Сповіщення',
+          icon: <Notifications />,
+          path: '/notifications/list',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Інформація',
+          icon: <Info />,
+          path: '/info',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Навчання',
+          icon: <School />,
+          path: '/learning',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
       ],
     },
     {
       group: 'Адміністрування',
       items: [
-        { text: 'Налаштування', icon: <Settings />, path: '/settings', roles: ["Admin", "SuperAdmin", "User"] },
-        { text: 'Працівники', icon: <Group />, path: '/workers', roles: ["Admin", "SuperAdmin"] },
-        { text: 'Всі дії', icon: <History />, path: '/logs', roles: ["Admin", "SuperAdmin"] },
+        {
+          text: 'Налаштування',
+          icon: <Settings />,
+          path: '/settings',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
+          text: 'Працівники',
+          icon: <Group />,
+          path: '/workers',
+          roles: ['Admin', 'SuperAdmin'],
+        },
+        {
+          text: 'Всі дії',
+          icon: <History />,
+          path: '/logs',
+          roles: ['Admin', 'SuperAdmin'],
+        },
       ],
     },
   ];
-
 
   return (
     <>

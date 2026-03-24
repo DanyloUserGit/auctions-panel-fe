@@ -1,6 +1,5 @@
 import {
   AccessTime,
-
   Block,
   CheckCircle,
   Email,
@@ -55,10 +54,18 @@ export const WorkerControlModal = ({
   const renderSkeleton = () => (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, md: 5 }}>
-        <Skeleton variant="rounded" height={280} sx={{ borderRadius: '15px' }} />
+        <Skeleton
+          variant="rounded"
+          height={280}
+          sx={{ borderRadius: '15px' }}
+        />
       </Grid>
       <Grid size={{ xs: 12, md: 7 }}>
-        <Skeleton variant="rounded" height={280} sx={{ borderRadius: '15px' }} />
+        <Skeleton
+          variant="rounded"
+          height={280}
+          sx={{ borderRadius: '15px' }}
+        />
       </Grid>
     </Grid>
   );
@@ -113,7 +120,10 @@ export const WorkerControlModal = ({
                 <Stack spacing={2}>
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Email color="action" sx={{ fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: 'text.secondary' }}
+                    >
                       {data.profile.email}
                     </Typography>
                   </Stack>
@@ -121,24 +131,38 @@ export const WorkerControlModal = ({
                   {showAuctionGroup && (
                     <Stack direction="row" spacing={1.5} alignItems="center">
                       <GroupsIcon color="action" sx={{ fontSize: 18 }} />
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        <strong>Група аукціонів:</strong> {data.profile.auctionGroup || 'Немає'}
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        <strong>Група аукціонів:</strong>{' '}
+                        {data.profile.auctionGroup || 'Немає'}
                       </Typography>
                     </Stack>
                   )}
 
                   {showManagedGroup && (
                     <Stack direction="row" spacing={1.5} alignItems="center">
-                      <SettingsApplications color="action" sx={{ fontSize: 18 }} />
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        <strong>Адмін групи:</strong> {data.profile.managedGroup || 'Не призначено'}
+                      <SettingsApplications
+                        color="action"
+                        sx={{ fontSize: 18 }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        <strong>Адмін групи:</strong>{' '}
+                        {data.profile.managedGroup || 'Не призначено'}
                       </Typography>
                     </Stack>
                   )}
 
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Smartphone color="action" sx={{ fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: 'text.secondary' }}
+                    >
                       {data.profile.phone || 'Не вказано'}
                     </Typography>
                   </Stack>
@@ -155,13 +179,20 @@ export const WorkerControlModal = ({
                   p: 2.5,
                   borderRadius: '15px',
                   borderLeft: '4px solid',
-                  borderLeftColor: data.status.isActive ? 'success.main' : 'error.main',
+                  borderLeftColor: data.status.isActive
+                    ? 'success.main'
+                    : 'error.main',
                 }}
               >
                 <Typography
                   variant="overline"
                   color="text.secondary"
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    fontWeight: 700,
+                  }}
                 >
                   <Security sx={{ fontSize: 16 }} /> Безпека та статус
                 </Typography>
@@ -184,31 +215,57 @@ export const WorkerControlModal = ({
                 </Typography>
               </Paper>
 
-              <Paper variant="outlined" sx={{ p: 2.5, borderRadius: '15px', flexGrow: 1 }}>
+              <Paper
+                variant="outlined"
+                sx={{ p: 2.5, borderRadius: '15px', flexGrow: 1 }}
+              >
                 <Typography
                   variant="overline"
                   color="text.secondary"
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700, mb: 1 }}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    fontWeight: 700,
+                    mb: 1,
+                  }}
                 >
                   <History sx={{ fontSize: 16 }} /> Останні події
                 </Typography>
                 <List dense disablePadding>
                   {data.recentEvents?.length > 0 ? (
-                    data.recentEvents.slice(0, 4).map((event: { id: string, action: string, createdAt: string }) => (
-                      <ListItem key={event.id} sx={{ px: 0, py: 0.5 }}>
-                        <ListItemIcon sx={{ minWidth: 30 }}>
-                          <AccessTime sx={{ fontSize: 14 }} />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={event.action || `ID: ${event.id.slice(0, 8)}`}
-                          secondary={new Date(event.createdAt).toLocaleString('uk-UA')}
-                          primaryTypographyProps={{ variant: 'caption', fontWeight: 700 }}
-                          secondaryTypographyProps={{ variant: 'caption' }}
-                        />
-                      </ListItem>
-                    ))
+                    data.recentEvents
+                      .slice(0, 4)
+                      .map(
+                        (event: {
+                          id: string;
+                          action: string;
+                          createdAt: string;
+                        }) => (
+                          <ListItem key={event.id} sx={{ px: 0, py: 0.5 }}>
+                            <ListItemIcon sx={{ minWidth: 30 }}>
+                              <AccessTime sx={{ fontSize: 14 }} />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                event.action || `ID: ${event.id.slice(0, 8)}`
+                              }
+                              secondary={new Date(
+                                event.createdAt,
+                              ).toLocaleString('uk-UA')}
+                              primaryTypographyProps={{
+                                variant: 'caption',
+                                fontWeight: 700,
+                              }}
+                              secondaryTypographyProps={{ variant: 'caption' }}
+                            />
+                          </ListItem>
+                        ),
+                      )
                   ) : (
-                    <Typography variant="caption" color="text.secondary">Події відсутні</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Події відсутні
+                    </Typography>
                   )}
                 </List>
               </Paper>
