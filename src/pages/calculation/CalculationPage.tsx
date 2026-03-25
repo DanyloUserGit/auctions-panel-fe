@@ -1,7 +1,4 @@
-import {
-  ArrowBack,
-  Search
-} from '@mui/icons-material';
+import { ArrowBack, Search } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -27,7 +24,7 @@ import {
   TableRow,
   Tabs,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -37,24 +34,22 @@ import {
   getSoldMeta,
   getSoldRows,
   getTableMeta,
-  getTableRows
+  getTableRows,
 } from './model/api';
 import type {
   CalculationTab,
   CustomsTableId,
   ISoldRow,
   ITableMeta,
-  ITableRow
+  ITableRow,
 } from './model/types';
 import FullForm from './ui/FullForm';
 import ImportForm from './ui/ImportForm';
-
 
 const CalculationPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [tab, setTab] = useState<CalculationTab>('customs');
-
 
   const [tableId, setTableId] = useState<CustomsTableId>('27031');
   const [tableMeta, setTableMeta] = useState<ITableMeta | null>(null);
@@ -95,7 +90,9 @@ const CalculationPage: React.FC = () => {
       setTableMeta(metaResponse.data);
       setTableRows(rowsResponse.data.rows ?? []);
     } catch (error) {
-      setTableError((error as Error)?.message || 'Не вдалося завантажити таблицю');
+      setTableError(
+        (error as Error)?.message || 'Не вдалося завантажити таблицю',
+      );
     } finally {
       setTableLoading(false);
     }
@@ -119,7 +116,9 @@ const CalculationPage: React.FC = () => {
 
         let monthsToUse = soldActiveMonths;
         if (!keepMonths) {
-          monthsToUse = soldActiveMonths.filter((month) => meta.months.includes(month));
+          monthsToUse = soldActiveMonths.filter((month) =>
+            meta.months.includes(month),
+          );
           setSoldActiveMonths(monthsToUse);
         }
 
@@ -134,7 +133,9 @@ const CalculationPage: React.FC = () => {
         });
         setSoldRows(rowsResponse.data.rows ?? []);
       } catch (error) {
-        setSoldError((error as Error)?.message || 'Не вдалося завантажити продані авто');
+        setSoldError(
+          (error as Error)?.message || 'Не вдалося завантажити продані авто',
+        );
       } finally {
         setSoldLoading(false);
       }
@@ -200,7 +201,11 @@ const CalculationPage: React.FC = () => {
               Таблиці
             </Typography>
 
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={1} sx={{ mb: 2 }}>
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={1}
+              sx={{ mb: 2 }}
+            >
               {TABLES.map((item) => (
                 <Chip
                   key={item}
@@ -218,7 +223,10 @@ const CalculationPage: React.FC = () => {
                   label="Марка"
                   value={tableFilters.qmarka}
                   onChange={(e) =>
-                    setTableFilters((prev) => ({ ...prev, qmarka: e.target.value }))
+                    setTableFilters((prev) => ({
+                      ...prev,
+                      qmarka: e.target.value,
+                    }))
                   }
                 />
               </Grid>
@@ -228,7 +236,10 @@ const CalculationPage: React.FC = () => {
                   label="Модель"
                   value={tableFilters.qmodel}
                   onChange={(e) =>
-                    setTableFilters((prev) => ({ ...prev, qmodel: e.target.value }))
+                    setTableFilters((prev) => ({
+                      ...prev,
+                      qmodel: e.target.value,
+                    }))
                   }
                 />
               </Grid>
@@ -238,14 +249,25 @@ const CalculationPage: React.FC = () => {
                   label="Тип палива"
                   value={tableFilters.qtyp}
                   onChange={(e) =>
-                    setTableFilters((prev) => ({ ...prev, qtyp: e.target.value }))
+                    setTableFilters((prev) => ({
+                      ...prev,
+                      qtyp: e.target.value,
+                    }))
                   }
                 />
               </Grid>
             </Grid>
 
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mt: 2 }}>
-              <Button variant="contained" startIcon={<Search />} onClick={loadTableData}>
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={1.5}
+              sx={{ mt: 2 }}
+            >
+              <Button
+                variant="contained"
+                startIcon={<Search />}
+                onClick={loadTableData}
+              >
                 Пошук
               </Button>
               <Button
@@ -258,9 +280,17 @@ const CalculationPage: React.FC = () => {
               </Button>
             </Stack>
 
-            {tableError && <Alert severity="error" sx={{ mt: 2 }}>{tableError}</Alert>}
+            {tableError && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {tableError}
+              </Alert>
+            )}
 
-            <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, maxHeight: 680 }}>
+            <TableContainer
+              component={Paper}
+              variant="outlined"
+              sx={{ mt: 2, maxHeight: 680 }}
+            >
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
@@ -276,17 +306,28 @@ const CalculationPage: React.FC = () => {
                   {tableLoading ? (
                     <TableRow>
                       <TableCell colSpan={(tableMeta?.years.length || 0) + 1}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            py: 3,
+                          }}
+                        >
                           <CircularProgress size={28} />
                         </Box>
                       </TableCell>
                     </TableRow>
                   ) : tableRows.length ? (
                     tableRows.map((row, index) => (
-                      <TableRow key={`${row.marka}-${row.model}-${row.typ}-${index}`}>
+                      <TableRow
+                        key={`${row.marka}-${row.model}-${row.typ}-${index}`}
+                      >
                         <TableCell>
                           <Box>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700 }}
+                            >
                               {row.marka}
                             </Typography>
                             <Typography variant="body2">{row.model}</Typography>
@@ -348,7 +389,10 @@ const CalculationPage: React.FC = () => {
               </Grid>
               <Grid size={{ xs: 12, md: 3 }}>
                 <Stack direction="row" spacing={1}>
-                  <Button variant="contained" onClick={() => loadSoldMetaAndRows(true)}>
+                  <Button
+                    variant="contained"
+                    onClick={() => loadSoldMetaAndRows(true)}
+                  >
                     Пошук
                   </Button>
                   <Button
@@ -365,13 +409,30 @@ const CalculationPage: React.FC = () => {
               </Grid>
             </Grid>
 
-            <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', gap: 1 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ mt: 2, flexWrap: 'wrap', gap: 1 }}
+            >
               <Chip
                 label="Всі місяці"
                 color={soldActiveMonths.length === 0 ? 'primary' : 'default'}
                 onClick={() => setSoldActiveMonths([])}
               />
-              {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map((month) => {
+              {[
+                '01',
+                '02',
+                '03',
+                '04',
+                '05',
+                '06',
+                '07',
+                '08',
+                '09',
+                '10',
+                '11',
+                '12',
+              ].map((month) => {
                 const enabled = soldAvailableMonths.includes(month);
                 const active = soldActiveMonths.includes(month);
                 return (
@@ -393,9 +454,17 @@ const CalculationPage: React.FC = () => {
               })}
             </Stack>
 
-            {soldError && <Alert severity="error" sx={{ mt: 2 }}>{soldError}</Alert>}
+            {soldError && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {soldError}
+              </Alert>
+            )}
 
-            <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, maxHeight: 680 }}>
+            <TableContainer
+              component={Paper}
+              variant="outlined"
+              sx={{ mt: 2, maxHeight: 680 }}
+            >
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
@@ -415,7 +484,9 @@ const CalculationPage: React.FC = () => {
                         sx={{ cursor: 'pointer', userSelect: 'none' }}
                       >
                         {label}
-                        {soldSort === field ? ` ${soldDir === 'ASC' ? '▲' : '▼'}` : ''}
+                        {soldSort === field
+                          ? ` ${soldDir === 'ASC' ? '▲' : '▼'}`
+                          : ''}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -424,7 +495,13 @@ const CalculationPage: React.FC = () => {
                   {soldLoading ? (
                     <TableRow>
                       <TableCell colSpan={8}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            py: 3,
+                          }}
+                        >
                           <CircularProgress size={28} />
                         </Box>
                       </TableCell>
@@ -433,12 +510,18 @@ const CalculationPage: React.FC = () => {
                     soldRows.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>{row.country}</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>{row.brand}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>
+                          {row.brand}
+                        </TableCell>
                         <TableCell>{row.model}</TableCell>
-                        <TableCell sx={{ maxWidth: 420 }}>{row.detail}</TableCell>
+                        <TableCell sx={{ maxWidth: 420 }}>
+                          {row.detail}
+                        </TableCell>
                         <TableCell>{row.mileage_km ?? ''}</TableCell>
                         <TableCell>{row.first_reg_fmt ?? ''}</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>{row.sale_price ?? ''}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>
+                          {row.sale_price ?? ''}
+                        </TableCell>
                         <TableCell>{row.sale_month ?? ''}</TableCell>
                       </TableRow>
                     ))
@@ -453,7 +536,7 @@ const CalculationPage: React.FC = () => {
           </CardContent>
         </Card>
       </TabPanel>
-    </Box >
+    </Box>
   );
 };
 
