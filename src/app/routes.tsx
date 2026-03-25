@@ -29,7 +29,7 @@ import TrainingPage from '../pages/Training';
 import CalculationPage from '../pages/calculation/CalculationPage';
 import BalancesPage from '../pages/balance/BalancePage';
 import { Processes } from '../pages/processes/Processes';
-import { Analytics } from '../pages/analitics/Analytics';
+import Analytics from '../pages/analitics/ui/Analytics';
 
 const router = createBrowserRouter([
   {
