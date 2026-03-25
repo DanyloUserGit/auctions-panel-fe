@@ -98,7 +98,6 @@ const CalculationPage: React.FC = () => {
       </Box>
 
       <div className="grid grid-cols-2 gap-5" style={{ marginBottom: '15px' }}>
-        {/* Вибір таблиці */}
         <FormControl fullWidth>
           <InputLabel id="table-select-label">Тип авто (Таблиця)</InputLabel>
           <Select
@@ -116,7 +115,6 @@ const CalculationPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        {/* Вибір Марки */}
         <FormControl fullWidth>
           <InputLabel id="marka-select-label">Марка</InputLabel>
           <Select
@@ -137,7 +135,6 @@ const CalculationPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        {/* Вибір Моделі */}
         <FormControl fullWidth>
           <InputLabel id="model-select-label">Модель</InputLabel>
           <Select
@@ -159,7 +156,6 @@ const CalculationPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        {/* Рік випуску */}
         <TextField
           fullWidth
           label="Рік"
@@ -169,7 +165,6 @@ const CalculationPage: React.FC = () => {
           onChange={handleInputChange}
         />
 
-        {/* Об'єм двигуна */}
         <TextField
           fullWidth
           label="Об'єм двигуна (см³)"
@@ -179,7 +174,6 @@ const CalculationPage: React.FC = () => {
           onChange={handleInputChange}
         />
 
-        {/* Тип палива */}
         <FormControl fullWidth>
           <InputLabel id="fuel-type-label">Тип палива</InputLabel>
           <Select
@@ -194,7 +188,6 @@ const CalculationPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        {/* Ціна на аукціоні */}
         <TextField
           fullWidth
           label="Ціна на аукціоні (USD)"
