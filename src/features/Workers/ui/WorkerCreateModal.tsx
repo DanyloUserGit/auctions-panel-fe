@@ -6,6 +6,8 @@ import {
   CircularProgress,
   FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Paper,
@@ -25,11 +27,22 @@ import {
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
-
+import { Refresh } from '@mui/icons-material';
 interface CreateUserModalProps {
   open: boolean;
   onClose: () => void;
 }
+
+const generateSafePassword = (length = 12) => {
+  const charset = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let password = '';
+  const values = new Uint32Array(length);
+  window.crypto.getRandomValues(values);
+  for (let i = 0; i < length; i++) {
+    password += charset[values[i] % charset.length];
+  }
+  return password;
+};
 
 export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
@@ -78,6 +91,15 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     }
   }, [selectedRole, canManageGroup, isAuctionMember, setValue]);
 
+  const handleGeneratePassword = () => {
+    const password = generateSafePassword(8);
+    setValue('password', password, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    navigator.clipboard.writeText(password);
+  };
   const handleClose = () => {
     reset();
     GroupSearch.setOptions([]);
@@ -149,11 +171,27 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
           <Grid size={12}>
             <TextField
               fullWidth
-              type="password"
+              type="text"
               label="Пароль"
               {...register('password')}
               error={!!errors.password}
               helperText={errors.password?.message}
+              InputLabelProps={{
+                shrink: !!watch('password'),
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleGeneratePassword}
+                      edge="end"
+                      title="Згенерувати та копіювати"
+                    >
+                      <Refresh />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 
