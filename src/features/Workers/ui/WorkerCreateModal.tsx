@@ -34,8 +34,8 @@ interface CreateUserModalProps {
 }
 
 const generateSafePassword = (length = 12) => {
-  const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let password = "";
+  const charset = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let password = '';
   const values = new Uint32Array(length);
   window.crypto.getRandomValues(values);
   for (let i = 0; i < length; i++) {

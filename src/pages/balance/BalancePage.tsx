@@ -1,5 +1,20 @@
 import { ArrowBack } from '@mui/icons-material';
-import { Box, IconButton, Typography } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Loader } from '../../shared/ui/Loader';
@@ -42,73 +57,99 @@ const BalancesPage: React.FC = () => {
           Баланси
         </Typography>
       </Box>
-      <div className="flex flex-col gap-3">
-        <div className="w-1/3 flex flex-col gap-2">
-          <label className="block text-sm font-medium mb-1">
-            Оберіть клієнта
-          </label>
-          <select
-            value={selectedClient}
-            onChange={(e) => setSelectedClient(e.target.value)}
-            className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="ALL">-- Всі клієнти --</option>
-            {clients.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="py-4">
-              <tr className="bg-gray-100 text-gray-700 uppercase text-sm border-b">
-                <th className="p-3 w-10"></th>
-                <th className="p-3">Клієнт</th>
-                <th className="p-3 text-right text-green-700">USD</th>
-                <th className="p-3 text-right text-blue-700">EUR</th>
-                <th className="p-3 text-right text-red-700">PLN</th>
-                <th className="p-3 text-right text-gray-800">UAH</th>
-              </tr>
-            </thead>
-            <tbody>
+      <div className="flex flex-col gap-5">
+        <FormControl className="w-full sm:w-1/3">
+          <InputLabel id="client-select-label">Оберіть клієнта</InputLabel>
+          <Select
+            labelId="client-select-label"
+            value={selectedClient}
+            label="Оберіть клієнта"
+            onChange={(e) => setSelectedClient(e.target.value)}
+          >
+            <MenuItem value="ALL">-- Всі клієнти --</MenuItem>
+            {clients.map((c) => (
+              <MenuItem key={c} value={c}>
+                {c}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          className="border border-gray-200"
+        >
+          <Table className="w-full">
+            <TableHead className="bg-gray-100">
+              <TableRow>
+                <TableCell className="w-10"></TableCell>
+                <TableCell className="uppercase text-gray-700 text-sm font-semibold">
+                  Клієнт
+                </TableCell>
+                <TableCell
+                  align="right"
+                  className="uppercase text-green-700 text-sm font-semibold"
+                >
+                  USD
+                </TableCell>
+                <TableCell
+                  align="right"
+                  className="uppercase text-blue-700 text-sm font-semibold"
+                >
+                  EUR
+                </TableCell>
+                <TableCell
+                  align="right"
+                  className="uppercase text-red-700 text-sm font-semibold"
+                >
+                  PLN
+                </TableCell>
+                <TableCell
+                  align="right"
+                  className="uppercase text-gray-800 text-sm font-semibold"
+                >
+                  UAH
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {balances.map((clientData) => (
                 <React.Fragment key={clientData.clientName}>
-                  <tr
-                    className="border-b hover:bg-gray-50 cursor-pointer font-bold"
+                  <TableRow
+                    className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => toggleRow(clientData.clientName)}
                   >
-                    <td className="p-3 text-center text-gray-400">
+                    <TableCell align="center" className="text-gray-400">
                       {expandedRows[clientData.clientName] ? '▼' : '▶'}
-                    </td>
-                    <td className="p-3 text-blue-900">
+                    </TableCell>
+                    <TableCell className="font-bold text-blue-900">
                       {clientData.clientName}
-                    </td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell align="right" className="font-bold">
                       {formatMoney(clientData.totalUsd)}
-                    </td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell align="right" className="font-bold">
                       {formatMoney(clientData.totalEur)}
-                    </td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell align="right" className="font-bold">
                       {formatMoney(clientData.totalPln)}
-                    </td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell align="right" className="font-bold">
                       {formatMoney(clientData.totalUah)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
 
                   {/* Дочірні рядки (Деталізація по операціях/машинах) */}
                   {expandedRows[clientData.clientName] &&
                     clientData.records.map((record, idx) => (
-                      <tr
+                      <TableRow
                         key={`${clientData.clientName}-record-${idx}`}
-                        className="bg-gray-50 border-b text-sm"
+                        className="bg-gray-50"
                       >
-                        <td></td>
-                        <td className="p-3 pl-8">
+                        <TableCell></TableCell>
+                        <TableCell className="pl-8">
                           <div>
                             <span className="font-semibold">
                               {record.model || 'Авто'}
@@ -121,49 +162,65 @@ const BalancesPage: React.FC = () => {
                               : 'Без дати'}{' '}
                             • {record.notes}
                           </div>
-                        </td>
-                        <td
-                          className={`p-3 text-right ${record.isPlus ? 'text-green-600' : 'text-red-600'}`}
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.usd > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.usd)}`
                             : '-'}
-                        </td>
-                        <td
-                          className={`p-3 text-right ${record.isPlus ? 'text-green-600' : 'text-red-600'}`}
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.eur > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.eur)}`
                             : '-'}
-                        </td>
-                        <td
-                          className={`p-3 text-right ${record.isPlus ? 'text-green-600' : 'text-red-600'}`}
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.pln > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.pln)}`
                             : '-'}
-                        </td>
-                        <td
-                          className={`p-3 text-right ${record.isPlus ? 'text-green-600' : 'text-red-600'}`}
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          className={
+                            record.isPlus ? 'text-green-600' : 'text-red-600'
+                          }
                         >
                           {record.uah > 0
                             ? `${record.isPlus ? '+' : '-'}${formatMoney(record.uah)}`
                             : '-'}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
                 </React.Fragment>
               ))}
               {balances.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="p-6 text-center text-gray-500">
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    align="center"
+                    className="py-6 text-gray-500"
+                  >
                     Немає даних для відображення
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     </>
   );

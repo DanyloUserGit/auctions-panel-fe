@@ -1,3 +1,5 @@
+import { ArrowBack } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 import throttle from 'lodash/throttle';
 import { useEffect, useRef, useState, type FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -262,7 +264,6 @@ export const SessionContainer: FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    // Відключаємо стандартну поведінку (наприклад, скрол сторінки пробілом)
     e.preventDefault();
     sendInteraction({ type: 'keydown', key: e.key });
   };
@@ -273,13 +274,20 @@ export const SessionContainer: FC = () => {
   };
   return (
     <div
-      className="relative w-full h-full bg-black min-h-screen outline-none"
+      className="relative w-full h-full bg-transparent min-h-screen outline-none"
       tabIndex={0}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
       {isLoading && <Loader />}
-
+      <div className="fixed">
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{ color: 'text.secondary', backgroundColor: 'white' }}
+        >
+          <ArrowBack />
+        </IconButton>
+      </div>
       <video
         ref={videoRef}
         autoPlay

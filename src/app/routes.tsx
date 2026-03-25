@@ -29,6 +29,7 @@ import TrainingPage from '../pages/Training';
 import CalculationPage from '../pages/calculation/CalculationPage';
 import BalancesPage from '../pages/balance/BalancePage';
 import { Processes } from '../pages/processes/Processes';
+import { Analytics } from '../pages/analitics/Analytics';
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,7 @@ const router = createBrowserRouter([
           { path: 'accounting', element: <CalculationPage /> },
           { path: 'balances', element: <BalancesPage /> },
           { path: 'processes', element: <Processes /> },
+          { path: 'analytics', element: <Analytics /> },
         ],
       },
     ],

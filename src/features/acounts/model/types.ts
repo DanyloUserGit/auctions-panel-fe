@@ -3,7 +3,6 @@ export interface AccountCreate {
   password: string;
   auctionId: string;
   title: string;
-
 }
 export interface AccountUpdate {
   email?: string;

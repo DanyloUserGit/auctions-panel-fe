@@ -17,9 +17,9 @@ import {
 import { AppBar, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import type { UserRole } from '../../features/auth/model/user-schema';
 import { useMobile } from '../hooks/useMobile';
 import DrawerContent from './DrawerContent';
-import type { UserRole } from '../../features/auth/model/user-schema';
 
 const drawerWidth = 280;
 const closedDrawerWidth = 72;
@@ -36,7 +36,7 @@ export interface MenuGroup {
 }
 export default function Sidebar() {
   const isMobile = useMobile();
-  const [isOpen, setIsOpen] = useState(false); // На ПК відкритий, на мобільних закритий
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const handleNavigation = (path: string) => {
