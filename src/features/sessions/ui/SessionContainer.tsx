@@ -280,10 +280,10 @@ export const SessionContainer: FC = () => {
       onKeyUp={handleKeyUp}
     >
       {isLoading && <Loader />}
-      <div className='fixed'>
+      <div className="fixed">
         <IconButton
           onClick={() => navigate(-1)}
-          sx={{ color: 'text.secondary', backgroundColor: "white" }}
+          sx={{ color: 'text.secondary', backgroundColor: 'white' }}
         >
           <ArrowBack />
         </IconButton>
