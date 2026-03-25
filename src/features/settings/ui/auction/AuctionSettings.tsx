@@ -6,7 +6,6 @@ import SelectedAuctionSettings from './SelectedAuctionSettings';
 export function AuctionSettings() {
   const [selectedAuctionId, setSelectedAuction] = useState<string | ''>('');
 
-
   return (
     <Stack spacing={3}>
       {/* Селектор аукціону */}

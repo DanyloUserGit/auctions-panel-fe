@@ -39,7 +39,7 @@ export interface User {
   phone: string;
   city: string;
   auctionGroupId: string; // z.uuid() у TypeScript представлений як string
-  managedGroup: Group;   // оскільки .or(z.literal('')) — це все одно рядок
+  managedGroup: Group; // оскільки .or(z.literal('')) — це все одно рядок
   sessionLimit: number;
   sessionRights: UserRights;
   isActive: boolean;

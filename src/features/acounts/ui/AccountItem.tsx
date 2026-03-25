@@ -37,7 +37,6 @@ export default function AccountItem({
   const { mutate: addToFavorite } = useAddToFavorite();
   const { mutate: removeFromFavorite } = useRemoveFromFavorite();
 
-  // Анімація для кнопок
   const iconButtonSx = {
     transition: 'transform 0.2s ease-in-out',
     '&:hover': {
@@ -73,14 +72,13 @@ export default function AccountItem({
           bgcolor: isFavorite ? 'rgba(255, 193, 7, 0.03)' : 'background.paper',
           transition: 'all 0.3s ease',
           position: 'relative',
-          overflow: 'visible', // Щоб анімація збільшення не обрізалася
+          overflow: 'visible',
           '&:hover': {
             borderColor: isFavorite ? 'warning.main' : 'primary.main',
             boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
           },
         }}
       >
-        {/* Кнопка "Обране" зліва */}
         <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
           <Tooltip
             title={isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
@@ -99,7 +97,6 @@ export default function AccountItem({
           </Tooltip>
         </Box>
 
-        {/* Кнопка "Видалити" справа */}
         <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
           <Tooltip title="Видалити акаунт">
             <IconButton
@@ -150,7 +147,7 @@ export default function AccountItem({
                   mb: 0.5,
                 }}
               >
-                {account.email?.split('@')[0] || 'Користувач'}
+                {account.title?.split('@')[0] || 'Користувач'}
               </Typography>
 
               <Stack

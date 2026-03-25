@@ -47,6 +47,7 @@ const SessionLogList: React.FC = () => {
   };
 
   const handleViewLog = (session: SessionLog) => {
+    console.log('Відкриття модалки логів для:', session.id);
   };
 
   const handleTerminate = (sessionId: string, userFullName: string) => {

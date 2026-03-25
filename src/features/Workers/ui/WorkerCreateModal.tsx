@@ -6,6 +6,8 @@ import {
   CircularProgress,
   FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Paper,
@@ -25,11 +27,22 @@ import {
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
-
+import { Refresh } from '@mui/icons-material';
 interface CreateUserModalProps {
   open: boolean;
   onClose: () => void;
 }
+
+const generateSafePassword = (length = 12) => {
+  const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let password = "";
+  const values = new Uint32Array(length);
+  window.crypto.getRandomValues(values);
+  for (let i = 0; i < length; i++) {
+    password += charset[values[i] % charset.length];
+  }
+  return password;
+};
 
 export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
@@ -67,7 +80,8 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const selectedRole = watch('role');
 
   const canManageGroup = selectedRole === 'Admin';
-  const isAuctionMember = selectedRole === 'User' || selectedRole === 'SuperAdmin';
+  const isAuctionMember =
+    selectedRole === 'User' || selectedRole === 'SuperAdmin';
 
   useEffect(() => {
     if (canManageGroup) {
@@ -77,6 +91,15 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     }
   }, [selectedRole, canManageGroup, isAuctionMember, setValue]);
 
+  const handleGeneratePassword = () => {
+    const password = generateSafePassword(8);
+    setValue('password', password, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    navigator.clipboard.writeText(password);
+  };
   const handleClose = () => {
     reset();
     GroupSearch.setOptions([]);
@@ -148,11 +171,27 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
           <Grid size={12}>
             <TextField
               fullWidth
-              type="password"
+              type="text"
               label="Пароль"
               {...register('password')}
               error={!!errors.password}
               helperText={errors.password?.message}
+              InputLabelProps={{
+                shrink: !!watch('password'),
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleGeneratePassword}
+                      edge="end"
+                      title="Згенерувати та копіювати"
+                    >
+                      <Refresh />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 
@@ -164,11 +203,13 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map((role) => (
-                      <MenuItem key={role} value={role}>
-                        {role}
-                      </MenuItem>
-                    ))}
+                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
+                      (role) => (
+                        <MenuItem key={role} value={role}>
+                          {role}
+                        </MenuItem>
+                      ),
+                    )}
                   </Select>
                 )}
               />
@@ -181,13 +222,16 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 name="managedGroup"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const selected = GroupSearch.options.find(g => g.id === value) || null;
+                  const selected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(selected)}
                       loading={GroupSearch.isLoading}
                       value={selected}
-                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, selected)}
+                      onInputChange={(_, val) =>
+                        GroupSearch.debouncedFetch(val, selected)
+                      }
                       onChange={(_, val) => onChange(val?.id || '')}
                       getOptionLabel={(o) => o.title || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
@@ -212,13 +256,16 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 name="auctionGroupId"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const selected = GroupSearch.options.find(g => g.id === value) || null;
+                  const selected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(selected)}
                       loading={GroupSearch.isLoading}
                       value={selected}
-                      onInputChange={(_, val) => GroupSearch.debouncedFetch(val, selected)}
+                      onInputChange={(_, val) =>
+                        GroupSearch.debouncedFetch(val, selected)
+                      }
                       onChange={(_, val) => onChange(val?.id || '')}
                       getOptionLabel={(o) => o.title || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
