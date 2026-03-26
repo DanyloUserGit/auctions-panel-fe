@@ -10,7 +10,7 @@ import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
-import Inventory from '../pages/Inventory';
+import InStock from '../pages/InStock';
 import Orders from '../pages/Orders';
 import Profile from '../pages/Profile';
 import Purchases from '../pages/Purchases';
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
           { path: 'favorites', element: <Favorite /> },
           { path: 'orders', element: <Orders /> },
           { path: 'purchases', element: <Purchases /> },
-          { path: 'inventory', element: <Inventory /> },
+          { path: 'inventory', element: <InStock /> },
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
           { path: 'notifications/list', element: <NotificationsPage /> },
