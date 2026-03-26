@@ -7,6 +7,7 @@ export const fetchBalanceClients = async (db: string): Promise<string[]> => {
   const response = await api.get<string[]>('/balance/clients', {
     params: { db },
   });
+  console.log(response.data)
   return response.data;
 };
 
@@ -19,5 +20,7 @@ export const fetchBalanceData = async (
   const response = await api.get<ClientBalance[]>('/balance/data', {
     params: { db, client },
   });
+  console.log(response.data)
+
   return response.data;
 };
