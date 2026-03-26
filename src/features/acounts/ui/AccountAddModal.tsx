@@ -30,7 +30,7 @@ export default function AccountAddModal({
         email,
         password,
         auctionId: currentAuctionId,
-        title
+        title,
       },
       {
         onSuccess: () => {

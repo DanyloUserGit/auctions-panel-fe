@@ -1,9 +1,4 @@
-import {
-  DeleteOutline,
-  Person,
-  Star,
-  StarBorder,
-} from '@mui/icons-material';
+import { DeleteOutline, Person, Star, StarBorder } from '@mui/icons-material';
 import {
   Avatar,
   Box,
@@ -80,12 +75,10 @@ export default function AccountItem({
       >
         {/* Кнопка обраного */}
         <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
-          <Tooltip title={isFavorite ? 'Видалити з обраного' : 'Додати в обране'}>
-            <IconButton
-              size="small"
-              onClick={toggleFavorite}
-              sx={iconButtonSx}
-            >
+          <Tooltip
+            title={isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
+          >
+            <IconButton size="small" onClick={toggleFavorite} sx={iconButtonSx}>
               {isFavorite ? (
                 <Star fontSize="small" sx={{ color: 'warning.main' }} />
               ) : (
@@ -125,10 +118,15 @@ export default function AccountItem({
             borderRadius: '16px',
             height: '100%',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
           }}
         >
-          <Stack spacing={2} alignItems="center" textAlign="center" sx={{ width: '100%' }}>
+          <Stack
+            spacing={2}
+            alignItems="center"
+            textAlign="center"
+            sx={{ width: '100%' }}
+          >
             <Avatar
               sx={{
                 width: 56,
