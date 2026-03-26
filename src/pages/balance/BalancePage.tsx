@@ -17,7 +17,7 @@ import {
   TableRow,
   TextField,
   ThemeProvider,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useState, type SyntheticEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -43,9 +43,12 @@ export default function BalanceSheet() {
   const { balances } = useBalanceData(db, selectedClient);
 
   // Стан для дати (формат YYYY-MM-DD з інпуту type="date")
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState('');
 
-  const handleClientChange = (_event: SyntheticEvent, newValue: string | null) => {
+  const handleClientChange = (
+    _event: SyntheticEvent,
+    newValue: string | null,
+  ) => {
     if (newValue) {
       setSearchParams({ client: newValue });
     } else {
@@ -76,7 +79,7 @@ export default function BalanceSheet() {
   const filteredRecords = rawRecords.filter((record: BalanceRecord) => {
     if (!date) return true; // Якщо дата не обрана, показуємо все
 
-    // Припускаємо, що в record є поле date. 
+    // Припускаємо, що в record є поле date.
     // Встановлюємо час на кінець обраного дня, щоб включити всі записи за цей день
     const recordDate = new Date(record.date); // Змініть record.date на ваше поле, якщо воно інше
     const selectedDate = new Date(date);
@@ -86,18 +89,27 @@ export default function BalanceSheet() {
   });
 
   // 3. Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів
-  const totalBalance = filteredRecords.reduce((acc, curr) =>
-    curr.isPlus ? acc + curr.eur : acc - curr.eur, 0
-  ) || 0;
+  const totalBalance =
+    filteredRecords.reduce(
+      (acc, curr) => (curr.isPlus ? acc + curr.eur : acc - curr.eur),
+      0,
+    ) || 0;
 
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
-
         {/* Header */}
-        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2} sx={{ mb: 4 }}>
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          justifyContent="space-between"
+          spacing={2}
+          sx={{ mb: 4 }}
+        >
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 'bold', color: 'primary.main' }}
+            >
               Caddyluck Solution
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -115,7 +127,13 @@ export default function BalanceSheet() {
         </Stack>
 
         {/* Toolbar */}
-        <Stack direction="row" spacing={2} sx={{ mb: 3 }} flexWrap="wrap" alignItems="center">
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ mb: 3 }}
+          flexWrap="wrap"
+          alignItems="center"
+        >
           <Autocomplete
             options={clients || []}
             value={selectedClient}
@@ -142,7 +160,13 @@ export default function BalanceSheet() {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Button startIcon={<PrintIcon />} variant="outlined" onClick={handlePrint}>Друк</Button>
+          <Button
+            startIcon={<PrintIcon />}
+            variant="outlined"
+            onClick={handlePrint}
+          >
+            Друк
+          </Button>
           <Button
             startIcon={<LinkIcon />}
             variant="outlined"
@@ -160,7 +184,10 @@ export default function BalanceSheet() {
         </Stack>
 
         {/* Table */}
-        <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <TableContainer
+          component={Paper}
+          sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+        >
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -194,11 +221,22 @@ export default function BalanceSheet() {
 
         {/* Total */}
         {selectedClient && (
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              mt: 3,
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
             <Typography variant="h6">Поточний баланс:</Typography>
             <Typography
               variant="h5"
-              sx={{ fontWeight: 'bold', color: totalBalance >= 0 ? '#009999' : '#2f58cd' }}
+              sx={{
+                fontWeight: 'bold',
+                color: totalBalance >= 0 ? '#009999' : '#2f58cd',
+              }}
             >
               {totalBalance.toLocaleString()} €
             </Typography>
