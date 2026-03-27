@@ -10,12 +10,14 @@ export const emitJoinAuction = (sessionConnectData: SessionConnectData) => {
 };
 
 export const sendWebRTCOffer = (
+  userId:string,
   sessionId: string,
   offer: RTCSessionDescriptionInit,
   width: number,
   height: number,
 ) => {
   socket.emit('webrtc_signal', {
+    userId,
     sessionId: sessionId,
     signalData: { type: 'offer', sdp: offer.sdp },
     width: width,

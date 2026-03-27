@@ -56,7 +56,7 @@ export interface ClientInfo {
 }
 
 export interface ProcessesResponse {
-  clientInfo: ClientInfo;
+  data: Car[];
   stats: Stats;
-  cars: Car[];
+  clientInfo?: ClientInfo;
 }

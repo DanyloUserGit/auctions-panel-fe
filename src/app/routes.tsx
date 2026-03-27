@@ -5,13 +5,13 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import LoginForm from '../features/auth/ui/LoginFrom';
-import NotificationsPage from '../pages/NotificationPage';
 import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
 import InStock from '../pages/InStock';
-import Orders from '../pages/Orders';
+import NotificationsPage from '../pages/NotificationPage';
+import Orders from '../pages/orders/Orders';
 import Profile from '../pages/Profile';
 import Purchases from '../pages/Purchases';
 import ResetPassword from '../pages/ResetPassword';
@@ -21,15 +21,15 @@ import { useWindowSize } from '../shared/hooks/useWindowSize';
 import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
 
-import Information from '../pages/Information';
 import AllActionsPage from '../pages/AllActions';
+import Analytics from '../pages/analitics/ui/Analytics';
+import BalancesPage from '../pages/balance/BalancePage';
+import CalculationPage from '../pages/calculation/CalculationPage';
+import Information from '../pages/Information';
 import PageNotFound from '../pages/PageNotFound';
+import { Processes } from '../pages/processes/Processes';
 import SettingsPage from '../pages/Settings';
 import TrainingPage from '../pages/Training';
-import CalculationPage from '../pages/calculation/CalculationPage';
-import BalancesPage from '../pages/balance/BalancePage';
-import { Processes } from '../pages/processes/Processes';
-import Analytics from '../pages/analitics/ui/Analytics';
 
 const router = createBrowserRouter([
   {
