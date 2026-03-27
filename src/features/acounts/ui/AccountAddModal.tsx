@@ -19,6 +19,7 @@ export default function AccountAddModal({
   const { mutate, isPending } = useCreateAcount();
 
   const [email, setEmail] = useState('');
+  const [title, setTitle] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = () => {
@@ -29,6 +30,7 @@ export default function AccountAddModal({
         email,
         password,
         auctionId: currentAuctionId,
+        title,
       },
       {
         onSuccess: () => {
@@ -61,6 +63,12 @@ export default function AccountAddModal({
       }
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
+        <TextField
+          label="Назва"
+          fullWidth
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
         <TextField
           label="Пошта"
           fullWidth

@@ -52,7 +52,7 @@ export default function FavoriteItem({ account, handleSelectAccount }: Props) {
         sx={{
           borderRadius: '16px',
           border: '1px solid',
-          borderColor: 'warning.light', // Оскільки це Favorite, вона завжди підсвічена
+          borderColor: 'warning.light',
           bgcolor: 'rgba(255, 193, 7, 0.03)',
           transition: 'all 0.3s ease',
           position: 'relative',
@@ -64,7 +64,6 @@ export default function FavoriteItem({ account, handleSelectAccount }: Props) {
           },
         }}
       >
-        {/* Кнопка "Прибрати з обраного" зліва */}
         <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
           <Tooltip title="Прибрати з обраного">
             <IconButton
@@ -137,7 +136,7 @@ export default function FavoriteItem({ account, handleSelectAccount }: Props) {
                   wordBreak: 'break-all',
                 }}
               >
-                {account.email}
+                {account.title}
               </Typography>
 
               <Stack

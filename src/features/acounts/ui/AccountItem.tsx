@@ -1,10 +1,4 @@
-import {
-  DeleteOutline,
-  MailOutline,
-  Person,
-  Star,
-  StarBorder,
-} from '@mui/icons-material';
+import { DeleteOutline, Person, Star, StarBorder } from '@mui/icons-material';
 import {
   Avatar,
   Box,
@@ -37,7 +31,6 @@ export default function AccountItem({
   const { mutate: addToFavorite } = useAddToFavorite();
   const { mutate: removeFromFavorite } = useRemoveFromFavorite();
 
-  // Анімація для кнопок
   const iconButtonSx = {
     transition: 'transform 0.2s ease-in-out',
     '&:hover': {
@@ -73,23 +66,19 @@ export default function AccountItem({
           bgcolor: isFavorite ? 'rgba(255, 193, 7, 0.03)' : 'background.paper',
           transition: 'all 0.3s ease',
           position: 'relative',
-          overflow: 'visible', // Щоб анімація збільшення не обрізалася
+          overflow: 'visible',
           '&:hover': {
             borderColor: isFavorite ? 'warning.main' : 'primary.main',
             boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
           },
         }}
       >
-        {/* Кнопка "Обране" зліва */}
+        {/* Кнопка обраного */}
         <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
           <Tooltip
             title={isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
           >
-            <IconButton
-              size="small"
-              onClick={toggleFavorite}
-              sx={{ ...iconButtonSx }}
-            >
+            <IconButton size="small" onClick={toggleFavorite} sx={iconButtonSx}>
               {isFavorite ? (
                 <Star fontSize="small" sx={{ color: 'warning.main' }} />
               ) : (
@@ -99,7 +88,7 @@ export default function AccountItem({
           </Tooltip>
         </Box>
 
-        {/* Кнопка "Видалити" справа */}
+        {/* Кнопка видалення */}
         <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
           <Tooltip title="Видалити акаунт">
             <IconButton
@@ -123,9 +112,21 @@ export default function AccountItem({
 
         <CardActionArea
           onClick={() => handleSelectAccount(account.id)}
-          sx={{ p: 3, pt: 5, borderRadius: '16px' }}
+          sx={{
+            p: 3,
+            pt: 5,
+            borderRadius: '16px',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
         >
-          <Stack spacing={1.5} alignItems="center" textAlign="center">
+          <Stack
+            spacing={2}
+            alignItems="center"
+            textAlign="center"
+            sx={{ width: '100%' }}
+          >
             <Avatar
               sx={{
                 width: 56,
@@ -140,40 +141,22 @@ export default function AccountItem({
               <Person sx={{ fontSize: 30 }} />
             </Avatar>
 
-            <Box sx={{ width: '100%' }}>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  lineHeight: 1.2,
-                  mb: 0.5,
-                }}
-              >
-                {account.email?.split('@')[0] || 'Користувач'}
-              </Typography>
-
-              <Stack
-                direction="row"
-                spacing={0.5}
-                alignItems="center"
-                justifyContent="center"
-                sx={{ opacity: 0.6 }}
-              >
-                <MailOutline sx={{ fontSize: 14 }} />
-                <Typography
-                  variant="caption"
-                  sx={{
-                    maxWidth: '140px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {account.email}
-                </Typography>
-              </Stack>
-            </Box>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                lineHeight: 1.2,
+                wordBreak: 'break-word',
+                // Обмежуємо кількість рядків для заголовка, якщо він надто довгий
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              {account.title || 'Користувач'}
+            </Typography>
           </Stack>
         </CardActionArea>
       </Card>
