@@ -19,3 +19,26 @@ export interface ClientBalance {
   totalUah: number;
   records: BalanceRecord[];
 }
+
+export interface Transaction {
+  id: number;
+  date: string;
+  diy: string;
+  car: string;
+  vin: string;
+  marka: string;
+  suma: number;
+  effect: number;
+  isPlus: boolean;
+}
+
+export interface GroupedTransaction {
+  id: string;
+  date: string;
+  title: string;
+  car: string;
+  vin: string;
+  sumEffect: number;
+  balance: number;
+  items: Transaction[];
+}

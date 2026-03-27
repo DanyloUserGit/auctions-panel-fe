@@ -1,229 +1,248 @@
-import { ArrowBack } from '@mui/icons-material';
+import LinkIcon from '@mui/icons-material/Link';
+import PrintIcon from '@mui/icons-material/Print';
+import PublicIcon from '@mui/icons-material/Public'; // Замінив Earth на Public
 import {
+  Autocomplete,
   Box,
-  IconButton,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Button,
+  Container,
+  createTheme,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  TextField,
+  ThemeProvider,
+  Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Loader } from '../../shared/ui/Loader';
+import { useState, type SyntheticEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import type { BalanceRecord } from './model/types';
 import { useBalanceClients, useBalanceData } from './model/useBalances';
+import { Row } from './ui/BalanceRow';
 
-const BalancesPage: React.FC = () => {
+const theme = createTheme({
+  palette: {
+    primary: { main: '#1e40af', light: '#dbeafe' },
+    secondary: { main: '#3b82f6' },
+    text: { secondary: '#64748b' },
+  },
+});
+
+export default function BalanceSheet() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedClient = searchParams.get('client') || '';
+
   const [db] = useState<string>('table_extourcars1');
-
-  const [selectedClient, setSelectedClient] = useState<string>('ALL');
-
-  const navigate = useNavigate();
-
-  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const { clients } = useBalanceClients(db);
   const { balances } = useBalanceData(db, selectedClient);
 
-  const toggleRow = (clientName: string) => {
-    setExpandedRows((prev) => ({ ...prev, [clientName]: !prev[clientName] }));
+  // Стан для дати (формат YYYY-MM-DD з інпуту type="date")
+  const [date, setDate] = useState('');
+
+  const handleClientChange = (
+    _event: SyntheticEvent,
+    newValue: string | null,
+  ) => {
+    if (newValue) {
+      setSearchParams({ client: newValue });
+    } else {
+      searchParams.delete('client');
+      setSearchParams(searchParams);
+    }
   };
 
-  const formatMoney = (val: number) =>
-    val ? val.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00';
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Посилання скопійовано у буфер обміну!');
+  };
 
-  return !balances || !clients ? (
-    <Loader />
-  ) : (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center', my: 3, gap: 1 }}>
-        <IconButton
-          onClick={() => navigate(-1)}
-          sx={{ color: 'text.secondary' }}
-        >
-          <ArrowBack />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 800, letterSpacing: '-0.5px' }}
-        >
-          Баланси
-        </Typography>
-      </Box>
+  const handlePrint = () => {
+    window.print();
+  };
 
-      <div className="flex flex-col gap-5">
-        <FormControl className="w-full sm:w-1/3">
-          <InputLabel id="client-select-label">Оберіть клієнта</InputLabel>
-          <Select
-            labelId="client-select-label"
+  // Функція для повернення на сайт
+  const handleReturnToSite = () => {
+    // Вкажіть тут потрібний URL вашого сайту
+    window.location.href = '/';
+  };
+
+  // 1. Отримуємо всі записи
+  const rawRecords = balances?.at(0)?.records || [];
+
+  // 2. Фільтруємо записи за датою (якщо дата обрана)
+  const filteredRecords = rawRecords.filter((record: BalanceRecord) => {
+    if (!date) return true; // Якщо дата не обрана, показуємо все
+
+    // Припускаємо, що в record є поле date.
+    // Встановлюємо час на кінець обраного дня, щоб включити всі записи за цей день
+    const recordDate = new Date(record.date); // Змініть record.date на ваше поле, якщо воно інше
+    const selectedDate = new Date(date);
+    selectedDate.setHours(23, 59, 59, 999);
+
+    return recordDate <= selectedDate;
+  });
+
+  // 3. Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів
+  const totalBalance =
+    filteredRecords.reduce(
+      (acc, curr) => (curr.isPlus ? acc + curr.eur : acc - curr.eur),
+      0,
+    ) || 0;
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Header */}
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          justifyContent="space-between"
+          spacing={2}
+          sx={{ mb: 4 }}
+        >
+          <Box>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 'bold', color: 'primary.main' }}
+            >
+              Caddyluck Solution
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ul. Ofiar Katynia 19, 37-700 Przemyśl
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: { md: 'right' } }}>
+            <Typography variant="body2">
+              Дата: {new Date().toLocaleDateString()}
+            </Typography>
+            <Typography variant="body1">
+              Поточний вибір: <strong>{selectedClient || 'Всі клієнти'}</strong>
+            </Typography>
+          </Box>
+        </Stack>
+
+        {/* Toolbar */}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ mb: 3 }}
+          flexWrap="wrap"
+          alignItems="center"
+        >
+          <Autocomplete
+            options={clients || []}
             value={selectedClient}
-            label="Оберіть клієнта"
-            onChange={(e) => setSelectedClient(e.target.value)}
-          >
-            <MenuItem value="ALL">-- Всі клієнти --</MenuItem>
-            {clients.map((c) => (
-              <MenuItem key={c} value={c}>
-                {c}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            onChange={handleClientChange}
+            sx={{ width: 300 }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Пошук клієнта"
+                size="small"
+                placeholder="Введіть ім'я..."
+              />
+            )}
+          />
 
+          <TextField
+            label="Станом на"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)} // Додано обробник зміни дати
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <Box sx={{ flexGrow: 1 }} />
+
+          <Button
+            startIcon={<PrintIcon />}
+            variant="outlined"
+            onClick={handlePrint}
+          >
+            Друк
+          </Button>
+          <Button
+            startIcon={<LinkIcon />}
+            variant="outlined"
+            onClick={handleCopyLink}
+          >
+            Копіювати лінк
+          </Button>
+          <Button
+            startIcon={<PublicIcon />} // Використано PublicIcon
+            variant="outlined"
+            onClick={handleReturnToSite} // Змінено обробник
+          >
+            Повернутися на сайт
+          </Button>
+        </Stack>
+
+        {/* Table */}
         <TableContainer
           component={Paper}
-          elevation={0}
-          className="border border-gray-200"
+          sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
         >
-          <Table className="w-full">
-            <TableHead className="bg-gray-100">
+          <Table stickyHeader>
+            <TableHead>
               <TableRow>
-                <TableCell className="w-10"></TableCell>
-                <TableCell className="uppercase text-gray-700 text-sm font-semibold">
-                  Клієнт
-                </TableCell>
-                <TableCell
-                  align="right"
-                  className="uppercase text-green-700 text-sm font-semibold"
-                >
-                  USD
-                </TableCell>
-                <TableCell
-                  align="right"
-                  className="uppercase text-blue-700 text-sm font-semibold"
-                >
-                  EUR
-                </TableCell>
-                <TableCell
-                  align="right"
-                  className="uppercase text-red-700 text-sm font-semibold"
-                >
-                  PLN
-                </TableCell>
-                <TableCell
-                  align="right"
-                  className="uppercase text-gray-800 text-sm font-semibold"
-                >
-                  UAH
-                </TableCell>
+                <TableCell style={{ width: 40 }} />
+                <TableCell>Дата</TableCell>
+                <TableCell>Опис (Модель/Нотатки)</TableCell>
+                <TableCell>VIN/Кузов</TableCell>
+                <TableCell align="right">Ефект (EUR)</TableCell>
+                <TableCell align="right">USD</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {balances.map((clientData) => (
-                <React.Fragment key={clientData.clientName}>
-                  <TableRow
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => toggleRow(clientData.clientName)}
-                  >
-                    <TableCell align="center" className="text-gray-400">
-                      {expandedRows[clientData.clientName] ? '▼' : '▶'}
-                    </TableCell>
-                    <TableCell className="font-bold text-blue-900">
-                      {clientData.clientName}
-                    </TableCell>
-                    <TableCell align="right" className="font-bold">
-                      {formatMoney(clientData.totalUsd)}
-                    </TableCell>
-                    <TableCell align="right" className="font-bold">
-                      {formatMoney(clientData.totalEur)}
-                    </TableCell>
-                    <TableCell align="right" className="font-bold">
-                      {formatMoney(clientData.totalPln)}
-                    </TableCell>
-                    <TableCell align="right" className="font-bold">
-                      {formatMoney(clientData.totalUah)}
-                    </TableCell>
-                  </TableRow>
-
-                  {/* Дочірні рядки (Деталізація по операціях/машинах) */}
-                  {expandedRows[clientData.clientName] &&
-                    clientData.records.map((record, idx) => (
-                      <TableRow
-                        key={`${clientData.clientName}-record-${idx}`}
-                        className="bg-gray-50"
-                      >
-                        <TableCell></TableCell>
-                        <TableCell className="pl-8">
-                          <div>
-                            <span className="font-semibold">
-                              {record.model || 'Авто'}
-                            </span>{' '}
-                            ({record.vin})
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {record.date
-                              ? new Date(record.date).toLocaleDateString()
-                              : 'Без дати'}{' '}
-                            • {record.notes}
-                          </div>
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          className={
-                            record.isPlus ? 'text-green-600' : 'text-red-600'
-                          }
-                        >
-                          {record.usd > 0
-                            ? `${record.isPlus ? '+' : '-'}${formatMoney(record.usd)}`
-                            : '-'}
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          className={
-                            record.isPlus ? 'text-green-600' : 'text-red-600'
-                          }
-                        >
-                          {record.eur > 0
-                            ? `${record.isPlus ? '+' : '-'}${formatMoney(record.eur)}`
-                            : '-'}
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          className={
-                            record.isPlus ? 'text-green-600' : 'text-red-600'
-                          }
-                        >
-                          {record.pln > 0
-                            ? `${record.isPlus ? '+' : '-'}${formatMoney(record.pln)}`
-                            : '-'}
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          className={
-                            record.isPlus ? 'text-green-600' : 'text-red-600'
-                          }
-                        >
-                          {record.uah > 0
-                            ? `${record.isPlus ? '+' : '-'}${formatMoney(record.uah)}`
-                            : '-'}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </React.Fragment>
-              ))}
-              {balances.length === 0 && (
+              {filteredRecords.length > 0 ? (
+                filteredRecords.map((record: BalanceRecord) => (
+                  <Row key={record.id} record={record} />
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    align="center"
-                    className="py-6 text-gray-500"
-                  >
-                    Немає даних для відображення
+                  <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                    <Typography color="text.secondary">
+                      {selectedClient
+                        ? 'Для цього клієнта немає записів на обрану дату'
+                        : 'Оберіть клієнта для перегляду балансу'}
+                    </Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-      </div>
-    </>
-  );
-};
 
-export default BalancesPage;
+        {/* Total */}
+        {selectedClient && (
+          <Box
+            sx={{
+              mt: 3,
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <Typography variant="h6">Поточний баланс:</Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 'bold',
+                color: totalBalance >= 0 ? '#009999' : '#2f58cd',
+              }}
+            >
+              {totalBalance.toLocaleString()} €
+            </Typography>
+          </Box>
+        )}
+      </Container>
+    </ThemeProvider>
+  );
+}

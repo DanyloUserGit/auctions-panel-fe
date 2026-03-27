@@ -10,7 +10,7 @@ import { useSession } from '../features/sessions/model/store';
 import Auctions from '../pages/Auctions';
 import Favorite from '../pages/Favorite';
 import Home from '../pages/Home';
-import Inventory from '../pages/Inventory';
+import InStock from '../pages/InStock';
 import Orders from '../pages/Orders';
 import Profile from '../pages/Profile';
 import Purchases from '../pages/Purchases';
@@ -29,7 +29,7 @@ import TrainingPage from '../pages/Training';
 import CalculationPage from '../pages/calculation/CalculationPage';
 import BalancesPage from '../pages/balance/BalancePage';
 import { Processes } from '../pages/processes/Processes';
-import { Analytics } from '../pages/analitics/Analytics';
+import Analytics from '../pages/analitics/ui/Analytics';
 
 const router = createBrowserRouter([
   {
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
           { path: 'favorites', element: <Favorite /> },
           { path: 'orders', element: <Orders /> },
           { path: 'purchases', element: <Purchases /> },
-          { path: 'inventory', element: <Inventory /> },
+          { path: 'inventory', element: <InStock /> },
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
           { path: 'notifications/list', element: <NotificationsPage /> },

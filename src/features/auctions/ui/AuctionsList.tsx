@@ -1,11 +1,11 @@
-import { Grid, Typography, Box } from '@mui/material';
+import { Gavel } from '@mui/icons-material'; // Іконка для гарного вигляду
+import { Box, Grid, Typography } from '@mui/material';
 import { useModal } from '../../../shared/hooks/useModal';
 import AddItemButton from '../../../shared/ui/AddItemButton';
 import { Can } from '../../auth/ui/Can';
 import type { Auction } from '../model/types';
 import AuctionAddModal from './AuctionAddModal';
 import AuctionItem from './AuctionItem';
-import { Gavel } from '@mui/icons-material'; // Іконка для гарного вигляду
 
 interface Props {
   filteredAuctions: Auction[];
@@ -45,7 +45,6 @@ export default function AuctionsList({
           />
         ))
       ) : (
-        /* Якщо аукціонів немає — показуємо повідомлення */
         <Can roles={['User']}>
           <Grid size={{ xs: 12 }}>
             <Box
@@ -73,7 +72,6 @@ export default function AuctionsList({
       )}
 
       <Can roles={['Admin', 'SuperAdmin']}>
-        {/* Кнопка додавання */}
         {currentGroupId ? (
           <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />
         ) : (
