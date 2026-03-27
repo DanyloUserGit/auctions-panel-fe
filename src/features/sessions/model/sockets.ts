@@ -10,7 +10,7 @@ export const emitJoinAuction = (sessionConnectData: SessionConnectData) => {
 };
 
 export const sendWebRTCOffer = (
-  userId:string,
+  userId: string,
   sessionId: string,
   offer: RTCSessionDescriptionInit,
   width: number,

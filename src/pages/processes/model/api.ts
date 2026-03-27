@@ -8,7 +8,7 @@ export interface FetchProcessesParams {
 }
 
 export const fetchProcesses = async (
-  params: FetchProcessesParams = {}
+  params: FetchProcessesParams = {},
 ): Promise<ProcessesResponse> => {
   const response = await api.get<ProcessesResponse>('/processes', {
     params: {

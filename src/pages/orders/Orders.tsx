@@ -17,12 +17,11 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useOrdersList } from './model/useOrders';
-
 
 // const getStatusChip = (status: OrderStatus) => {
 //   const statusConfig: Record<OrderStatus, { label: string; color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" }> = {
@@ -45,23 +44,41 @@ export default function Orders() {
   const { data: orders = [], isLoading, isError, error } = useOrdersList();
 
   const filteredOrders = orders.filter((order) => {
-    const carFullName = `${order.brand_names || ''} ${order.model_names || ''}`.trim().toLowerCase();
+    const carFullName = `${order.brand_names || ''} ${order.model_names || ''}`
+      .trim()
+      .toLowerCase();
     const query = search.toLowerCase();
     return carFullName.includes(query) || order.id.toString().includes(query);
   });
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, margin: '0 auto' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
         <Typography variant="h4" fontWeight="bold" sx={{ color: '#1e293b' }}>
           Замовлення
         </Typography>
-        <Button variant="contained" color="primary" sx={{ textTransform: 'none', fontWeight: 600 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ textTransform: 'none', fontWeight: 600 }}
+        >
           + Створити замовлення
         </Button>
       </Stack>
 
-      <Card sx={{ p: 2, mb: 3, boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)', borderRadius: 2 }}>
+      <Card
+        sx={{
+          p: 2,
+          mb: 3,
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+          borderRadius: 2,
+        }}
+      >
         <TextField
           fullWidth
           variant="outlined"
@@ -74,7 +91,7 @@ export default function Orders() {
                 <SearchIcon sx={{ color: '#94a3b8' }} />
               </InputAdornment>
             ),
-            sx: { borderRadius: 2, backgroundColor: '#f8fafc' }
+            sx: { borderRadius: 2, backgroundColor: '#f8fafc' },
           }}
         />
       </Card>
@@ -92,42 +109,84 @@ export default function Orders() {
       )}
 
       {!isLoading && !isError && (
-        <TableContainer component={Paper} sx={{ boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)', borderRadius: 2 }}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+            borderRadius: 2,
+          }}
+        >
           <Table>
             <TableHead sx={{ backgroundColor: '#f8fafc' }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>Дата</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>Автомобіль</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>Клієнт</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>Бюджет</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>
+                  ID
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>
+                  Дата
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>
+                  Автомобіль
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>
+                  Клієнт
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>
+                  Бюджет
+                </TableCell>
                 {/* <TableCell sx={{ fontWeight: 'bold', color: '#1e40af' }}>Статус</TableCell> */}
-                <TableCell align="right" sx={{ fontWeight: 'bold', color: '#1e40af' }}>Дії</TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: 'bold', color: '#1e40af' }}
+                >
+                  Дії
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 3, color: '#64748b' }}>
+                  <TableCell
+                    colSpan={7}
+                    align="center"
+                    sx={{ py: 3, color: '#64748b' }}
+                  >
                     Замовлень не знайдено
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredOrders.map((order) => (
-                  <TableRow key={order.id} sx={{ '&:hover': { backgroundColor: '#f1f5f9' }, transition: '0.2s' }}>
+                  <TableRow
+                    key={order.id}
+                    sx={{
+                      '&:hover': { backgroundColor: '#f1f5f9' },
+                      transition: '0.2s',
+                    }}
+                  >
                     <TableCell>#{order.id}</TableCell>
-                    <TableCell>{dayjs(order.created_at).format("YYYY-MM-DD HH:mm") || '—'}</TableCell>
+                    <TableCell>
+                      {dayjs(order.created_at).format('YYYY-MM-DD HH:mm') ||
+                        '—'}
+                    </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="600">
-                        {`${order.brand_names || ''} ${order.model_names || ''}`.trim() || 'Не вказано'}
+                        {`${order.brand_names || ''} ${order.model_names || ''}`.trim() ||
+                          'Не вказано'}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#3b82f6', fontFamily: 'monospace' }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: '#3b82f6', fontFamily: 'monospace' }}
+                      >
                         {order.internal_id || 'ID не вказано'}
                       </Typography>
                     </TableCell>
-                    <TableCell>{order.first_name + " " + order.last_name || 'Невідомий'}</TableCell>
                     <TableCell>
-                      {(order.price_from && order.price_to) ? `${order.price_from}-${order.price_to}` : '—'}
+                      {order.first_name + ' ' + order.last_name || 'Невідомий'}
+                    </TableCell>
+                    <TableCell>
+                      {order.price_from && order.price_to
+                        ? `${order.price_from}-${order.price_to}`
+                        : '—'}
                     </TableCell>
                     {/* <TableCell>{getStatusChip(order.)}</TableCell> */}
                     <TableCell align="right">
