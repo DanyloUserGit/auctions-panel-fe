@@ -116,6 +116,7 @@ export const SessionContainer: FC = () => {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         sendWebRTCOffer(
+          user.id,
           data.sessionId,
           offer,
           sessionConnect.width,
