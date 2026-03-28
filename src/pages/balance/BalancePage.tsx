@@ -91,7 +91,7 @@ export default function BalanceSheet() {
   // 3. Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів
   const totalBalance =
     filteredRecords.reduce(
-      (acc, curr) => (curr.isPlus ? acc + curr.eur : acc - curr.eur),
+      (acc, curr) => (curr.isPlus ? acc + curr.balanceEur : acc - curr.balanceEur),
       0,
     ) || 0;
 

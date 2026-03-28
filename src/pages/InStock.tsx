@@ -12,7 +12,7 @@ import {
   Stack,
   TextField,
   InputAdornment,
-  Divider
+  Divider,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import SpeedIcon from '@mui/icons-material/Speed';
@@ -48,7 +48,7 @@ const MOCK_CARS: Car[] = [
     chassis: 'WBA530...890',
     imageUrl: 'https://via.placeholder.com/400x250?text=BMW+530d',
     status: 'available',
-    location: 'Львів'
+    location: 'Львів',
   },
   {
     id: 2,
@@ -62,7 +62,7 @@ const MOCK_CARS: Car[] = [
     chassis: 'WAUZZZ...321',
     imageUrl: 'https://via.placeholder.com/400x250?text=Audi+Q7',
     status: 'reserved',
-    location: 'Київ'
+    location: 'Київ',
   },
   {
     id: 3,
@@ -76,8 +76,8 @@ const MOCK_CARS: Car[] = [
     chassis: 'WVWZZZ...444',
     imageUrl: 'https://via.placeholder.com/400x250?text=VW+Passat',
     status: 'available',
-    location: 'Рівне'
-  }
+    location: 'Рівне',
+  },
 ];
 const InStockpage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,22 +99,28 @@ const InStockpage: React.FC = () => {
           color: current.color,
           bgcolor: current.bg,
           fontWeight: 'bold',
-          borderRadius: 1
+          borderRadius: 1,
         }}
       />
     );
   };
 
   // Фільтрація авто
-  const filteredCars = MOCK_CARS.filter(car =>
-    `${car.brand} ${car.model} ${car.chassis}`.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCars = MOCK_CARS.filter((car) =>
+    `${car.brand} ${car.model} ${car.chassis}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase()),
   );
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: '#f8fafc', minHeight: '100vh' }}>
-
       {/* Заголовок */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4, flexWrap: 'wrap', gap: 2 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 4, flexWrap: 'wrap', gap: 2 }}
+      >
         <Box>
           <Typography variant="h4" fontWeight="800" sx={{ color: '#1e40af' }}>
             Авто в наявності
@@ -132,7 +138,15 @@ const InStockpage: React.FC = () => {
       </Stack>
 
       {/* Панель пошуку */}
-      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, mb: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+      <Box
+        sx={{
+          bgcolor: 'white',
+          p: 2,
+          borderRadius: 2,
+          mb: 4,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        }}
+      >
         <TextField
           fullWidth
           size="small"
@@ -153,17 +167,20 @@ const InStockpage: React.FC = () => {
       <Grid container spacing={3}>
         {filteredCars.map((car) => (
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={car.id}>
-
-            <Card sx={{
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              borderRadius: 3,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }
-            }}>
-
+            <Card
+              sx={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 3,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                },
+              }}
+            >
               {/* Зображення авто */}
               <Box sx={{ position: 'relative' }}>
                 <CardMedia
@@ -178,10 +195,25 @@ const InStockpage: React.FC = () => {
               </Box>
 
               <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: '#0f172a', mb: 0.5 }}>
-                  {car.brand} {car.model} <Typography component="span" color="text.secondary">({car.year})</Typography>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={{ color: '#0f172a', mb: 0.5 }}
+                >
+                  {car.brand} {car.model}{' '}
+                  <Typography component="span" color="text.secondary">
+                    ({car.year})
+                  </Typography>
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#3b82f6', fontFamily: 'monospace', display: 'block', mb: 2 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: '#3b82f6',
+                    fontFamily: 'monospace',
+                    display: 'block',
+                    mb: 2,
+                  }}
+                >
                   VIN: {car.chassis}
                 </Typography>
 
@@ -189,21 +221,33 @@ const InStockpage: React.FC = () => {
                 <Stack spacing={1.5} sx={{ mb: 2 }}>
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <SpeedIcon sx={{ fontSize: 18, color: '#64748b' }} />
-                    <Typography variant="body2" sx={{ color: '#475569' }}>{car.mileage.toLocaleString()} км</Typography>
+                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                      {car.mileage.toLocaleString()} км
+                    </Typography>
                   </Stack>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <LocalGasStationIcon sx={{ fontSize: 18, color: '#64748b' }} />
-                    <Typography variant="body2" sx={{ color: '#475569' }}>{car.engine}</Typography>
+                    <LocalGasStationIcon
+                      sx={{ fontSize: 18, color: '#64748b' }}
+                    />
+                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                      {car.engine}
+                    </Typography>
                   </Stack>
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <SettingsIcon sx={{ fontSize: 18, color: '#64748b' }} />
-                    <Typography variant="body2" sx={{ color: '#475569' }}>{car.transmission}</Typography>
+                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                      {car.transmission}
+                    </Typography>
                   </Stack>
                 </Stack>
 
                 <Divider sx={{ my: 1.5 }} />
 
-                <Typography variant="h5" fontWeight="bold" sx={{ color: '#1e40af' }}>
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  sx={{ color: '#1e40af' }}
+                >
                   € {car.price.toLocaleString()}
                 </Typography>
               </CardContent>
@@ -212,11 +256,19 @@ const InStockpage: React.FC = () => {
                 <Button
                   fullWidth
                   variant="outlined"
-                  sx={{ borderColor: '#dbeafe', color: '#1e40af', '&:hover': { bgcolor: '#f1f5f9' } }}
+                  sx={{
+                    borderColor: '#dbeafe',
+                    color: '#1e40af',
+                    '&:hover': { bgcolor: '#f1f5f9' },
+                  }}
                 >
                   Редагувати
                 </Button>
-                <Button fullWidth variant="contained" sx={{ bgcolor: '#3b82f6' }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{ bgcolor: '#3b82f6' }}
+                >
                   Продати
                 </Button>
               </CardActions>
@@ -227,7 +279,9 @@ const InStockpage: React.FC = () => {
         {filteredCars.length === 0 && (
           <Grid size={{ xs: 12 }}>
             <Box sx={{ textAlign: 'center', py: 8 }}>
-              <Typography variant="h6" sx={{ color: '#64748b' }}>Автомобілів не знайдено</Typography>
+              <Typography variant="h6" sx={{ color: '#64748b' }}>
+                Автомобілів не знайдено
+              </Typography>
             </Box>
           </Grid>
         )}
@@ -235,4 +289,4 @@ const InStockpage: React.FC = () => {
     </Box>
   );
 };
-export default InStockpage
+export default InStockpage;

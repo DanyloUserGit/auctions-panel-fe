@@ -3,12 +3,16 @@ export interface BalanceRecord {
   vin: string;
   model: string;
   date: string;
-  usd: number;
-  eur: number;
-  pln: number;
-  uah: number;
   notes: string;
   isPlus: boolean;
+  balanceEur: number;
+  balancePln: number;
+  balanceUah: number;
+  balanceUsd: number;
+  effectEur: number;
+  effectPln: number;
+  effectUah: number;
+  effectUsd: number
 }
 
 export interface ClientBalance {
