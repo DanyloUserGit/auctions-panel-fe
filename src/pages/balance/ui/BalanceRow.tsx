@@ -17,7 +17,7 @@ export const Row = ({ record }: { record: BalanceRecord }) => {
   const [open, setOpen] = useState(false);
 
   // Використовуємо eur як основну валюту для відображення (або змініть на потрібну)
-  const mainAmount = record.eur;
+  const mainAmount = record.balanceEur;
   const isNegative = !record.isPlus;
 
   return (
@@ -84,7 +84,7 @@ export const Row = ({ record }: { record: BalanceRecord }) => {
         {/* Якщо у вас є загальний баланс у стейті, підставте його тут. 
             Поки що залишаю як відображення суми в іншій валюті для прикладу */}
         <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-          {record.usd.toLocaleString()} $
+          {record?.balanceUsd.toLocaleString()} $
         </TableCell>
       </TableRow>
 
@@ -107,16 +107,16 @@ export const Row = ({ record }: { record: BalanceRecord }) => {
                 <TableBody>
                   <TableRow>
                     <TableCell sx={{ border: 'none' }}>
-                      USD: {record.usd} $
+                      USD: {record.effectUsd} $
                     </TableCell>
                     <TableCell sx={{ border: 'none' }}>
-                      EUR: {record.eur} €
+                      EUR: {record.effectEur} €
                     </TableCell>
                     <TableCell sx={{ border: 'none' }}>
-                      PLN: {record.pln} zł
+                      PLN: {record.effectPln} zł
                     </TableCell>
                     <TableCell sx={{ border: 'none' }}>
-                      UAH: {record.uah} ₴
+                      UAH: {record.effectEur} ₴
                     </TableCell>
                   </TableRow>
                   {record.notes && (
