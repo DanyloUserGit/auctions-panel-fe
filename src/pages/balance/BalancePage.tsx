@@ -7,6 +7,7 @@ import {
   Button,
   Container,
   createTheme,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -20,10 +21,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useState, type SyntheticEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { BalanceRecord } from './model/types';
 import { useBalanceClients, useBalanceData } from './model/useBalances';
 import { Row } from './ui/BalanceRow';
+import { ArrowBack } from '@mui/icons-material';
 
 const theme = createTheme({
   palette: {
@@ -36,6 +38,7 @@ const theme = createTheme({
 export default function BalanceSheet() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedClient = searchParams.get('client') || '';
+  const navigate = useNavigate();
 
   const [db] = useState<string>('table_extourcars1');
 
@@ -88,16 +91,36 @@ export default function BalanceSheet() {
     return recordDate <= selectedDate;
   });
 
-  // 3. Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів
-  const totalBalance =
-    filteredRecords.reduce(
-      (acc, curr) => (curr.isPlus ? acc + curr.eur : acc - curr.eur),
-      0,
-    ) || 0;
+  // 3. Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів для ВСІХ валют
+  const currentBalances = filteredRecords.reduce(
+    (acc, curr) => {
+      const eur = Math.abs(curr.effectEur || 0);
+      const usd = Math.abs(curr.effectUsd || 0);
+      const pln = Math.abs(curr.effectPln || 0);
+      const uah = Math.abs(curr.effectUah || 0);
+
+      return {
+        eur: curr.isPlus ? acc.eur + eur : acc.eur - eur,
+        usd: curr.isPlus ? acc.usd + usd : acc.usd - usd,
+        pln: curr.isPlus ? acc.pln + pln : acc.pln - pln,
+        uah: curr.isPlus ? acc.uah + uah : acc.uah - uah,
+      };
+    },
+    { eur: 0, usd: 0, pln: 0, uah: 0 } // Початковий стан для всіх валют
+  );
 
   return (
     <ThemeProvider theme={theme}>
+
       <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <IconButton onClick={() => navigate(-1)}>
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+            Баланси
+          </Typography>
+        </Box>
         {/* Header */}
         <Stack
           direction={{ xs: 'column', md: 'row' }}
@@ -235,10 +258,10 @@ export default function BalanceSheet() {
               variant="h5"
               sx={{
                 fontWeight: 'bold',
-                color: totalBalance >= 0 ? '#009999' : '#2f58cd',
+                color: currentBalances.uah >= 0 ? '#009999' : '#2f58cd',
               }}
             >
-              {totalBalance.toLocaleString()} €
+              {(currentBalances.uah * 0.023 + currentBalances.pln * 0.27 + currentBalances.eur * 1.15 + currentBalances.usd).toLocaleString()} $
             </Typography>
           </Box>
         )}

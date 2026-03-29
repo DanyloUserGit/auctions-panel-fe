@@ -1,294 +1,332 @@
-import React, { useMemo, useState } from 'react';
 import {
   Box,
-  Typography,
+  FormControlLabel,
   Paper,
   Radio,
   RadioGroup,
-  FormControlLabel,
+  Typography,
 } from '@mui/material';
+import type {
+  BarSeriesType,
+  LineSeriesType,
+  ScatterSeriesType,
+} from '@mui/x-charts';
 import {
-  ChartContainer,
-  LinePlot,
   BarPlot,
-  ScatterPlot,
+  ChartContainer,
+  ChartsGrid,
+  ChartsReferenceLine,
+  ChartsTooltip,
   ChartsXAxis,
   ChartsYAxis,
-  ChartsGrid,
-  ChartsTooltip,
-  ChartsReferenceLine,
-} from '@mui/x-charts';
-import type {
-  LineSeriesType,
-  BarSeriesType,
-  ScatterSeriesType,
-  ScatterValueType,
+  LinePlot,
+  MarkPlot,
+  ScatterPlot,
 } from '@mui/x-charts';
 import dayjs from 'dayjs';
+import React, { useMemo, useState } from 'react';
+import type { CarMarketRow } from '../../model/api';
 
-// --- Генерація мокових даних ---
-const generateTrendData = (weeksCount: number) => {
-  const dates: number[] = [];
-  const minPrices: number[] = [];
-  const medianPrices: number[] = [];
-  const maxPrices: number[] = [];
-  const volumes: number[] = [];
+interface GraphProps {
+  data: CarMarketRow[];
+  vinSales?: CarMarketRow[];
+  targetCar?: {
+    price: number;
+    chassis: string;
+  };
+}
 
-  let currentBasePrice = 14000;
-
-  for (let i = 0; i < weeksCount; i++) {
-    dates.push(dayjs('2025-09-28').add(i, 'week').valueOf());
-
-    currentBasePrice = currentBasePrice + (Math.random() * 2000 - 1000);
-    if (currentBasePrice < 10000) currentBasePrice = 10000;
-    if (currentBasePrice > 18000) currentBasePrice = 18000;
-
-    minPrices.push(Math.floor(currentBasePrice - 1500 - Math.random() * 1000));
-    medianPrices.push(Math.floor(currentBasePrice));
-    maxPrices.push(Math.floor(currentBasePrice + 1500 + Math.random() * 1000));
-
-    volumes.push(Math.floor(Math.random() * 15) + 1);
-  }
-
-  return { dates, minPrices, medianPrices, maxPrices, volumes };
+// Хелпер для розрахунку перцентилів (медіани)
+const getMedian = (arr: number[]) => {
+  if (arr.length === 0) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0
+    ? sorted[mid]
+    : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
 };
 
-const data = generateTrendData(26);
+export const GraphTrendTime: React.FC<GraphProps> = ({ data, vinSales = [], targetCar }) => {
+  const [viewMode, setViewMode] = useState('all'); // 'all' або 'vin'
 
-// Маркер конкретного продажу VIN
-const vinSaleData: ScatterValueType[] = [
-  { id: 'vin-sale-1', x: data.dates[22], y: 14500 },
-];
+  const calculatedData = useMemo(() => {
+    // 1. Обираємо масив даних залежно від радіокнопки
+    const sourceData = viewMode === 'all' ? data : vinSales;
 
-export const GraphTrendTime: React.FC = () => {
-  const [aggregation, setAggregation] = useState<'weeks' | 'months'>('weeks');
+    if (!sourceData || sourceData.length === 0) return null;
 
-  const series: Array<LineSeriesType | BarSeriesType | ScatterSeriesType> =
-    useMemo(
-      () => [
-        {
-          type: 'bar',
-          id: 'volume',
-          data: data.volumes,
-          xAxisId: 'x-axis-dates', // Явно прив'язуємо до осі X
-          yAxisId: 'y-axis-volume', // ВИПРАВЛЕНО: Було yAxisKey. Тепер стовпчики будуть на своїй осі!
-          color: '#cbd5e1', // Трохи темніший сірий, щоб стовпчики було краще видно
-          valueFormatter: (v: number | null) =>
-            v !== null ? `${v} лотів` : '',
-        },
-        {
-          type: 'line',
-          id: 'minPrice',
-          data: data.minPrices,
-          xAxisId: 'x-axis-dates',
-          yAxisId: 'y-axis-price', // ВИПРАВЛЕНО: Було yAxisKey
-          color: '#3b82f6',
-          curve: 'linear',
-          valueFormatter: (v: number | null) =>
-            v !== null ? `${v.toLocaleString('uk-UA')} €` : '',
-        },
-        {
-          type: 'line',
-          id: 'medianPrice',
-          data: data.medianPrices,
-          xAxisId: 'x-axis-dates',
-          yAxisId: 'y-axis-price', // ВИПРАВЛЕНО: Було yAxisKey
-          color: '#22c55e',
-          curve: 'linear',
-          valueFormatter: (v: number | null) =>
-            v !== null ? `${v.toLocaleString('uk-UA')} €` : '',
-        },
-        {
-          type: 'line',
-          id: 'maxPrice',
-          data: data.maxPrices,
-          xAxisId: 'x-axis-dates',
-          yAxisId: 'y-axis-price', // ВИПРАВЛЕНО: Було yAxisKey
-          color: '#f59e0b',
-          curve: 'linear',
-          valueFormatter: (v: number | null) =>
-            v !== null ? `${v.toLocaleString('uk-UA')} €` : '',
-        },
-        {
-          type: 'scatter',
-          id: 'vinSale',
-          data: vinSaleData,
-          xAxisId: 'x-axis-dates',
-          yAxisId: 'y-axis-price', // ВИПРАВЛЕНО: Було yAxisKey
-          color: '#dc2626',
-          markerSize: 6,
-          valueFormatter: (v: ScatterValueType | null) =>
-            v ? `Продаж VIN: ${v.y.toLocaleString('uk-UA')} €` : '',
-        },
-      ],
-      [],
+    // 2. Групуємо дані по тижнях
+    const grouped: Record<string, { volume: number; prices: number[]; timestamp: number }> = {};
+
+    sourceData.forEach((row) => {
+      if (row.price > 0 && row.countdown_ts) {
+        const ts = row.countdown_ts < 1e12 ? row.countdown_ts * 1000 : row.countdown_ts;
+        const weekStart = dayjs(ts).startOf('week');
+        const key = weekStart.format('YYYY-MM-DD');
+
+        if (!grouped[key]) {
+          grouped[key] = { volume: 0, prices: [], timestamp: weekStart.valueOf() };
+        }
+        grouped[key].volume += 1;
+        grouped[key].prices.push(row.price);
+      }
+    });
+
+    const sortedKeys = Object.keys(grouped).sort(
+      (a, b) => grouped[a].timestamp - grouped[b].timestamp
     );
 
-  return (
-    <Paper
-      elevation={0}
-      className="w-full p-4 border border-gray-200 rounded-lg"
-    >
-      <div className="mb-4">
-        <Typography
-          variant="h6"
-          className="text-gray-900 font-semibold text-base mb-1"
-        >
-          Що показує цей графік:{' '}
-          <span className="font-normal text-[--color-muted]">
-            мінімальна, медіанна та максимальна ціна по тижнях/місяцях + об'єм
-            продажів.
-          </span>
-        </Typography>
+    if (sortedKeys.length === 0) return null;
 
-        <div className="flex items-center gap-2 mt-2">
-          <Typography variant="body2" className="text-gray-700 font-medium">
-            Агрегація:
-          </Typography>
+    const timestamps = sortedKeys.map((k) => grouped[k].timestamp);
+    const volumes = sortedKeys.map((k) => grouped[k].volume);
+
+    const minPrices = sortedKeys.map((k) => Math.min(...grouped[k].prices));
+    const maxPrices = sortedKeys.map((k) => Math.max(...grouped[k].prices));
+    const medians = sortedKeys.map((k) => getMedian(grouped[k].prices));
+
+    const maxVolume = Math.max(...volumes, 5);
+    const allPrices = [...minPrices, ...maxPrices];
+    const overallMin = Math.min(...allPrices);
+    const overallMax = Math.max(...allPrices);
+
+    // Розраховуємо загальну медіану для футера (за весь період)
+    const allValidPrices = sourceData.map(d => d.price).filter(p => p > 0);
+    const overallMedian = getMedian(allValidPrices);
+
+    // 3. Точки для ScatterPlot (продажі конкретного VIN)
+    // ТУТ ВИПРАВЛЕНО: x тепер повертає number (.valueOf())
+    const vinScatterData = vinSales
+      .filter((d) => d.price > 0 && d.countdown_ts > 0)
+      .map((d, i) => {
+        const ts = d.countdown_ts < 1e12 ? d.countdown_ts * 1000 : d.countdown_ts;
+        return {
+          id: `vin-${i}`,
+          x: dayjs(ts).startOf('week').valueOf(), // Явно повертаємо timestamp (number)
+          y: d.price,
+        };
+      });
+
+    return {
+      dates: timestamps.map((ts) => new Date(ts)), // Об'єкти Date для осі X
+      minPrices,
+      medians,
+      maxPrices,
+      volumes,
+      vinScatterData,
+      yVolumeMax: Math.ceil(maxVolume * 1.2),
+      yPriceMin: Math.max(0, overallMin - 2000),
+      yPriceMax: overallMax + 2000,
+      overallMin,
+      overallMax,
+      overallMedian,
+    };
+  }, [data, vinSales, viewMode]);
+
+  if (!data || data.length === 0) {
+    return (
+      <Paper elevation={0} className="w-full p-6 border border-gray-200 rounded-lg text-center">
+        <Typography color="textSecondary">Немає даних для побудови часового тренду</Typography>
+      </Paper>
+    );
+  }
+
+  // Якщо перемкнули на "Тільки цей VIN", але історія порожня
+  if (viewMode === 'vin' && (!vinSales || vinSales.length === 0)) {
+    return (
+      <Paper elevation={0} className="w-full p-4 border border-gray-200 rounded-lg">
+        <Box sx={{ mb: 2 }}>
           <RadioGroup
             row
-            value={aggregation}
-            onChange={(e) =>
-              setAggregation(e.target.value as 'weeks' | 'months')
-            }
-            className="gap-4"
+            value={viewMode}
+            onChange={(e) => setViewMode(e.target.value)}
           >
-            <FormControlLabel
-              value="weeks"
-              control={
-                <Radio
-                  size="small"
-                  sx={{
-                    color: 'var(--color-accent)',
-                    '&.Mui-checked': { color: 'var(--color-accent)' },
-                  }}
-                />
-              }
-              label={<span className="text-sm">Тижні</span>}
-            />
-            <FormControlLabel
-              value="months"
-              control={
-                <Radio
-                  size="small"
-                  sx={{
-                    color: 'var(--color-accent)',
-                    '&.Mui-checked': { color: 'var(--color-accent)' },
-                  }}
-                />
-              }
-              label={<span className="text-sm">Місяці</span>}
-            />
+            <FormControlLabel value="all" control={<Radio size="small" />} label="Усі продажі" />
+            <FormControlLabel value="vin" control={<Radio size="small" />} label="Тільки цей VIN" />
           </RadioGroup>
-        </div>
+        </Box>
+        <Typography color="textSecondary" align="center" sx={{ py: 4 }}>
+          В базі немає історії попередніх продажів для цього VIN-коду.
+        </Typography>
+      </Paper>
+    );
+  }
 
-        <button className="text-[--color-accent] text-sm font-medium mt-1 hover:underline">
-          Збільшити графік
-        </button>
-      </div>
+  const chartSeries: Array<LineSeriesType | BarSeriesType | ScatterSeriesType> = [];
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs text-gray-600">
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-blue-500"></div> Мінімальна ціна за{' '}
-          {aggregation === 'weeks' ? 'Тижні' : 'Місяці'}
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-green-500"></div> Медіанна ціна за{' '}
-          {aggregation === 'weeks' ? 'Тижні' : 'Місяці'}
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-amber-500"></div> Максимальна ціна за{' '}
-          {aggregation === 'weeks' ? 'Тижні' : 'Місяці'}
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-slate-200 border border-slate-300 rounded-sm"></div>{' '}
-          Кількість лотів
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-red-500"></div> Поточне авто
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-red-600 rotate-45"></div> Продажі цього VIN
-          у вибраних даних
-        </div>
+  if (calculatedData) {
+    chartSeries.push(
+      {
+        type: 'bar',
+        id: 'volumeBar',
+        data: calculatedData.volumes,
+        yAxisId: 'y-axis-volume',
+        color: '#e2e8f0',
+        valueFormatter: (v: number | null) => (v !== null ? `${v} лотів` : ''),
+      },
+      {
+        type: 'line',
+        id: 'maxPrice',
+        label: 'Верх ринку',
+        data: calculatedData.maxPrices,
+        yAxisId: 'y-axis-price',
+        color: '#ef4444', // Червоний
+        showMark: true,
+        valueFormatter: (v: number | null) => v ? `${v.toLocaleString('uk-UA')} €` : '',
+      },
+      {
+        type: 'line',
+        id: 'medianPrice',
+        label: 'Медіана',
+        data: calculatedData.medians,
+        yAxisId: 'y-axis-price',
+        color: '#eab308', // Жовтий
+        showMark: true,
+        valueFormatter: (v: number | null) => v ? `${v.toLocaleString('uk-UA')} €` : '',
+      },
+      {
+        type: 'line',
+        id: 'minPrice',
+        label: 'Низ ринку',
+        data: calculatedData.minPrices,
+        yAxisId: 'y-axis-price',
+        color: '#22c55e', // Зелений
+        showMark: true,
+        valueFormatter: (v: number | null) => v ? `${v.toLocaleString('uk-UA')} €` : '',
+      }
+    );
+
+    // Додаємо точки продажів VIN (якщо вони є)
+    // ТУТ ВИПРАВЛЕНО: додано типізацію valueFormatter: (v: any)
+    if (calculatedData.vinScatterData.length > 0) {
+      chartSeries.push({
+        type: 'scatter',
+        id: 'vinSales',
+        label: 'Продажі цього VIN',
+        data: calculatedData.vinScatterData,
+        yAxisId: 'y-axis-price',
+        color: '#dc2626', // Темно-червоний для акценту
+        valueFormatter: (v: any) => v ? `Ціна: ${v.y.toLocaleString('uk-UA')} €` : '',
+      });
+    }
+  }
+
+  return (
+    <Paper elevation={0} className="w-full p-4 border border-gray-200 rounded-lg">
+      <div className="mb-4">
+        <Typography variant="h6" className="text-gray-900 font-semibold text-base mb-1">
+          Часовий тренд ринку
+        </Typography>
+        <Typography variant="body2" className="text-gray-900 font-medium mb-3">
+          Криві мінімальної, медіанної та максимальної ціни за тижнями.
+        </Typography>
+
+        <RadioGroup
+          row
+          value={viewMode}
+          onChange={(e) => setViewMode(e.target.value)}
+        >
+          <FormControlLabel
+            value="all"
+            control={<Radio size="small" />}
+            label={<Typography variant="body2">Усі продажі</Typography>}
+          />
+          <FormControlLabel
+            value="vin"
+            control={<Radio size="small" />}
+            label={<Typography variant="body2">Тільки цей VIN ({vinSales?.length || 0})</Typography>}
+            disabled={!vinSales || vinSales.length === 0}
+          />
+        </RadioGroup>
       </div>
 
       <Box sx={{ width: '100%', overflowX: 'auto' }}>
-        <Box sx={{ minWidth: 800 }}>
-          <ChartContainer
-            height={400}
-            series={series}
-            xAxis={[
-              {
-                id: 'x-axis-dates',
-                scaleType: 'band',
-                data: data.dates,
-                position: 'bottom',
-                valueFormatter: (date: number) =>
-                  dayjs(date).format('MMM D, YYYY'),
-              },
-            ]}
-            yAxis={[
-              {
-                id: 'y-axis-price',
-                scaleType: 'linear',
-                min: 8000,
-                max: 22000,
-                position: 'left',
-                valueFormatter: (v: number) => v.toLocaleString('uk-UA'),
-              },
-              {
-                id: 'y-axis-volume',
-                scaleType: 'linear',
-                min: 0,
-                max: 18, // Права шкала (кількість лотів)
-                position: 'right',
-              },
-            ]}
-            margin={{ top: 20, right: 50, bottom: 60, left: 60 }}
-          >
-            <ChartsGrid horizontal />
+        <Box sx={{ minWidth: 700 }}>
+          {calculatedData && (
+            <ChartContainer
+              height={400}
+              series={chartSeries}
+              xAxis={[
+                {
+                  id: 'x-axis',
+                  scaleType: 'time',
+                  data: calculatedData.dates,
+                  valueFormatter: (date: Date) => dayjs(date).format('DD.MM.YY'),
+                },
+              ]}
+              yAxis={[
+                {
+                  id: 'y-axis-price',
+                  scaleType: 'linear',
+                  min: calculatedData.yPriceMin,
+                  max: calculatedData.yPriceMax,
+                  position: 'left',
+                  valueFormatter: (v: number) => `${v.toLocaleString('uk-UA')} €`,
+                },
+                {
+                  id: 'y-axis-volume',
+                  scaleType: 'linear',
+                  min: 0,
+                  max: calculatedData.yVolumeMax,
+                  position: 'right',
+                  valueFormatter: (v: number) => `${v} шт.`,
+                },
+              ]}
+              margin={{ top: 20, right: 60, bottom: 60, left: 70 }}
+              sx={{
+                '& .MuiLineElement-series-medianPrice': { strokeWidth: 3 },
+                '& .MuiScatterElement-root': { scale: '1.5' }, // Робимо точки VIN більшими
+              }}
+            >
+              <ChartsGrid horizontal />
 
-            <BarPlot />
+              {/* Поточна ціна авто (якщо є) */}
+              {targetCar && targetCar.price > 0 && (
+                <ChartsReferenceLine
+                  y={targetCar.price}
+                  lineStyle={{ stroke: '#ef4444', strokeWidth: 2, strokeDasharray: '4 4' }}
+                  label="Поточна ціна"
+                />
+              )}
 
-            <ChartsReferenceLine
-              y={11000}
-              axisId="y-axis-price"
-              lineStyle={{ stroke: '#ef4444', strokeWidth: 2 }}
-            />
+              <BarPlot />
+              <LinePlot />
+              <MarkPlot />
+              <ScatterPlot />
 
-            <LinePlot />
-            <ScatterPlot />
-
-            <ChartsXAxis
-              label="Дата (тиждень)"
-              tickLabelStyle={{ angle: -35, textAnchor: 'end', fontSize: 11 }}
-            />
-            <ChartsYAxis axisId="y-axis-price" label="Ціна, €" />
-            <ChartsYAxis axisId="y-axis-volume" label="Кількість лотів" />
-            <ChartsTooltip />
-          </ChartContainer>
+              <ChartsXAxis
+                tickLabelStyle={{ angle: -35, textAnchor: 'end', fontSize: 11 }}
+              />
+              <ChartsYAxis axisId="y-axis-price" label="Ціна, €" />
+              <ChartsYAxis axisId="y-axis-volume" label="Кількість лотів" />
+              <ChartsTooltip />
+            </ChartContainer>
+          )}
         </Box>
       </Box>
 
-      <div className="mt-4 text-sm text-gray-800 leading-relaxed">
-        <p>
-          Криві мінімальної, медіанної та максимальної ціни за період. Стовпчики
-          показують кількість проданих лотів. Червона лінія — поточна ціна авто,
-          червоні маркери — продажі цього VIN.
-        </p>
-        <p>
-          Поточна ціна: <strong>11 000 €</strong> | Актуальна медіана:{' '}
-          <strong>14 271 €</strong> | Діапазон мін/макс:{' '}
-          <strong>9 339–15 620 €</strong> | Використовуйте цей графік, щоб
-          бачити, коли ринок був найактивнішим і в які періоди ціни були
-          найкращими. Це допомагає обрати момент для продажу та цільовий
-          діапазон ціни.
-        </p>
-        <p className="text-[--color-muted] mt-1 text-xs">
-          Використовуйте цей графік, щоб бачити, коли ринок був найактивнішим і
-          в які періоди ціни були найкращими. Це допомагає обрати момент для
-          продажу та цільовий діапазон ціни.
+      {/* Динамічний футер */}
+      <div className="mt-4 text-sm text-gray-800 leading-relaxed p-3 bg-gray-50 rounded-md border border-gray-100">
+        <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
+          {targetCar && (
+            <li>Поточна ціна авто: <strong>{targetCar.price.toLocaleString('uk-UA')} €</strong></li>
+          )}
+          {calculatedData && (
+            <>
+              <li>
+                Актуальна медіана (для обраного вигляду):{' '}
+                <strong>{calculatedData.overallMedian.toLocaleString('uk-UA')} €</strong>
+              </li>
+              <li>
+                Діапазон мін/макс за весь період:{' '}
+                <strong>{calculatedData.overallMin.toLocaleString('uk-UA')}–{calculatedData.overallMax.toLocaleString('uk-UA')} €</strong>
+              </li>
+            </>
+          )}
+        </ul>
+        <p className="text-xs text-gray-700 mt-2">
+          Використовуйте цей графік, щоб бачити, коли ринок був найактивнішим і в які періоди ціни були найкращими.
+          Червоні крапки показують історію аукціонів конкретно цього автомобіля.
         </p>
       </div>
     </Paper>

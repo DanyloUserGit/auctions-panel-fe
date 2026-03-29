@@ -1,232 +1,228 @@
-import React, { useMemo } from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
+import type { LineSeriesType, ScatterSeriesType } from '@mui/x-charts';
 import {
   ChartContainer,
-  LinePlot,
-  ScatterPlot,
+  ChartsGrid,
+  ChartsReferenceLine,
+  ChartsTooltip,
   ChartsXAxis,
   ChartsYAxis,
-  ChartsGrid,
-  ChartsTooltip,
-  ChartsReferenceLine,
-  type ScatterSeriesType,
-  type LineSeriesType,
-  type ScatterValueType,
+  LinePlot,
+  ScatterPlot,
 } from '@mui/x-charts';
 import dayjs from 'dayjs';
+import React, { useMemo } from 'react';
+import type { CarMarketRow } from '../../model/api';
 
-// --- Генерація мокових даних ---
-// Використовуємо .valueOf(), щоб отримати number (timestamp) замість Date
-const generateScatterData = (
-  count: number,
-  minPrice: number,
-  maxPrice: number,
-): ScatterValueType[] => {
-  return Array.from({ length: count }).map((_, i) => ({
-    id: `point-${i}-${Math.random()}`,
-    x: dayjs('2025-09-28')
-      .add(Math.floor(Math.random() * 170), 'day')
-      .valueOf(),
-    y: Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice,
-  }));
-};
+interface GraphProps {
+  data: CarMarketRow[];
+  targetPrice?: number; // Опціонально: ціна поточного авто (для червоної лінії)
+}
 
-const type0Data = generateScatterData(20, 10000, 18000);
-const type2Data = generateScatterData(15, 12000, 20000);
-const type3Data = generateScatterData(10, 12000, 19000);
+export const GraphTimePrice: React.FC<GraphProps> = ({ data, targetPrice }) => {
+  const calculatedData = useMemo(() => {
+    if (!data || data.length === 0) return null;
 
-// Дані для середньої лінії по місяцях (також обов'язково числа)
-const averageLineDates: number[] = [
-  dayjs('2025-09-28').valueOf(),
-  dayjs('2025-10-26').valueOf(),
-  dayjs('2025-11-23').valueOf(),
-  dayjs('2025-12-21').valueOf(),
-  dayjs('2026-01-18').valueOf(),
-  dayjs('2026-02-15').valueOf(),
-  dayjs('2026-03-22').valueOf(),
-];
-const averageLinePrices: number[] = [
-  13500, 14200, 17500, 15800, 15400, 15600, 14000,
-];
+    // 1. Фільтруємо валідні дані та нормалізуємо timestamp
+    const validData = data
+      .filter((d) => d.price > 0 && d.countdown_ts > 0)
+      .map((d) => ({
+        ...d,
+        ts: d.countdown_ts < 1e12 ? d.countdown_ts * 1000 : d.countdown_ts,
+      }))
+      .sort((a, b) => a.ts - b.ts);
 
-export const GraphTimePrice: React.FC = () => {
-  // Явно вказуємо тип масиву серій, щоб уникнути помилок Union Type
-  const series: Array<ScatterSeriesType | LineSeriesType> = useMemo(
-    () => [
-      {
-        type: 'scatter',
-        id: 'type0',
-        data: type0Data,
-        color: '#fbbf24', // Жовтий
-        markerSize: 5,
-        valueFormatter: (v: ScatterValueType | null) =>
-          v ? `${v.y.toLocaleString('uk-UA')} €` : '',
-      },
-      {
-        type: 'scatter',
-        id: 'type2',
-        data: type2Data,
-        color: '#22c55e', // Зелений
-        markerSize: 5,
-        valueFormatter: (v: ScatterValueType | null) =>
-          v ? `${v.y.toLocaleString('uk-UA')} €` : '',
-      },
-      {
-        type: 'scatter',
-        id: 'type3',
-        data: type3Data,
-        color: '#a855f7', // Фіолетовий
-        markerSize: 5,
-        valueFormatter: (v: ScatterValueType | null) =>
-          v ? `${v.y.toLocaleString('uk-UA')} €` : '',
-      },
-      {
-        type: 'line',
-        id: 'averageLine',
-        data: averageLinePrices,
-        color: 'var(--color-accent)', // Синій з ваших CSS змінних
-        curve: 'linear',
-        valueFormatter: (v: number | null) =>
-          v !== null && v !== undefined ? `${v.toLocaleString('uk-UA')} €` : '',
-      },
-    ],
-    [],
-  );
+    if (validData.length === 0) return null;
+
+    // 2. Рахуємо перцентилі (коридор ринку)
+    const sortedPrices = [...validData].map((d) => d.price).sort((a, b) => a - b);
+    const p25 = sortedPrices[Math.floor(sortedPrices.length * 0.25)];
+    const median = sortedPrices[Math.floor(sortedPrices.length * 0.5)];
+    const p75 = sortedPrices[Math.floor(sortedPrices.length * 0.75)];
+
+    // 3. Розділяємо дані для Scatter Plot по типах аукціону
+    // x тепер явно залишається number (timestamp), як вимагає ScatterValueType
+    const mapToScatter = (arr: typeof validData, prefix: string) =>
+      arr.map((d, i) => ({
+        id: `${prefix}-${i}`,
+        x: d.ts,
+        y: d.price,
+        vin: d.chassis,
+      }));
+
+    const type0 = mapToScatter(validData.filter((d) => d.auction_type === 0), 't0');
+    const type2 = mapToScatter(validData.filter((d) => d.auction_type === 2), 't2');
+    const type3 = mapToScatter(validData.filter((d) => d.auction_type === 3), 't3');
+    const typeOther = mapToScatter(
+      validData.filter((d) => ![0, 2, 3].includes(d.auction_type)),
+      'tother'
+    );
+
+    // 4. Будуємо лінію тренду (Лінійна регресія: y = mx + b)
+    const n = validData.length;
+    const sumX = validData.reduce((acc, d) => acc + d.ts, 0);
+    const sumY = validData.reduce((acc, d) => acc + d.price, 0);
+    const sumXY = validData.reduce((acc, d) => acc + d.ts * d.price, 0);
+    const sumXX = validData.reduce((acc, d) => acc + d.ts * d.ts, 0);
+
+    const denominator = n * sumXX - sumX * sumX;
+    let trendData: { x: number; y: number }[] = [];
+    let trendDiff = 0;
+
+    const minTs = validData[0].ts;
+    const maxTs = validData[validData.length - 1].ts;
+
+    if (denominator === 0) {
+      const avgPrice = sumY / n;
+      trendData = [
+        { x: minTs, y: avgPrice },
+        { x: maxTs, y: avgPrice },
+      ];
+    } else {
+      const slope = (n * sumXY - sumX * sumY) / denominator;
+      const intercept = (sumY - slope * sumX) / n;
+      const yStart = minTs * slope + intercept;
+      const yEnd = maxTs * slope + intercept;
+
+      trendData = [
+        { x: minTs, y: yStart },
+        { x: maxTs, y: yEnd },
+      ];
+      trendDiff = yEnd - yStart;
+    }
+
+    // 5. Визначаємо напрям тренду для футера
+    let trendText = 'залишаються відносно стабільними';
+    if (trendDiff <= -150) trendText = 'поступово знижуються';
+    if (trendDiff >= 150) trendText = 'показують зростання';
+
+    return {
+      series: { type0, type2, type3, typeOther, trendData },
+      stats: { p25, median, p75, minPrice: sortedPrices[0] },
+      trendText,
+      trendDiff: Math.abs(trendDiff),
+    };
+  }, [data]);
+
+  if (!data || data.length === 0 || !calculatedData) {
+    return (
+      <Paper elevation={0} className="w-full p-6 border border-gray-200 rounded-lg text-center">
+        <Typography color="textSecondary">Немає даних для графіка "Час → Ціна"</Typography>
+      </Paper>
+    );
+  }
+
+  const { series, stats, trendText, trendDiff } = calculatedData;
+
+  // Формуємо масив серій для графіка
+  const chartSeries: Array<ScatterSeriesType | LineSeriesType> = [];
+
+  // Додали типізацію (v: any) та перевірку на null: `v ? ... : ''`
+  if (series.type0.length) chartSeries.push({ type: 'scatter', id: 'type0', data: series.type0, color: '#f97316', label: 'Type 0', valueFormatter: (v: any) => v ? `${v.y.toLocaleString('uk-UA')} €` : '' });
+  if (series.type2.length) chartSeries.push({ type: 'scatter', id: 'type2', data: series.type2, color: '#22c55e', label: 'Type 2', valueFormatter: (v: any) => v ? `${v.y.toLocaleString('uk-UA')} €` : '' });
+  if (series.type3.length) chartSeries.push({ type: 'scatter', id: 'type3', data: series.type3, color: '#a855f7', label: 'Type 3', valueFormatter: (v: any) => v ? `${v.y.toLocaleString('uk-UA')} €` : '' });
+  if (series.typeOther.length) chartSeries.push({ type: 'scatter', id: 'typeOther', data: series.typeOther, color: '#94a3b8', label: 'Інші', valueFormatter: (v: any) => v ? `${v.y.toLocaleString('uk-UA')} €` : '' });
+
+  chartSeries.push({
+    type: 'line',
+    id: 'trend',
+    data: series.trendData.map(d => d.y),
+    color: '#3b82f6',
+    label: 'Загальний тренд',
+    showMark: false,
+  });
+
+  // Перетворюємо timestamps на об'єкти Date лише для осі X
+  const trendDates = series.trendData.map(d => new Date(d.x));
 
   return (
-    <Paper
-      elevation={0}
-      className="w-full p-4 border border-gray-200 rounded-lg"
-    >
+    <Paper elevation={0} className="w-full p-4 border border-gray-200 rounded-lg">
       <div className="mb-4">
-        <Typography
-          variant="h6"
-          className="text-gray-900 font-semibold text-base mb-1"
-        >
-          Час та ціна
+        <Typography variant="h6" className="text-gray-900 font-semibold text-base mb-1">
+          Залежність ціни від часу
         </Typography>
-        <Typography variant="body2" className="text-[--color-muted]">
-          <strong>Що показує цей графік:</strong> точки – ціни продажів у часі,
-          синя лінія – середня ціна по місяцях, червоні маркери – це ж VIN.
-          Ринковий коридор показує, де "нормальний" ринок.
+        <Typography variant="body2" className="text-gray-900 font-medium">
+          Аналіз ціноутворення в часі з урахуванням типів аукціону та загального тренду.
         </Typography>
-        <button className="text-[--color-accent] text-sm font-medium mt-1 hover:underline">
-          Збільшити графік
-        </button>
       </div>
 
-      {/* Кастомна легенда */}
-      <div className="flex flex-wrap items-center gap-4 mb-4 text-xs text-gray-600">
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-[#fbbf24] rounded-sm"></div> type 0
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-[#22c55e] rounded-sm"></div> type 2
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-[#a855f7] rounded-sm"></div> type 3
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-[--color-accent]"></div> Середня ціна по
-          місяцях
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 border-b-2 border-dotted border-cyan-400"></div>{' '}
-          Ринковий коридор 25% (низ)
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 border-b-2 border-dotted border-cyan-400"></div>{' '}
-          Ринковий коридор 75% (верх)
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 border-b-2 border-dotted border-green-400"></div>{' '}
-          Середня ринкова ціна
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 border-b-2 border-solid border-red-500"></div>{' '}
-          Поточне авто
-        </div>
-      </div>
-
-      {/* Графік */}
       <Box sx={{ width: '100%', overflowX: 'auto' }}>
-        <Box sx={{ minWidth: 600 }}>
+        <Box sx={{ minWidth: 700 }}>
           <ChartContainer
-            height={400}
-            series={series}
+            height={450}
+            series={chartSeries}
             xAxis={[
               {
                 id: 'x-axis',
-                scaleType: 'time',
-                data: averageLineDates,
-                valueFormatter: (date: number) =>
-                  dayjs(date).format('MMM D, YYYY'),
+                scaleType: 'time', // Вісь X розуміє об'єкти Date
+                data: trendDates, // Базові точки Date для осі X
+                valueFormatter: (date: Date) => dayjs(date).format('DD.MM.YY'),
               },
             ]}
             yAxis={[
               {
                 id: 'y-axis',
-                min: 8000,
-                max: 22000,
-                valueFormatter: (v: number) => v.toLocaleString('uk-UA'),
+                min: Math.max(0, stats.minPrice - 2000),
+                // Явно вказали тип (v: number)
+                valueFormatter: (v: number) => `${v.toLocaleString('uk-UA')} €`,
               },
             ]}
             margin={{ top: 20, right: 20, bottom: 40, left: 60 }}
           >
-            <ChartsGrid horizontal />
-            {/* Референсні лінії (Коридори та поточне авто) */}
+            <ChartsGrid horizontal vertical />
+
+            {/* Коридор 75% (Верхня межа) */}
             <ChartsReferenceLine
-              y={16529}
-              lineStyle={{
-                stroke: '#22d3ee',
-                strokeDasharray: '3 3',
-                strokeWidth: 2,
-              }}
-            />{' '}
-            {/* 75% */}
+              y={stats.p75}
+              lineStyle={{ stroke: '#4ade80', strokeDasharray: '3 3', strokeWidth: 2 }}
+            />
+
+            {/* Медіана */}
             <ChartsReferenceLine
-              y={15400}
-              lineStyle={{
-                stroke: '#4ade80',
-                strokeDasharray: '3 3',
-                strokeWidth: 2,
-              }}
-            />{' '}
-            {/* Market Avg */}
+              y={stats.median}
+              lineStyle={{ stroke: '#22d3ee', strokeDasharray: '3 3', strokeWidth: 2 }}
+            />
+
+            {/* Коридор 25% (Нижня межа) */}
             <ChartsReferenceLine
-              y={14195}
-              lineStyle={{
-                stroke: '#22d3ee',
-                strokeDasharray: '3 3',
-                strokeWidth: 2,
-              }}
-            />{' '}
-            {/* 25% */}
-            <ChartsReferenceLine
-              y={11000}
-              lineStyle={{ stroke: '#ef4444', strokeWidth: 2 }}
-            />{' '}
-            {/* Current Auto */}
+              y={stats.p25}
+              lineStyle={{ stroke: '#4ade80', strokeDasharray: '3 3', strokeWidth: 2 }}
+            />
+
+            {/* Опціональна лінія ціни поточного авто */}
+            {targetPrice && (
+              <ChartsReferenceLine
+                y={targetPrice}
+                lineStyle={{ stroke: '#ef4444', strokeWidth: 2 }}
+              />
+            )}
+
             <ScatterPlot />
             <LinePlot />
-            <ChartsXAxis label="Дата (countdown)" />
+
+            <ChartsXAxis label="Час продажу (Дата)" />
             <ChartsYAxis label="Ціна, €" />
             <ChartsTooltip />
           </ChartContainer>
         </Box>
       </Box>
 
-      {/* Футер графіка */}
-      <div className="mt-4 text-sm text-gray-800">
-        <p>
-          Поточна ціна: <strong>11 000 €</strong> | Медіана ринку:{' '}
-          <strong>15 400 €</strong> | Коридор 25–75%:{' '}
-          <strong>14 195–16 529 €</strong>
-        </p>
-        <p className="text-[--color-muted] text-xs mt-1">
-          Цей графік допомагає бачити, чи не виставлена ваша ціна занадто
-          рано/пізно відносно ринку і в якому часовому коридорі ринок жвавіший.
-        </p>
+      {/* Аналітичний футер */}
+      <div className="mt-4 text-sm text-gray-800 leading-relaxed p-3 bg-gray-50 rounded-md border border-gray-100">
+        <p className="font-medium mb-1">Аналіз ринкового коридору та тренду:</p>
+        <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
+          {targetPrice && (
+            <li>Поточна ціна авто: <strong>{targetPrice.toLocaleString('uk-UA')} €</strong></li>
+          )}
+          <li>
+            Коридор найчастіших цін (25–75%): <strong>{stats.p25.toLocaleString('uk-UA')} – {stats.p75.toLocaleString('uk-UA')} €</strong>
+          </li>
+          <li>Медіанна ціна по ринку: <strong>{stats.median.toLocaleString('uk-UA')} €</strong></li>
+          <li>
+            Загальний тренд: ціни з часом <strong>{trendText}</strong>
+            {trendDiff > 150 && ` (зміна близько ${Math.round(trendDiff)} € на всьому проміжку)`}.
+          </li>
+        </ul>
       </div>
     </Paper>
   );

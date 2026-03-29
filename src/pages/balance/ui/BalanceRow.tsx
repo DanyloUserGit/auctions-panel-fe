@@ -16,8 +16,8 @@ import dayjs from 'dayjs';
 export const Row = ({ record }: { record: BalanceRecord }) => {
   const [open, setOpen] = useState(false);
 
-  // Використовуємо eur як основну валюту для відображення (або змініть на потрібну)
-  const mainAmount = record.eur;
+  // Використовуємо effectEur як основну валюту для відображення
+  const mainAmount = record.effectEur || 0;
   const isNegative = !record.isPlus;
 
   return (
@@ -81,10 +81,8 @@ export const Row = ({ record }: { record: BalanceRecord }) => {
           {isNegative ? '−' : '+'} {Math.abs(mainAmount).toLocaleString()} €
         </TableCell>
 
-        {/* Якщо у вас є загальний баланс у стейті, підставте його тут. 
-            Поки що залишаю як відображення суми в іншій валюті для прикладу */}
         <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-          {record.usd.toLocaleString()} $
+          {(record.effectUsd || 0).toLocaleString()} $
         </TableCell>
       </TableRow>
 
@@ -101,22 +99,22 @@ export const Row = ({ record }: { record: BalanceRecord }) => {
               }}
             >
               <Typography variant="subtitle2" gutterBottom component="div">
-                Деталі транзакції (Розбивка по валютах):
+                Деталі транзакції (Ефект по валютах):
               </Typography>
               <Table size="small">
                 <TableBody>
                   <TableRow>
                     <TableCell sx={{ border: 'none' }}>
-                      USD: {record.usd} $
+                      USD: {record.effectUsd || 0} $
                     </TableCell>
                     <TableCell sx={{ border: 'none' }}>
-                      EUR: {record.eur} €
+                      EUR: {record.effectEur || 0} €
                     </TableCell>
                     <TableCell sx={{ border: 'none' }}>
-                      PLN: {record.pln} zł
+                      PLN: {record.effectPln || 0} zł
                     </TableCell>
                     <TableCell sx={{ border: 'none' }}>
-                      UAH: {record.uah} ₴
+                      UAH: {record.effectUah || 0} ₴
                     </TableCell>
                   </TableRow>
                   {record.notes && (
