@@ -1,222 +1,178 @@
+import React from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   Box,
   Button,
   Checkbox,
-  Chip,
+  FormControl,
   FormControlLabel,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
   Paper,
+  Select,
+  type SelectChangeEvent,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 
-// Стиль для синіх заголовків фільтрів
+export const COUNTRY_MAP: Record<number, string> = {
+  1: 'Німеччина',
+  2: 'Франція',
+  3: 'Італія',
+  4: 'Іспанія',
+  5: 'Нідерланди',
+  6: 'Бельгія',
+  7: 'Швеція',
+  8: 'Польща',
+  9: 'Румунія',
+  10: 'Данія',
+};
+
+// Дефолтний масив, якщо раптом нічого не передали
+const DEFAULT_AUCTION_TYPES = [0, 1, 2, 3]; 
+
+interface AnalyticsFiltersProps {
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
+  onlyCheaper: boolean;
+  setOnlyCheaper: (val: boolean) => void;
+  selectedCountries: number[];
+  setSelectedCountries: (val: number[]) => void;
+  selectedAuctionTypes: number[];
+  setSelectedAuctionTypes: (val: number[]) => void;
+  onResetFilters: () => void;
+  activeFiltersCount: number;
+  availableCountries?: number[]; // Новий проп
+  availableAuctionTypes?: number[]; // Новий проп
+}
+
 const FilterLabel = ({ text }: { text: string }) => (
-  <Typography
-    variant="caption"
-    sx={{
-      bgcolor: '#1d4ed8',
-      color: 'white',
-      px: 1.5,
-      py: 0.5,
-      borderRadius: '999px',
-      fontWeight: 700,
-      fontSize: '11px',
-      textTransform: 'uppercase',
-      letterSpacing: '0.05em',
-      display: 'inline-flex',
-      mb: 1,
-    }}
-  >
+  <Typography variant="caption" color="text.secondary" fontWeight="600" sx={{ mb: 0.5, display: 'block' }}>
     {text}
   </Typography>
 );
 
-const AnalyticsFilters = () => {
+const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
+  searchQuery,
+  setSearchQuery,
+  onlyCheaper,
+  setOnlyCheaper,
+  selectedCountries,
+  setSelectedCountries,
+  selectedAuctionTypes,
+  setSelectedAuctionTypes,
+  onResetFilters,
+  activeFiltersCount,
+  availableCountries,
+  availableAuctionTypes,
+}) => {
+  const handleCountryChange = (event: SelectChangeEvent<number[]>) => {
+    setSelectedCountries(event.target.value as number[]);
+  };
+
+  const handleAuctionChange = (event: SelectChangeEvent<number[]>) => {
+    setSelectedAuctionTypes(event.target.value as number[]);
+  };
+
+  // Використовуємо передані доступні дані, або дефолтні
+  const countriesToRender = availableCountries?.length ? availableCountries : Object.keys(COUNTRY_MAP).map(Number);
+  const auctionsToRender = availableAuctionTypes?.length ? availableAuctionTypes : DEFAULT_AUCTION_TYPES;
+
   return (
-    <Stack spacing={2}>
-      {/* Основна панель фільтрів */}
-      <Paper
-        sx={{
-          p: 2.5,
-          borderRadius: 4,
-          border: '1px solid #e5e7eb',
-          boxShadow: 'none',
-          background:
-            'radial-gradient(circle at top left, #eff6ff 0, #f9fafb 45%, #ffffff 100%)',
-        }}
-      >
-        {/* Фільтр типів */}
-        <Box sx={{ mb: 2 }}>
-          <FilterLabel text="ФІЛЬТР ТИПІВ:" />
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-            {[
-              'Аукціон з відкритою ціною (Type 0)',
-              'Аукціон з фіксованою ціною (Type 2)',
-              'Аукціон зі стартовою ціною (Type 3)',
-            ].map((type) => (
-              <Chip
-                key={type}
-                label={type}
-                variant="outlined"
-                icon={<Checkbox size="small" checked sx={{ p: 0, ml: 1 }} />}
-                sx={{
-                  borderRadius: '999px',
-                  bgcolor: '#dbeafe',
-                  borderColor: '#2563eb',
-                  fontWeight: 600,
-                }}
-              />
-            ))}
-          </Stack>
-        </Box>
-
-        {/* Фільтр країн */}
-        <Box sx={{ mb: 2 }}>
-          <FilterLabel text="ФІЛЬТР КРАЇН:" />
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-            {[
-              'Italy',
-              'Netherlands',
-              'Denmark',
-              'Belgium',
-              'Belgium',
-              'France',
-              'Romania',
-              'Spain',
-            ].map((country, idx) => (
-              <Chip
-                key={idx}
-                label={country}
-                variant="outlined"
-                icon={<Checkbox size="small" checked sx={{ p: 0, ml: 1 }} />}
-                sx={{
-                  borderRadius: '999px',
-                  bgcolor: '#dbeafe',
-                  borderColor: '#2563eb',
-                  fontWeight: 600,
-                }}
-              />
-            ))}
-          </Stack>
-        </Box>
-
-        {/* Фільтр періоду */}
-        <Box sx={{ mb: 2 }}>
-          <FilterLabel text="ФІЛЬТР ПЕРІОДУ:" />
-          <Stack direction="row" spacing={0.5} flexWrap="wrap">
-            {[
-              'Всі',
-              '5 місяців',
-              '4 місяці',
-              '3 місяці',
-              '2 місяці',
-              '1 місяць',
-              '2 тижня',
-              '1 тиждень',
-            ].map((p, idx) => (
-              <Button
-                key={p}
-                size="small"
-                variant={idx === 0 ? 'contained' : 'text'}
-                sx={{
-                  borderRadius: '999px',
-                  minWidth: 'auto',
-                  px: 2,
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  bgcolor: idx === 0 ? '#2563eb' : 'transparent',
-                  color: idx === 0 ? 'white' : 'text.primary',
-                }}
-              >
-                {p}
-              </Button>
-            ))}
-          </Stack>
-        </Box>
-
-        {/* Режим ринкового коридору */}
-        <Box sx={{ mb: 2 }}>
-          <FilterLabel text="РЕЖИМ РИНКОВОГО КОРИДОРУ:" />
-          <Stack direction="row" spacing={1}>
-            <Button
-              size="small"
-              variant="contained"
-              sx={{ borderRadius: '999px', bgcolor: '#38bdf8' }}
-            >
-              Загальний
-            </Button>
-            <Button
-              size="small"
-              variant="text"
-              sx={{
-                borderRadius: '999px',
-                color: 'text.primary',
-                fontWeight: 600,
-              }}
-            >
-              Реальний
-            </Button>
-          </Stack>
-        </Box>
-
-        {/* Активні фільтри (Summary) */}
-        <Alert
-          icon={false}
-          sx={{
-            bgcolor: '#e0f2fe',
-            color: '#111827',
-            borderRadius: 2,
-            borderLeft: '4px solid #0ea5e9',
-            fontSize: '13px',
-          }}
-        >
-          <strong>🔍 Активні фільтри:</strong> обрані типи: type 0, type 2, type
-          3; країни: Italy, Belgium, France... період: весь доступний період;
-          режим коридору: загальний.
-        </Alert>
+    <Box sx={{ mb: 4 }}>
+      <Typography variant="h6" fontWeight="bold" mb={2}>
+        Фільтри та пошук
+      </Typography>
+      
+      <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
+        {activeFiltersCount > 0 ? (
+          <Alert severity="info" sx={{ borderRadius: 2, py: 0, fontSize: '13px' }}>
+            Активно фільтрів: {activeFiltersCount}. Відображаються відфільтровані дані.
+          </Alert>
+        ) : (
+          <Alert severity="success" sx={{ borderRadius: 2, py: 0, fontSize: '13px' }}>
+            Відображаються всі доступні дані для цього авто.
+          </Alert>
+        )}
       </Paper>
 
-      {/* Пошук та додаткові дії */}
-      <Stack
-        direction={{ xs: 'column', md: 'row' }}
-        spacing={2}
-        alignItems="center"
-      >
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
         <Button
           size="small"
           variant="outlined"
-          sx={{
-            borderRadius: 2,
-            color: 'text.primary',
-            borderColor: '#e5e7eb',
-            px: 3,
-          }}
+          onClick={onResetFilters}
+          disabled={activeFiltersCount === 0}
+          sx={{ borderRadius: 2, color: 'text.primary', borderColor: '#e5e7eb', px: 3, height: '40px' }}
         >
           Скинути
         </Button>
+
         <FormControlLabel
-          control={<Checkbox size="small" />}
-          label={
-            <Typography variant="body2" fontWeight="600">
-              тільки дешевше поточного
-            </Typography>
+          control={
+            <Checkbox
+              size="small"
+              checked={onlyCheaper}
+              onChange={(e) => setOnlyCheaper(e.target.checked)}
+            />
           }
+          label={<Typography variant="body2" fontWeight="600">тільки дешевше поточного</Typography>}
         />
+
         <TextField
           size="small"
-          placeholder="Пошук по VIN / характеристиці / моделі"
+          placeholder="Пошук по VIN / характеристиці..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           sx={{ flexGrow: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           InputProps={{
             startAdornment: (
-              <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+              <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} fontSize="small" />
             ),
           }}
         />
+
+        <Stack direction="row" spacing={2} sx={{ minWidth: { xs: '100%', md: '400px' } }}>
+          <Box flex={1}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Країна</InputLabel>
+              <Select
+                multiple
+                value={selectedCountries}
+                onChange={handleCountryChange}
+                input={<OutlinedInput label="Країна" sx={{ borderRadius: 2 }} />}
+              >
+                {countriesToRender.map((id) => (
+                  <MenuItem key={id} value={id}>
+                    {COUNTRY_MAP[id] || `Країна ID: ${id}`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box flex={1}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Тип аукціону</InputLabel>
+              <Select
+                multiple
+                value={selectedAuctionTypes}
+                onChange={handleAuctionChange}
+                input={<OutlinedInput label="Тип аукціону" sx={{ borderRadius: 2 }} />}
+              >
+                {auctionsToRender.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    Тип: {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </Stack>
       </Stack>
-    </Stack>
+    </Box>
   );
 };
 

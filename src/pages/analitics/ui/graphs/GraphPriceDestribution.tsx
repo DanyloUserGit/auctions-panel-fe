@@ -1,95 +1,125 @@
-import React, { useMemo } from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import {
-  ChartContainer,
   BarPlot,
-  ChartsXAxis,
-  ChartsYAxis,
+  ChartContainer,
   ChartsGrid,
   ChartsTooltip,
+  ChartsXAxis,
+  ChartsYAxis,
 } from '@mui/x-charts';
-// Суворий імпорт типів
-import type { BarSeriesType } from '@mui/x-charts';
+import React, { useMemo } from 'react';
+import type { CarMarketRow } from '../../model/api';
 
-// --- Мокові дані ---
-// Діапазони цін (категорії для осі X)
-const priceRanges = [
-  '9 339–10 276 €',
-  '10 277–11 214 €',
-  '11 215–12 152 €',
-  '12 153–13 090 €',
-  '13 091–14 028 €',
-  '14 029–14 966 €',
-  '14 967–15 904 €', // Пік
-  '15 905–16 842 €',
-  '16 843–17 780 €',
-  '17 781–18 718 €',
-  '18 719–19 656 €',
-  '19 657–20 594 €',
-];
 
-// Кількість лотів у кожному діапазоні
-const volumeData = [5, 3, 8, 11, 14, 28, 33, 21, 15, 14, 7, 2];
+interface GraphProps {
+  data: CarMarketRow[];
+}
 
-export const GraphPriceDistribution: React.FC = () => {
-  // Типізація масиву серій (тут лише одна серія - Bar)
-  const series: Array<BarSeriesType> = useMemo(
-    () => [
-      {
-        type: 'bar',
-        id: 'distributionBar',
-        data: volumeData,
-        xAxisId: 'x-axis-ranges',
-        yAxisId: 'y-axis-volume',
-        color: '#93c5fd', // Світло-синій (Tailwind blue-300) як на зображенні
-        valueFormatter: (v: number | null) => (v !== null ? `${v} лотів` : ''),
-      },
-    ],
-    [],
-  );
+export const GraphPriceDistribution: React.FC<GraphProps> = ({ data }) => {
+  const calculatedData = useMemo(() => {
+    if (!data || data.length === 0) return null;
+
+    // Відфільтровуємо некоректні ціни
+    const validPrices = data.map((d) => d.price).filter((p) => p > 0);
+    if (validPrices.length === 0) return null;
+
+    const minPrice = Math.min(...validPrices);
+    const maxPrice = Math.max(...validPrices);
+
+    // Якщо раптом всі авто у вибірці коштують абсолютно однаково
+    if (minPrice === maxPrice) {
+      return {
+        priceRanges: [`${minPrice.toLocaleString('uk-UA')} €`],
+        volumeData: [validPrices.length],
+        maxVolume: validPrices.length,
+        peakRange: `${minPrice.toLocaleString('uk-UA')} €`,
+      };
+    }
+
+    // Розбиваємо весь діапазон на 12 кошиків (як було у мокових даних)
+    const BINS_COUNT = 12;
+    // Крок для одного кошика. Округлюємо до більшого цілого.
+    const step = Math.ceil((maxPrice - minPrice) / BINS_COUNT);
+
+    // Створюємо порожні кошики
+    const bins = Array.from({ length: BINS_COUNT }, (_, i) => {
+      const start = minPrice + i * step;
+      // Останній кошик закриває діапазон до maxPrice включно
+      const end = i === BINS_COUNT - 1 ? maxPrice : start + step - 1;
+      return {
+        start,
+        end,
+        count: 0,
+        label: `${start.toLocaleString('uk-UA')}–${end.toLocaleString('uk-UA')} €`,
+      };
+    });
+
+    // Розподіляємо ціни по створених кошиках
+    validPrices.forEach((price) => {
+      // Знаходимо індекс потрібного кошика
+      let binIndex = Math.floor((price - minPrice) / step);
+      // Захист від виходу за межі масиву (якщо price === maxPrice)
+      if (binIndex >= BINS_COUNT) binIndex = BINS_COUNT - 1;
+
+      bins[binIndex].count += 1;
+    });
+
+    const priceRanges = bins.map((b) => b.label);
+    const volumeData = bins.map((b) => b.count);
+    const maxVolume = Math.max(...volumeData);
+
+    // Знаходимо діапазон з найбільшою кількістю авто (Пік)
+    const peakBin = bins.find((b) => b.count === maxVolume);
+
+    return {
+      priceRanges,
+      volumeData,
+      maxVolume,
+      peakRange: peakBin?.label || '',
+    };
+  }, [data]);
+
+  if (!data || data.length === 0 || !calculatedData) {
+    return (
+      <Paper elevation={0} className="w-full p-6 border border-gray-200 rounded-lg text-center">
+        <Typography color="textSecondary">Немає даних для побудови графіка розподілу цін</Typography>
+      </Paper>
+    );
+  }
+
+  const { priceRanges, volumeData, maxVolume, peakRange } = calculatedData;
+
+  // Додаємо запас 20% зверху по осі Y, щоб стовпчики не впиралися в край графіка
+  const yAxisMax = Math.ceil(maxVolume * 1.2);
 
   return (
-    <Paper
-      elevation={0}
-      className="w-full p-4 border border-gray-200 rounded-lg"
-    >
-      {/* Заголовок */}
+    <Paper elevation={0} className="w-full p-4 border border-gray-200 rounded-lg">
       <div className="mb-4">
-        <Typography
-          variant="h6"
-          className="text-gray-900 font-semibold text-base mb-1"
-        >
-          Типи аукціону
+        <Typography variant="h6" className="text-gray-900 font-semibold text-base mb-1">
+          Розподіл ринку за ціною (Гістограма)
         </Typography>
         <Typography variant="body2" className="text-gray-900 font-medium">
-          Розподіл цін{' '}
-          <span className="font-normal text-[--color-muted]">
-            показує, де знаходиться основна маса ринкових продажів.
-          </span>
+          Кількість проданих автомобілів у різних цінових сегментах.
         </Typography>
-        <button className="text-[--color-accent] text-sm font-medium mt-1 hover:underline">
-          Збільшити графік
-        </button>
       </div>
 
-      {/* Кастомна легенда */}
-      <div className="flex justify-center items-center mb-4 text-xs text-gray-600">
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-3 bg-blue-300 border border-blue-400"></div>{' '}
-          Кількість лотів
-        </div>
-      </div>
-
-      {/* Графік */}
       <Box sx={{ width: '100%', overflowX: 'auto' }}>
-        <Box sx={{ minWidth: 800 }}>
+        <Box sx={{ minWidth: 700 }}>
           <ChartContainer
             height={400}
-            series={series}
+            series={[
+              {
+                type: 'bar',
+                id: 'volume',
+                data: volumeData,
+                color: '#3b82f6', // Класичний синій колір
+                valueFormatter: (v: number | null) => (v !== null ? `${v} лотів` : ''),
+              },
+            ]}
             xAxis={[
               {
-                id: 'x-axis-ranges',
-                scaleType: 'band', // Для строкових діапазонів
+                id: 'x-axis-price',
+                scaleType: 'band',
                 data: priceRanges,
                 position: 'bottom',
               },
@@ -99,11 +129,11 @@ export const GraphPriceDistribution: React.FC = () => {
                 id: 'y-axis-volume',
                 scaleType: 'linear',
                 min: 0,
-                max: 40, // Трохи більше за максимум (33)
+                max: yAxisMax,
                 position: 'left',
               },
             ]}
-            margin={{ top: 20, right: 20, bottom: 80, left: 60 }} // Великий bottom для повернутих довгих підписів
+            margin={{ top: 20, right: 20, bottom: 80, left: 60 }} // Збільшений bottom для діагональних підписів
           >
             <ChartsGrid horizontal />
 
@@ -120,17 +150,17 @@ export const GraphPriceDistribution: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Футер графіка */}
-      <div className="mt-4 text-sm text-gray-800 leading-relaxed">
-        <p>
-          Пік ринку: <strong>14 967–15 904 €</strong>. Цей діапазон показує, де
-          зосереджена найбільша кількість продажів.
-        </p>
-        <p className="text-[--color-muted] mt-1">
-          Цей графік потрібен, щоб швидко побачити найщільнішу зону ринку. Якщо
-          поточна ціна авто знаходиться лівіше основного піку — це потенційно
-          вигідна покупка. Якщо правіше — авто може бути переоцінене.
-        </p>
+      {/* Динамічний футер графіка */}
+      <div className="mt-4 text-sm text-gray-800 leading-relaxed p-3 bg-gray-50 rounded-md border border-gray-100">
+        <p className="font-medium mb-1">Ключові показники вибірки:</p>
+        <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
+          <li>
+            Пік ринку: <strong>{peakRange}</strong>. Цей діапазон показує, де зосереджена найбільша кількість продажів.
+          </li>
+          <li>
+            Цей графік допомагає швидко побачити найщільнішу зону ринку. Якщо поточна ціна авто знаходиться лівіше від піку — це, ймовірно, вигідна пропозиція.
+          </li>
+        </ul>
       </div>
     </Paper>
   );

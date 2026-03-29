@@ -1,191 +1,229 @@
-import React, { useMemo } from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import {
   ChartContainer,
-  LinePlot,
-  ScatterPlot,
+  ChartsGrid,
+  ChartsReferenceLine,
+  ChartsTooltip,
   ChartsXAxis,
   ChartsYAxis,
-  ChartsGrid,
-  ChartsTooltip,
-  ChartsReferenceLine,
+  LinePlot,
   MarkPlot,
 } from '@mui/x-charts';
-import type {
-  LineSeriesType,
-  ScatterSeriesType,
-  ScatterValueType,
-} from '@mui/x-charts';
+import React, { useMemo } from 'react';
+import type { CarMarketRow } from '../../model/api';
 
-// --- Дані для графіка ---
-const mileageXData: number[] = [
-  20500, 30000, 50000, 65000, 80000, 95000, 109401, 120000, 135000, 150000,
-  165000, 180000, 200000, 215000, 229500,
-];
+interface GraphProps {
+  data: CarMarketRow[];
+  targetCar?: {
+    price: number;
+    mileage: number;
+  };
+}
 
-const maxPrices: number[] = [
-  20500, 18000, 19500, 17500, 16000, 16800, 14800, 14900, 11800, 14500, 11800,
-  13000, 12200, 11000, 9300,
-];
+// Хелпер для розрахунку перцентилів
+const getPercentile = (arr: number[], percentile: number) => {
+  if (arr.length === 0) return 0;
+  const index = (percentile / 100) * (arr.length - 1);
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+  const weight = index - lower;
+  if (upper >= arr.length) return arr[lower];
+  return arr[lower] * (1 - weight) + arr[upper] * weight;
+};
 
-const avgPrices: number[] = [
-  17300, 16200, 17400, 15500, 14500, 14600, 14200, 14200, 11600, 13500, 11200,
-  12500, 11000, 10500, 9300,
-];
+export const GraphTrendMileage: React.FC<GraphProps> = ({ data, targetCar }) => {
+  const calculatedData = useMemo(() => {
+    if (!data || data.length === 0) return null;
 
-const minPrices: number[] = [
-  15500, 14000, 15400, 13700, 12200, 11500, 13500, 12800, 11500, 12000, 10800,
-  12000, 9700, 10200, 9300,
-];
+    const validData = data.filter((d) => d.price > 0 && d.mileage > 0);
+    if (validData.length === 0) return null;
 
-// Точки перетину (маркери)
-const intersectionsData: ScatterValueType[] = [
-  { id: 'cross-current', x: 109401, y: 11000 },
-  { id: 'cross-min', x: 109401, y: minPrices[6] },
-  { id: 'cross-avg', x: 109401, y: avgPrices[6] },
-  { id: 'cross-max', x: 109401, y: maxPrices[6] },
-];
+    const minMileage = Math.min(...validData.map((d) => d.mileage));
+    const maxMileage = Math.max(...validData.map((d) => d.mileage));
 
-export const GraphTrendMileage: React.FC = () => {
-  const series: Array<LineSeriesType | ScatterSeriesType> = useMemo(
-    () => [
-      {
-        type: 'line',
-        id: 'minPrice',
-        data: minPrices, // Тільки Y-дані!
-        color: '#3b82f6',
-        curve: 'linear',
-        showMark: true,
-        valueFormatter: (v: number | null) =>
-          v !== null ? `${v.toLocaleString('uk-UA')} €` : '',
-      },
-      {
-        type: 'line',
-        id: 'avgPrice',
-        data: avgPrices, // Тільки Y-дані!
-        color: '#22c55e',
-        curve: 'linear',
-        showMark: true,
-        valueFormatter: (v: number | null) =>
-          v !== null ? `${v.toLocaleString('uk-UA')} €` : '',
-      },
-      {
-        type: 'line',
-        id: 'maxPrice',
-        data: maxPrices, // Тільки Y-дані!
-        color: '#f59e0b',
-        curve: 'linear',
-        showMark: true,
-        valueFormatter: (v: number | null) =>
-          v !== null ? `${v.toLocaleString('uk-UA')} €` : '',
-      },
-      {
-        type: 'scatter',
-        id: 'intersections',
-        data: intersectionsData, // Скаттер має свої {x, y}, йому вісь X допомагає лише з масштабом
-        color: '#dc2626',
-        markerSize: 7,
-        valueFormatter: (v: ScatterValueType | null) =>
-          v ? `Точка перетину: ${v.y.toLocaleString('uk-UA')} €` : '',
-      },
-    ],
-    [],
-  );
+    // Розбиваємо весь пробіг на 10-12 діапазонів (кошиків)
+    const BINS_COUNT = 10;
+    // Крок мінімум 10 000 км, щоб не було занадто дрібно
+    const step = Math.max(10000, Math.ceil((maxMileage - minMileage) / BINS_COUNT));
+
+    const bins: Record<number, { mileages: number[]; prices: number[] }> = {};
+
+    validData.forEach((d) => {
+      const binIndex = Math.floor((d.mileage - minMileage) / step);
+      if (!bins[binIndex]) bins[binIndex] = { mileages: [], prices: [] };
+      bins[binIndex].mileages.push(d.mileage);
+      bins[binIndex].prices.push(d.price);
+    });
+
+    const trendPoints: { x: number; min: number; avg: number; max: number }[] = [];
+
+    // Обробляємо кожен кошик
+    for (let i = 0; i <= BINS_COUNT + 1; i++) {
+      if (bins[i] && bins[i].prices.length > 0) {
+        const prices = bins[i].prices.sort((a, b) => a - b);
+        const count = prices.length;
+
+        // X-координата — це середній пробіг авто в цьому кошику
+        const avgMileage = Math.round(
+          bins[i].mileages.reduce((a, b) => a + b, 0) / count
+        );
+
+        let min, avg, max;
+
+        if (count < 4) {
+          // Мало даних для статистики — беремо як є
+          min = prices[0];
+          avg = Math.round(prices.reduce((a, b) => a + b, 0) / count);
+          max = prices[count - 1];
+        } else {
+          // Відсіюємо викиди (IQR метод)
+          const q1 = getPercentile(prices, 25);
+          const q3 = getPercentile(prices, 75);
+          const iqr = q3 - q1;
+          const lowerBound = q1 - 1.5 * iqr;
+          const upperBound = q3 + 1.5 * iqr;
+
+          const cleaned = prices.filter((p) => p >= lowerBound && p <= upperBound);
+          if (cleaned.length > 0) {
+            min = cleaned[0];
+            avg = Math.round(cleaned.reduce((a, b) => a + b, 0) / cleaned.length);
+            max = cleaned[cleaned.length - 1];
+          } else {
+            min = prices[0];
+            avg = Math.round(prices.reduce((a, b) => a + b, 0) / count);
+            max = prices[count - 1];
+          }
+        }
+
+        trendPoints.push({ x: avgMileage, min, avg, max });
+      }
+    }
+
+    trendPoints.sort((a, b) => a.x - b.x);
+
+    if (trendPoints.length === 0) return null;
+
+    const allPrices = [
+      ...trendPoints.map((p) => p.min),
+      ...trendPoints.map((p) => p.max),
+    ];
+    const yMin = Math.max(0, Math.min(...allPrices) - 2000);
+    const yMax = Math.max(...allPrices) + 2000;
+
+    return {
+      xData: trendPoints.map((p) => p.x),
+      minPrices: trendPoints.map((p) => p.min),
+      avgPrices: trendPoints.map((p) => p.avg),
+      maxPrices: trendPoints.map((p) => p.max),
+      yMin,
+      yMax,
+      xMin: Math.max(0, minMileage - step / 2),
+      xMax: maxMileage + step / 2,
+    };
+  }, [data]);
+
+  if (!data || data.length === 0 || !calculatedData) {
+    return (
+      <Paper elevation={0} className="w-full p-6 border border-gray-200 rounded-lg text-center">
+        <Typography color="textSecondary">Немає даних для побудови графіка тренду по пробігу</Typography>
+      </Paper>
+    );
+  }
+
+  const { xData, minPrices, avgPrices, maxPrices, yMin, yMax, xMin, xMax } = calculatedData;
 
   return (
-    <Paper
-      elevation={0}
-      className="w-full p-4 border border-gray-200 rounded-lg"
-    >
+    <Paper elevation={0} className="w-full p-4 border border-gray-200 rounded-lg">
       <div className="mb-4">
-        <Typography
-          variant="h6"
-          className="text-gray-900 font-semibold text-base mb-1"
-        >
-          Типи аукціону
+        <Typography variant="h6" className="text-gray-900 font-semibold text-base mb-1">
+          Ціновий тренд відносно пробігу
         </Typography>
         <Typography variant="body2" className="text-gray-900 font-medium">
-          Що показує цей графік:{' '}
-          <span className="font-normal text-[--color-muted]">
-            мінімальна, середня та максимальна ціна по діапазонах пробігу.
-            Червоні лінії — пробіг та ціна поточного авто, точки перетину з
-            кривими — орієнтири "дорого/дешево".
-          </span>
+          Мінімальна, середня та максимальна ціни ринку згруповані по діапазонах пробігу.
         </Typography>
-
-        <button className="text-[--color-accent] text-sm font-medium mt-1 hover:underline">
-          Збільшити графік
-        </button>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs text-gray-600">
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-blue-500"></div> Мінімальна ціна
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-green-500"></div> Середня ціна
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-amber-500"></div> Максимальна ціна
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 border-b-2 border-dotted border-blue-300"></div>{' '}
-          Пробіг поточного авто
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-0.5 bg-red-500"></div> Поточне авто
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-red-600 rounded-full"></div> Точки перетину
-        </div>
       </div>
 
       <Box sx={{ width: '100%', overflowX: 'auto' }}>
-        <Box sx={{ minWidth: 800 }}>
+        <Box sx={{ minWidth: 700 }}>
           <ChartContainer
             height={400}
-            series={series}
+            series={[
+              {
+                type: 'line',
+                id: 'maxPrices',
+                label: 'Верх ринку',
+                data: maxPrices,
+                color: '#ef4444', // Червоний
+                showMark: true,
+                valueFormatter: (v: number | null) => v ? `${v.toLocaleString('uk-UA')} €` : '',
+              },
+              {
+                type: 'line',
+                id: 'avgPrices',
+                label: 'Середня ціна',
+                data: avgPrices,
+                color: '#eab308', // Жовтий
+                showMark: true,
+                valueFormatter: (v: number | null) => v ? `${v.toLocaleString('uk-UA')} €` : '',
+              },
+              {
+                type: 'line',
+                id: 'minPrices',
+                label: 'Низ ринку',
+                data: minPrices,
+                color: '#22c55e', // Зелений
+                showMark: true,
+                valueFormatter: (v: number | null) => v ? `${v.toLocaleString('uk-UA')} €` : '',
+              },
+            ]}
             xAxis={[
               {
-                id: 'x-axis-mileage',
+                id: 'x-axis',
                 scaleType: 'linear',
-                data: mileageXData, // ВИПРАВЛЕНО: X-координати для ліній передаються сюди!
-                position: 'bottom',
-                min: 20000,
-                max: 230000,
-                valueFormatter: (v: number) => v.toLocaleString('uk-UA'),
+                data: xData,
+                min: xMin,
+                max: xMax,
+                valueFormatter: (v: number) => `${v.toLocaleString('uk-UA')} км`,
               },
             ]}
             yAxis={[
               {
-                id: 'y-axis-price',
+                id: 'y-axis',
                 scaleType: 'linear',
-                min: 8000,
-                max: 22000,
-                position: 'left',
-                valueFormatter: (v: number) => v.toLocaleString('uk-UA'),
+                min: yMin,
+                max: yMax,
+                valueFormatter: (v: number) => `${v.toLocaleString('uk-UA')} €`,
               },
             ]}
-            margin={{ top: 20, right: 20, bottom: 40, left: 60 }}
+            margin={{ top: 20, right: 30, bottom: 40, left: 60 }}
+            sx={{
+              '& .MuiLineElement-series-avgPrices': { strokeWidth: 3 }, // Акцент на середній ціні
+            }}
           >
             <ChartsGrid horizontal vertical />
 
-            <ChartsReferenceLine
-              x={109401}
-              lineStyle={{
-                stroke: '#93c5fd',
-                strokeDasharray: '4 4',
-                strokeWidth: 2,
-              }}
-            />
-            <ChartsReferenceLine
-              y={11000}
-              lineStyle={{ stroke: '#ef4444', strokeWidth: 2 }}
-            />
+            {/* Референсні лінії для поточного авто, якщо воно є */}
+            {targetCar && targetCar.mileage > 0 && (
+              <ChartsReferenceLine
+                x={targetCar.mileage}
+                lineStyle={{
+                  stroke: '#ef4444',
+                  strokeDasharray: '4 4',
+                  strokeWidth: 2,
+                }}
+                label="Пробіг"
+              />
+            )}
+            {targetCar && targetCar.price > 0 && (
+              <ChartsReferenceLine
+                y={targetCar.price}
+                lineStyle={{ stroke: '#ef4444', strokeWidth: 2 }}
+                label="Ціна"
+              />
+            )}
 
             <LinePlot />
             <MarkPlot />
-            <ScatterPlot />
 
             <ChartsXAxis label="Пробіг, км" />
             <ChartsYAxis label="Ціна, €" />
@@ -194,18 +232,23 @@ export const GraphTrendMileage: React.FC = () => {
         </Box>
       </Box>
 
-      <div className="mt-4 text-sm text-gray-800 leading-relaxed">
-        <p>
-          Пробіг: <strong>109 401 км</strong> | Поточна ціна:{' '}
-          <strong>11 000 €</strong> | мінімальна, середня та максимальна ціна по
-          діапазонах пробігу. Червоні лінії — пробіг та ціна поточного авто,
-          точки перетину з кривими — орієнтири "дорого/дешево".
-        </p>
-        <p className="text-[--color-muted] mt-1">
-          Допомагає зрозуміти, в якому ціновому коридорі зазвичай продають авто
-          з таким пробігом, і чи є сенс опускати/піднімати ціну для кращого
-          попадання...
-        </p>
+      {/* Футер графіка */}
+      <div className="mt-4 text-sm text-gray-800 leading-relaxed p-3 bg-gray-50 rounded-md border border-gray-100">
+        <p className="font-medium mb-1">Як інтерпретувати цей графік:</p>
+        <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
+          {targetCar && (
+            <li>
+              Поточне авто: <strong>{targetCar.mileage.toLocaleString('uk-UA')} км</strong> за <strong>{targetCar.price.toLocaleString('uk-UA')} €</strong>.
+              Точка перетину червоних ліній показує його місце на ринку.
+            </li>
+          )}
+          <li>
+            Якщо точка перетину знаходиться ближче до <strong>зеленої лінії (Низу ринку)</strong> — це потенційно вигідна ціна.
+          </li>
+          <li>
+            Три лінії утворюють ринковий коридор. Звуження цього коридору в певних діапазонах пробігу свідчить про стабільність цін, а розширення — про сильний вплив комплектації або стану авто на ціну.
+          </li>
+        </ul>
       </div>
     </Paper>
   );

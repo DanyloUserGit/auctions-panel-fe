@@ -1,13 +1,29 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchCarAnalytics } from './api';
-import type { CarAnalytics } from './types';
+import { useState, useEffect } from 'react';
+import { fetchAnalyticsByVin } from './api';
 
-export const useData = (carId: number | null) => {
-  return useQuery<CarAnalytics, Error>({
-    queryKey: ['carAnalytics', carId],
-    queryFn: () => fetchCarAnalytics(carId!),
-    enabled: !!carId,
-    retry: false,
-    staleTime: 5 * 60 * 1000,
-  });
+export const useAnalyticsData = (vin: string | undefined, dbName: string) => {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!vin) return;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const marketData = await fetchAnalyticsByVin(vin, dbName);
+        setData(marketData);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Помилка завантаження даних');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [vin, dbName]);
+
+  return { data, isLoading, error };
 };
