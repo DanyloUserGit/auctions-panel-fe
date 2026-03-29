@@ -49,11 +49,11 @@ interface AnalyticsFiltersProps {
   availableAuctionTypes?: number[]; // Новий проп
 }
 
-const FilterLabel = ({ text }: { text: string }) => (
-  <Typography variant="caption" color="text.secondary" fontWeight="600" sx={{ mb: 0.5, display: 'block' }}>
-    {text}
-  </Typography>
-);
+// const FilterLabel = ({ text }: { text: string }) => (
+//   <Typography variant="caption" color="text.secondary" fontWeight="600" sx={{ mb: 0.5, display: 'block' }}>
+//     {text}
+//   </Typography>
+// );
 
 const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   searchQuery,
