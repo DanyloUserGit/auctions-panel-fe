@@ -45,7 +45,11 @@ export const WorkerEditModal = ({
 
   const GroupSearch = useAutoComplete<Group>({
     fetchFn: fetchGroupByQuery,
-    initialSelected: user.managedGroup ? [user.managedGroup] : [],
+    initialSelected: user.managedGroup
+      ? [user.managedGroup]
+      : user.auctionGroup
+        ? [user.auctionGroup]
+        : [],
   });
 
   const {
@@ -87,6 +91,19 @@ export const WorkerEditModal = ({
 
   useEffect(() => {
     if (open) {
+      // Спочатку встановлюємо групи у пошук
+      const groupsToSet = [];
+      if (user.managedGroup) {
+        groupsToSet.push(user.managedGroup);
+      }
+      if (user.auctionGroup) {
+        groupsToSet.push(user.auctionGroup);
+      }
+      if (groupsToSet.length > 0) {
+        GroupSearch.setOptions(groupsToSet);
+      }
+
+      // Потім скидаємо форму з урахуванням завантажених груп
       reset({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
@@ -98,12 +115,8 @@ export const WorkerEditModal = ({
         auctionGroupId: user.auctionGroupId || '',
         managedGroup: user.managedGroup?.id || '',
       });
-
-      if (user.managedGroup) {
-        GroupSearch.setOptions([user.managedGroup]);
-      }
     }
-  }, [user, open, reset]);
+  }, [user, open, reset, GroupSearch]);
 
   const onInvalid = (errors: FieldErrors<UpdateUser>) => {
     console.log('Dirty fields:', dirtyFields);
@@ -232,8 +245,7 @@ export const WorkerEditModal = ({
                 name="managedGroup"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const currentSelected =
-                    GroupSearch.options.find((g) => g.id === value) || null;
+                  const currentSelected = user.managedGroup || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(currentSelected)}
@@ -266,8 +278,7 @@ export const WorkerEditModal = ({
                 name="auctionGroupId"
                 control={control}
                 render={({ field: { onChange, value } }) => {
-                  const currentSelected =
-                    GroupSearch.options.find((g) => g.id === value) || null;
+                  const currentSelected = user.auctionGroup || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(currentSelected)}

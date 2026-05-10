@@ -68,11 +68,10 @@ export default function BalanceSheet() {
   const handlePrint = () => {
     window.print();
   };
-
   // Функція для повернення на сайт
   const handleReturnToSite = () => {
     // Вкажіть тут потрібний URL вашого сайту
-    window.location.href = '/';
+    navigate("/")
   };
 
   // 1. Отримуємо всі записи

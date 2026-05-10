@@ -1,213 +1,72 @@
-import { ArrowBack } from '@mui/icons-material';
+import { ExitToApp, Home, Close } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import throttle from 'lodash/throttle';
 import { useEffect, useRef, useState, type FC } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { socket } from '../../../shared/http';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Loader } from '../../../shared/ui/Loader';
 import { useAuth } from '../../auth/model/useAuth';
-import {
-  emitJoinAuction,
-  sendWebRTCIceCandidate,
-  sendWebRTCOffer,
-  subscribeToAuctionEvents,
-} from '../model/sockets';
 import { useSession } from '../model/store';
-import type { SessionConnectData } from '../model/types';
-import { useTabsStore } from '../model/useTabsStore';
+import { useConnectionStore } from '../model/useConnectionStore';
+import SessionMenu from './SessionMenu';
+import SessionsExitModal from './SessionsExitModal';
+import { LoaderSmall } from '../../../shared/ui/LoaderSmall';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  const hasJoined = useRef(false);
   const sessionConnect = useSession();
 
-  const { addTab, tabs } = useTabsStore();
+  // 1. Створюємо унікальний тимчасовий ключ тільки один раз при монтуванні
+  const [localTempId] = useState(() => `pending_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
 
+  // 2. Якщо sessionId є в URL - беремо його, якщо ні - використовуємо тимчасовий ключ
+  const isNewSession = !sessionId;
+  const activeConnectionKey = sessionId || localTempId;
+
+  const [isExitOpen, setIsExitOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const iceCandidatesQueue = useRef<RTCIceCandidateInit[]>([]);
-  const dataChannelRef = useRef<RTCDataChannel | null>(null);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { connections, connectToSession, sendInteraction, disconnectFromSession } = useConnectionStore();
+  const currentConnection = connections[activeConnectionKey];
 
   useEffect(() => {
     if (!user?.id) return;
 
-    if (!sessionId && !sessionConnect.auctionId) {
-      console.warn('Немає даних для підключення чи створення сесії.');
+    if (isNewSession && !sessionConnect.auctionId) {
+      console.warn('Немає даних для створення сесії.');
       navigate('/');
       return;
     }
 
-    if (sessionId && !tabs.find((item) => item.id == sessionId)) {
-      addTab({
-        id: sessionId,
-        key: (tabs.length + 1).toString(),
-        title: `Вкладка ${tabs.length + 1}`,
-      });
-    }
-
-    const payload = sessionId
-      ? { ...sessionConnect, sessionId, userId: user.id }
-      : { ...sessionConnect, userId: user.id };
-
-    const safeJoinAuction = (payload: SessionConnectData) => {
-      if (!hasJoined.current) {
-        hasJoined.current = true;
-        emitJoinAuction(payload);
+    // Відправляємо активний ключ. Якщо це нова сесія, стор відправить колбек з реальним ID
+    connectToSession(
+      activeConnectionKey,
+      user.id,
+      sessionConnect,
+      isNewSession,
+      (realSessionId) => {
+        // Як тільки бекенд повернув реальний ID, непомітно оновлюємо URL
+        navigate(`/session/${realSessionId}`, { replace: true });
       }
-    };
+    );
 
-    const unsubscribeSockets = subscribeToAuctionEvents({
-      onConnect: () => {
-        safeJoinAuction(payload);
-      },
+  }, [user?.id, activeConnectionKey, sessionConnect, isNewSession, connectToSession, navigate]);
 
-      onSessionReady: async (data) => {
-        if (!sessionId && data.sessionId) {
-          window.history.replaceState(null, '', `/session/${data.sessionId}`);
-        }
-
-        const pc = new RTCPeerConnection({
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  useEffect(() => {
+    if (videoRef.current && currentConnection?.stream) {
+      if (videoRef.current.srcObject !== currentConnection.stream) {
+        videoRef.current.srcObject = currentConnection.stream;
+        videoRef.current.play().catch((err) => {
+          console.warn('Автоплей заблоковано браузером:', err);
         });
-        peerConnectionRef.current = pc;
-
-        pc.oniceconnectionstatechange = () => {
-          console.log('📍 ICE стан:', pc.iceConnectionState);
-        };
-
-        pc.addTransceiver('video', { direction: 'recvonly' });
-
-        const dataChannel = pc.createDataChannel('interact');
-        dataChannelRef.current = dataChannel;
-
-        pc.onicecandidate = (event) => {
-          if (event.candidate) {
-            sendWebRTCIceCandidate(data.sessionId, event.candidate);
-          }
-        };
-
-        pc.ontrack = (event) => {
-          const track = event.track;
-          console.log('✅ Отримано трек:', track.kind);
-
-          if (videoRef.current) {
-            videoRef.current.srcObject =
-              event.streams && event.streams[0]
-                ? event.streams[0]
-                : new MediaStream([track]);
-          }
-
-          track.onunmute = () => {
-            setIsLoading(false);
-
-            if (videoRef.current) {
-              videoRef.current.play().catch((err) => {
-                console.warn('Автоплей заблоковано браузером:', err);
-              });
-            }
-          };
-        };
-
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        sendWebRTCOffer(
-          user.id,
-          data.sessionId,
-          offer,
-          sessionConnect.width,
-          sessionConnect.height,
-        );
-      },
-
-      onSignalFromWorker: async (signalData) => {
-        const pc = peerConnectionRef.current;
-        if (!pc) return;
-
-        // ДИНАМІЧНЕ ВИЗНАЧЕННЯ IP (Локально чи VPS)
-        const isLocalhost =
-          window.location.hostname === 'localhost' ||
-          window.location.hostname === '127.0.0.1';
-
-        // Вставте сюди публічний IP вашого Ubuntu сервера замість 198.51.100.25 !!!
-        // Або використовуйте .env змінну, якщо вона налаштована (наприклад VITE_VPS_IP)
-
-        const fallbackVpsIp = '155.117.43.95';
-
-        const TARGET_IP = isLocalhost ? '127.0.0.1' : fallbackVpsIp;
-
-        try {
-          if (signalData.type === 'answer') {
-            let sdp = (signalData as RTCSessionDescriptionInit).sdp;
-            if (sdp) {
-              sdp = sdp.replace(/(172|192|10)\.\d+\.\d+\.\d+/g, TARGET_IP);
-            }
-            const patchedAnswer = { type: 'answer' as RTCSdpType, sdp };
-
-            await pc.setRemoteDescription(
-              new RTCSessionDescription(patchedAnswer),
-            );
-            console.log(
-              `✅ Remote Description встановлено (Підключення до: ${TARGET_IP})`,
-            );
-
-            while (iceCandidatesQueue.current.length > 0) {
-              const candidate = iceCandidatesQueue.current.shift();
-              if (candidate)
-                await pc.addIceCandidate(new RTCIceCandidate(candidate));
-            }
-          } else if (
-            signalData.type === 'candidate' &&
-            'candidate' in signalData
-          ) {
-            const candidateInit = { ...signalData.candidate };
-            if (candidateInit.candidate) {
-              candidateInit.candidate = candidateInit.candidate.replace(
-                /(172|192|10)\.\d+\.\d+\.\d+/g,
-                TARGET_IP,
-              );
-            }
-
-            if (pc.remoteDescription) {
-              await pc.addIceCandidate(new RTCIceCandidate(candidateInit));
-            } else {
-              iceCandidatesQueue.current.push(candidateInit);
-            }
-          }
-        } catch (e) {
-          console.error('❌ Помилка WebRTC сигналу:', e);
-        }
-      },
-
-      onError: (err) => {
-        console.log(`Помилка: ${err.message}`);
-      },
-    });
-
-    if (socket.connected) {
-      safeJoinAuction(payload);
+      }
     }
+  }, [currentConnection?.stream]);
 
-    return () => {
-      unsubscribeSockets();
-      if (peerConnectionRef.current) {
-        peerConnectionRef.current.close();
-        peerConnectionRef.current = null;
-      }
-
-      if (socket.connected && sessionId) {
-        socket.emit('leave_auction', { sessionId });
-      }
-    };
-  }, [user?.id, sessionId, sessionConnect, navigate]);
-
-  const sendInteraction = (action: object) => {
-    if (dataChannelRef.current?.readyState === 'open') {
-      dataChannelRef.current.send(JSON.stringify(action));
+  const interact = (action: object) => {
+    if (activeConnectionKey) {
+      sendInteraction(activeConnectionKey, action);
     }
   };
 
@@ -219,60 +78,65 @@ export const SessionContainer: FC = () => {
       y: (e.clientY - rect.top) / rect.height,
     };
   };
-  const throttledMouseMoveRef = useRef<ReturnType<typeof throttle> | null>(
-    null,
-  );
+
+  const throttledMouseMoveRef = useRef<ReturnType<typeof throttle> | null>(null);
+  const throttledWheelRef = useRef<ReturnType<typeof throttle> | null>(null);
 
   useEffect(() => {
-    throttledMouseMoveRef.current = throttle(
-      (coords: { x: number; y: number }) => {
-        if (dataChannelRef.current?.readyState === 'open') {
-          dataChannelRef.current.send(
-            JSON.stringify({ type: 'mousemove', ...coords }),
-          );
-        }
-      },
-      50,
-    );
+    throttledMouseMoveRef.current = throttle((coords: { x: number; y: number }) => {
+      interact({ type: 'mousemove', ...coords });
+    }, 50);
+
+    throttledWheelRef.current = throttle((delta: { deltaX: number; deltaY: number }) => {
+      interact({ type: 'wheel', ...delta });
+    }, 50);
 
     return () => {
       throttledMouseMoveRef.current?.cancel();
+      throttledWheelRef.current?.cancel();
     };
-  }, []);
+  }, [activeConnectionKey]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLVideoElement>) => {
     throttledMouseMoveRef.current?.(getCoordinates(e));
   };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLVideoElement>) => {
+    interact({ type: 'mouseup', ...getCoordinates(e), button: 0 });
+  };
+
   const handleMouseDown = (e: React.MouseEvent<HTMLVideoElement>) => {
-    sendInteraction({
-      type: 'mousedown',
-      ...getCoordinates(e),
-      button: e.button,
-    });
+    interact({ type: 'mousedown', ...getCoordinates(e), button: e.button });
     videoRef.current?.focus();
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLVideoElement>) => {
-    sendInteraction({
-      type: 'mouseup',
-      ...getCoordinates(e),
-      button: e.button,
-    });
+    interact({ type: 'mouseup', ...getCoordinates(e), button: e.button });
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLVideoElement>) => {
-    sendInteraction({ type: 'wheel', deltaX: e.deltaX, deltaY: e.deltaY });
+    throttledWheelRef.current?.({ deltaX: e.deltaX, deltaY: e.deltaY });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault();
-    sendInteraction({ type: 'keydown', key: e.key });
+    interact({ type: 'keydown', key: e.key });
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault();
-    sendInteraction({ type: 'keyup', key: e.key });
+    interact({ type: 'keyup', key: e.key });
   };
+
+  const disconnectAndExit = () => {
+    Object.keys(connections).map((connectionKey) => {
+      disconnectFromSession(connectionKey);
+    });
+    navigate('/');
+  };
+
+  const isLoading = currentConnection ? currentConnection.isLoading : true;
+
   return (
     <div
       className="relative w-full h-full bg-transparent min-h-screen outline-none"
@@ -280,27 +144,116 @@ export const SessionContainer: FC = () => {
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
-      {isLoading && <Loader />}
-      <div className="fixed">
+
+      <SessionMenu>
+        <div>
+          <IconButton
+            onClick={() => setIsExitOpen(true)}
+            sx={{
+              color: 'red',
+              backgroundColor: 'white',
+              padding: '5px',
+              background: 'none',
+              transform: 'rotate(180deg)',
+              ':hover': { background: 'none' },
+            }}
+          >
+            <ExitToApp sx={{ width: '20px' }} />
+          </IconButton>
+        </div>
+
+        {/* --- БЛОК З ВКЛАДКАМИ СЕСІЙ --- */}
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto px-4 mx-2">
+          {Object.keys(connections).map((connectionKey, index) => {
+            const isActive = connectionKey === activeConnectionKey;
+            const isPending = connectionKey.startsWith('pending_');
+
+            // Формуємо назву вкладки (можете замінити на назву аукціону, якщо вона є в сторі)
+            const tabLabel = isPending
+              ? 'Підключення...'
+              : `Вкладка ${index + 1}`; // Показуємо перші 4 символи ID
+
+            return (
+              <div
+                key={connectionKey}
+                // Клік по самій вкладці перемикає на цю сесію
+                onClick={() => {
+                  if (!isPending && !isActive) {
+                    navigate(`/session/${connectionKey}`);
+                  }
+                }}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md cursor-pointer transition-colors border select-none ${isActive
+                  ? 'bg-blue-500 text-white border-blue-500 shadow-md'
+                  : 'bg-white/80 text-gray-700 border-gray-300 hover:bg-white'
+                  }`}
+              >
+                <span className="text-sm font-medium whitespace-nowrap p-2">
+                  {tabLabel}
+                </span>
+
+                {/* Кнопка закриття конкретної сесії */}
+                <div
+                  className={`flex items-center justify-center rounded-full p-0.5 transition-colors ${isActive ? 'hover:bg-blue-600' : 'hover:bg-gray-200'
+                    }`}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Зупиняємо клік, щоб не спрацював onClick вкладки
+                    disconnectFromSession(connectionKey); // Вбиваємо WebRTC з'єднання
+
+                    // Якщо ми закрили ту вкладку, на якій зараз знаходимось - йдемо на головну
+                    if (isActive) {
+                      navigate('/');
+                    }
+                  }}
+                >
+                  <Close sx={{ width: '16px', height: '16px' }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* --- КІНЕЦЬ БЛОКУ З ВКЛАДКАМИ --- */}
+
         <IconButton
-          onClick={() => navigate(-1)}
-          sx={{ color: 'text.secondary', backgroundColor: 'white' }}
+          component={Link} to="/"
+          sx={{
+            color: 'text.secondary',
+            backgroundColor: 'white',
+            padding: '5px',
+            background: 'none',
+            ':hover': { background: 'none' },
+          }}
         >
-          <ArrowBack />
+          <Home sx={{ width: '20px' }} />
         </IconButton>
-      </div>
+      </SessionMenu>
+      {isLoading && <LoaderSmall />}
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
         controls={false}
+        disablePictureInPicture
+        disableRemotePlayback
+        onContextMenu={(e) => e.preventDefault()}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
         onWheel={handleWheel}
-        className={`w-full h-full object-contain ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`w-full h-full object-contain select-none touch-none ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        style={{
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+        }}
       />
+      {isExitOpen && (
+        <SessionsExitModal
+          isModalOpen={isExitOpen}
+          handleExit={disconnectAndExit}
+          handleClose={() => setIsExitOpen(false)}
+        />
+      )}
     </div>
   );
 };
