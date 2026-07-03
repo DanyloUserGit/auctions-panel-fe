@@ -10,9 +10,9 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Loader } from '../shared/ui/Loader';
 import { useNotifications } from '../features/notifications/model/useNotifications';
 import NotificationItem from '../features/notifications/ui/NotificationItem';
+import { Loader } from '../shared/ui/Loader';
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ export default function NotificationsPage() {
     isLoading,
     isFetching,
   } = useNotifications(page.toString(), limit);
+
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -34,6 +35,10 @@ export default function NotificationsPage() {
 
   const notifications = response?.data || [];
   const isEmpty = notifications.length === 0;
+
+  const totalPages = response?.total
+    ? Math.ceil(response.total / Number(limit))
+    : 0;
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
@@ -78,10 +83,10 @@ export default function NotificationsPage() {
         )}
       </Paper>
 
-      {response && response.total > 1 && (
+      {totalPages > 1 && (
         <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
           <Pagination
-            count={response.page}
+            count={totalPages}
             page={page}
             onChange={handlePageChange}
             color="primary"

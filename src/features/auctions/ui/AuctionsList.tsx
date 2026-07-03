@@ -58,14 +58,21 @@ export default function AuctionsList({
                 textAlign: 'center',
               }}
             >
-              <Gavel sx={{ fontSize: 48, mb: 2 }} />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Аукціонів не знайдено
-              </Typography>
-              <Typography variant="body2">
-                У цій групі ще не створено жодного аукціону або вони не
-                відповідають фільтру
-              </Typography>
+              <>
+                {currentGroupId ?
+                  <>
+                    <Gavel sx={{ fontSize: 48, mb: 2 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Аукціонів не знайдено
+                    </Typography>
+                    <Typography variant="body2">
+                      У цій групі ще не створено жодного аукціону або вони не
+                      відповідають фільтру
+                    </Typography>
+                  </>
+                  : <></>
+                }
+              </>
             </Box>
           </Grid>
         </Can>

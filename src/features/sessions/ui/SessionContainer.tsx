@@ -1,15 +1,14 @@
-import { ExitToApp, Home, Close } from '@mui/icons-material';
+import { Close, ExitToApp, Home } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import throttle from 'lodash/throttle';
 import { useEffect, useRef, useState, type FC } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Loader } from '../../../shared/ui/Loader';
+import { LoaderSmall } from '../../../shared/ui/LoaderSmall';
 import { useAuth } from '../../auth/model/useAuth';
 import { useSession } from '../model/store';
 import { useConnectionStore } from '../model/useConnectionStore';
 import SessionMenu from './SessionMenu';
 import SessionsExitModal from './SessionsExitModal';
-import { LoaderSmall } from '../../../shared/ui/LoaderSmall';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();

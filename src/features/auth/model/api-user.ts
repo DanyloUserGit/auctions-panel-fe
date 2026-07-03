@@ -29,18 +29,20 @@ export const refreshUser = async (): Promise<boolean> => {
 };
 interface fetchUsersByQueryResponce {
   data: User[];
-  meta: { total: number; page: number; lastPage: number };
+  meta: { total: number; page: number; lastPage: number, role?: string };
 }
 export const fetchUsersByQuery = async (
   query: string,
   page: number = 1,
   limit: number = 10,
+  role?: string
 ): Promise<fetchUsersByQueryResponce> => {
   const response = await api.get(`/users/search/`, {
     params: {
       query,
       page,
       limit,
+      role,
     },
   });
   return response.data;

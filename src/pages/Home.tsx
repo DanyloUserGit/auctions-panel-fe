@@ -1,58 +1,23 @@
-import { Box } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from '../shared/ui/Sidebar';
-import { useEffect, useRef } from 'react';
+import { Box } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../features/auth/model/useAuth';
+import { useNotificationToast } from '../features/notifications/model/useNotificationToast';
+import { Notification } from '../features/notifications/ui/Notification';
 import {
   connectNotificationSocket,
   disconnectNotificationSocket,
   subscribeToGlobalNotifications,
 } from '../features/sessions/model/sockets';
-import { useQueryClient } from '@tanstack/react-query';
-import { useNotificationToast } from '../features/notifications/model/useNotificationToast';
-import { Notification } from '../features/notifications/ui/Notification';
-import { useAuth } from '../features/auth/model/useAuth';
 import { useConnectionStore } from '../features/sessions/model/useConnectionStore';
-
-const RESTORE_KEY = 'active_auction_sessions';
-
-export const saveSessionToStorage = (sessionData: any) => {
-  const existing = JSON.parse(localStorage.getItem(RESTORE_KEY) || '[]');
-  const isExists = existing.some((s: any) => s.sessionId === sessionData.sessionId);
-  if (!isExists) {
-    localStorage.setItem(RESTORE_KEY, JSON.stringify([...existing, sessionData]));
-  }
-};
-
-export const removeSessionFromStorage = (sessionId: string) => {
-  const existing = JSON.parse(localStorage.getItem(RESTORE_KEY) || '[]');
-  localStorage.setItem(RESTORE_KEY, JSON.stringify(existing.filter((s: any) => s.sessionId !== sessionId)));
-};
-
-// 2. У твоєму головному компоненті відновлюємо сесії:
-export const useRestoreSessions = (userId?: string) => {
-  const { connectToSession } = useConnectionStore();
-
-  useEffect(() => {
-    if (!userId) return; // Чекаємо на завантаження профілю юзера
-
-    const savedSessions = JSON.parse(localStorage.getItem(RESTORE_KEY) || '[]');
-
-    savedSessions.forEach((sessionInfo: any) => {
-      connectToSession(
-        sessionInfo.sessionId,
-        userId,
-        { auctionId: sessionInfo.auctionId, auctionAuthId: sessionInfo.auctionAuthId, width: 1920, height: 1080 },
-        false
-      );
-    });
-  }, [userId]);
-}
+import { useRestoreSessions } from '../features/sessions/model/useRestoreSessions';
+import Sidebar from '../shared/ui/Sidebar';
 
 export default function Home() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const location = useLocation();
   const { showNotification, isOpen, closeNotification, message } = useNotificationToast();
 
   const { user } = useAuth();
@@ -82,10 +47,9 @@ export default function Home() {
     };
   }, [showNotification, queryClient, userId]);
 
-
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar />
+      {user && <Sidebar user={user} />}
       <Box
         component="main"
         sx={{
@@ -116,7 +80,7 @@ export default function Home() {
               Фонові трансляції:
             </Box>
 
-            {Object.entries(connections).map(([connectionKey, conn], index) => {
+            {Object.entries(connections).map(([connectionKey, _], index) => {
               const isPending = connectionKey.startsWith('pending_');
               const tabLabel = isPending ? 'Підключення...' : `Сесія ${index + 1}`;
 
@@ -163,10 +127,6 @@ export default function Home() {
                     </Box>
                   </Box>
 
-                  {/* Рендеримо приховане відео ТІЛЬКИ якщо потік існує і ми НЕ дивимось цю сесію зараз */}
-                  {/* {conn.stream && !isCurrentlyViewing && (
-                    <HiddenVideo stream={conn.stream} />
-                  )} */}
                 </Box>
               );
             })}

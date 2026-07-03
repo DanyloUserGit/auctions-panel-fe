@@ -1,9 +1,16 @@
+import type { Role } from "../../auth/model/types";
+
 export type NotificationChannel = 'InApp' | 'Email';
 
 export interface NotificationTypeInfo {
   id: string;
   name: string;
   description: string;
+  roles: Role[];
+  setting?: {
+    min: number;
+    max: number;
+  }
 }
 
 export interface NotificationSetting {

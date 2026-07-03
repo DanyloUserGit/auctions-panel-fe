@@ -26,6 +26,7 @@ interface ConnectionStore {
         onRealIdReceived?: (realId: string) => void
     ) => void;
     disconnectFromSession: (sessionId: string) => void;
+    disconnectAll: () => void;
     sendInteraction: (sessionId: string, action: object) => void;
 }
 
@@ -97,19 +98,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
 
                     const oldKey = currentStoreKey;
                     currentStoreKey = realSessionId;
-
-                    // --- ДОДАЄМО ЗБЕРЕЖЕННЯ В LOCALSTORAGE ---
-                    const RESTORE_KEY = 'active_auction_sessions';
-                    const existing = JSON.parse(localStorage.getItem(RESTORE_KEY) || '[]');
-                    const isExists = existing.some((s: any) => s.sessionId === realSessionId);
-                    if (!isExists) {
-                        localStorage.setItem(RESTORE_KEY, JSON.stringify([...existing, {
-                            sessionId: realSessionId,
-                            auctionId: sessionConnect.auctionId,
-                            auctionAuthId: sessionConnect.auctionAuthId
-                        }]));
-                    }
-                    // ------------------------------------------
 
                     set((state) => {
                         const newConnections = { ...state.connections };
@@ -278,16 +266,34 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
             socket.emit('leave_auction', { sessionId });
         }
 
-        const RESTORE_KEY = 'active_auction_sessions';
-        const existing = JSON.parse(localStorage.getItem(RESTORE_KEY) || '[]');
-        localStorage.setItem(RESTORE_KEY, JSON.stringify(existing.filter((s: any) => s.sessionId !== sessionId)));
-        // --------------------------------------
-
         set((state) => {
             const newConnections = { ...state.connections };
             delete newConnections[sessionId];
             return { connections: newConnections };
         });
+    },
+
+    disconnectAll: () => {
+        const allConnections = get().connections;
+
+        Object.entries(allConnections).forEach(([sessionId, connection]) => {
+            if (connection.unsubscribeSockets) connection.unsubscribeSockets();
+            if (connection.stream) connection.stream.getTracks().forEach((track) => track.stop());
+            if (connection.dataChannel) connection.dataChannel.close();
+            if (connection.peerConnection) {
+                connection.peerConnection.getReceivers().forEach((receiver) => {
+                    if (receiver.track) receiver.track.stop();
+                });
+                connection.peerConnection.close();
+            }
+
+            // Не шлемо pending_ ключі на бекенд — це ще не реальний sessionId
+            if (socket.connected && !sessionId.startsWith('pending_')) {
+                socket.emit('leave_auction', { sessionId });
+            }
+        });
+
+        set({ connections: {} });
     },
 
     sendInteraction: (sessionId, action) => {

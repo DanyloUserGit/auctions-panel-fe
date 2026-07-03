@@ -26,7 +26,7 @@ export default function SettingsPage() {
         label: 'Загальне',
         icon: <Public />,
         component: <GlobalSettings />,
-        roles: ['User', 'SuperAdmin'],
+        roles: ['SuperAdmin'],
       },
       {
         label: 'Профіль та Безпека',
@@ -38,7 +38,7 @@ export default function SettingsPage() {
         label: 'Сповіщення',
         icon: <Notifications />,
         component: <NotificationsSettings />,
-        roles: ['User', 'Admin', 'SuperAdmin'],
+        roles: ['Admin', 'SuperAdmin'],
       },
       {
         label: 'Налаштування групи',

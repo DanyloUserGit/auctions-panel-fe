@@ -5,6 +5,7 @@ import {
   Security,
 } from '@mui/icons-material';
 import {
+  Box,
   Checkbox,
   Chip,
   Paper,
@@ -15,6 +16,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -28,11 +30,13 @@ interface Props {
     id: string,
     field: 'isEnabled' | NotificationChannel | 'isMandatory',
   ) => void;
+  handleValueChange: (id: string, value: number) => void;
 }
 
-export default function NotificationsTable({ settings, handleToggle }: Props) {
+export default function NotificationsTable({ settings, handleToggle, handleValueChange }: Props) {
   const { user } = useAuth();
-  const isAdmin = user?.role == 'Admin' || user?.role == 'SuperAdmin';
+  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+
   return (
     <TableContainer
       component={Paper}
@@ -46,8 +50,7 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
               Тип сповіщення
             </TableCell>
 
-            {/* Колонки каналів */}
-            <TableCell align="center" sx={{ fontWeight: 700 }}>
+            <TableCell align="center" sx={{ fontWeight: 700, width: 80 }}>
               <Tooltip title="Внутрішні сповіщення">
                 <Language fontSize="small" />
               </Tooltip>
@@ -56,7 +59,7 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
               </Typography>
             </TableCell>
 
-            <TableCell align="center" sx={{ fontWeight: 700 }}>
+            <TableCell align="center" sx={{ fontWeight: 700, width: 80 }}>
               <Tooltip title="Електронна пошта">
                 <Email fontSize="small" />
               </Tooltip>
@@ -65,8 +68,7 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
               </Typography>
             </TableCell>
 
-            {/* Статус активності */}
-            <TableCell align="center" sx={{ fontWeight: 700 }}>
+            <TableCell align="center" sx={{ fontWeight: 700, width: 80 }}>
               <Tooltip title="Загальний статус">
                 <PowerSettingsNew fontSize="small" />
               </Tooltip>
@@ -75,11 +77,10 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
               </Typography>
             </TableCell>
 
-            {/* Обов'язковість (Тільки для адмінів) */}
             <Can roles={['Admin', 'SuperAdmin']}>
               <TableCell
                 align="center"
-                sx={{ fontWeight: 700, color: 'primary.main' }}
+                sx={{ fontWeight: 700, color: 'primary.main', width: 80 }}
               >
                 <Tooltip title="Адмін-налаштування">
                   <Security fontSize="small" />
@@ -95,6 +96,7 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
         <TableBody>
           {settings.map((row) => {
             const isRowDisabled = row.isMandatory && !isAdmin;
+            const notificationSetting = row.notificationType?.setting;
 
             return (
               <TableRow key={row.id} hover>
@@ -103,6 +105,7 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
                     {row?.notificationType?.description ||
                       row?.notificationType?.name}
                   </Typography>
+
                   {row.isMandatory && (
                     <Chip
                       label="Обов'язкове"
@@ -112,9 +115,28 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
                       sx={{ mt: 0.5, height: 18, fontSize: '10px' }}
                     />
                   )}
+
+                  {notificationSetting && (
+                    <Box sx={{ mt: 1.5 }}>
+                      <TextField
+                        size="small"
+                        type="number"
+                        label="Значення"
+                        disabled={isRowDisabled}
+                        defaultValue={row.value ?? notificationSetting.min}
+                        onBlur={(e) => handleValueChange(row.id, Number(e.target.value))}
+                        inputProps={{
+                          min: notificationSetting.min,
+                          max: notificationSetting.max,
+                        }}
+                        sx={{ width: 120 }}
+                        helperText={`Від ${notificationSetting.min} до ${notificationSetting.max}`}
+                        FormHelperTextProps={{ sx: { mx: 0 } }}
+                      />
+                    </Box>
+                  )}
                 </TableCell>
 
-                {/* Канал In-App */}
                 <TableCell align="center">
                   <Checkbox
                     size="small"
@@ -124,7 +146,6 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
                   />
                 </TableCell>
 
-                {/* Канал Email */}
                 <TableCell align="center">
                   <Checkbox
                     size="small"
@@ -134,7 +155,6 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
                   />
                 </TableCell>
 
-                {/* Загальний перемикач isEnabled */}
                 <TableCell align="center">
                   <Switch
                     size="small"
@@ -144,7 +164,6 @@ export default function NotificationsTable({ settings, handleToggle }: Props) {
                   />
                 </TableCell>
 
-                {/* Керування Mandatory (Тільки для SA/Admin) */}
                 <Can roles={['Admin', 'SuperAdmin']}>
                   <TableCell align="center">
                     <Checkbox

@@ -2,7 +2,7 @@ import { debounce } from '@mui/material';
 import { useCallback, useMemo, useState } from 'react';
 
 interface UseAutocompleteProps<T> {
-  fetchFn: (query: string) => Promise<T[] | { data: T[] }>; // Підтримка різних форматів API
+  fetchFn: (query: string) => Promise<T[] | { data: T[] }>; 
   initialSelected?: T | T[];
   debounceTime?: number;
 }

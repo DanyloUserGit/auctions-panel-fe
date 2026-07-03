@@ -9,10 +9,8 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
-  TextField,
-  Typography,
+  TextField
 } from '@mui/material';
 import { useEffect } from 'react';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
@@ -27,6 +25,7 @@ import {
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
+import { RIGHTS, RIGHTS_LABELS } from '../model/types';
 
 interface CreateUserModalProps {
   open: boolean;
@@ -91,7 +90,6 @@ export const WorkerEditModal = ({
 
   useEffect(() => {
     if (open) {
-      // Спочатку встановлюємо групи у пошук
       const groupsToSet = [];
       if (user.managedGroup) {
         groupsToSet.push(user.managedGroup);
@@ -103,7 +101,6 @@ export const WorkerEditModal = ({
         GroupSearch.setOptions(groupsToSet);
       }
 
-      // Потім скидаємо форму з урахуванням завантажених груп
       reset({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
@@ -116,7 +113,9 @@ export const WorkerEditModal = ({
         managedGroup: user.managedGroup?.id || '',
       });
     }
-  }, [user, open, reset, GroupSearch]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, open, reset]);
 
   const onInvalid = (errors: FieldErrors<UpdateUser>) => {
     console.log('Dirty fields:', dirtyFields);
@@ -244,7 +243,7 @@ export const WorkerEditModal = ({
               <Controller
                 name="managedGroup"
                 control={control}
-                render={({ field: { onChange, value } }) => {
+                render={({ field: { onChange } }) => {
                   const currentSelected = user.managedGroup || null;
                   return (
                     <Autocomplete
@@ -277,7 +276,7 @@ export const WorkerEditModal = ({
               <Controller
                 name="auctionGroupId"
                 control={control}
-                render={({ field: { onChange, value } }) => {
+                render={({ field: { onChange } }) => {
                   const currentSelected = user.auctionGroup || null;
                   return (
                     <Autocomplete
@@ -305,22 +304,26 @@ export const WorkerEditModal = ({
             </Grid>
           )}
 
-          {/* 7. Інфо блок */}
           <Grid size={12}>
-            <Paper
-              variant="outlined"
-              sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
-            >
-              <Typography variant="caption" color="text.secondary">
-                Права доступу:
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 700, color: 'primary.main' }}
-              >
-                Тільки перегляд (Read Only)
-              </Typography>
-            </Paper>
+            <FormControl fullWidth error={!!errors.rights}>
+              <InputLabel>Права доступу</InputLabel>
+              <Controller
+                name="rights"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} label="Права доступу">
+                    {RIGHTS.map((right) => (
+                      <MenuItem key={right} value={right}>
+                        {RIGHTS_LABELS[right]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.rights && (
+                <FormHelperText>{errors.rights.message}</FormHelperText>
+              )}
+            </FormControl>
           </Grid>
 
           {/* 8. Кнопка */}

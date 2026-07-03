@@ -50,7 +50,6 @@ export default function NotificationsSettings() {
           },
         },
       );
-
       return;
     }
 
@@ -70,6 +69,28 @@ export default function NotificationsSettings() {
         typeId: updatedItem.notificationTypeId,
         isEnabled: updatedItem.isEnabled,
         channels: updatedItem.channels,
+        value: updatedItem.value,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['notifications_settings'],
+          });
+        },
+      },
+    );
+  };
+
+  const handleValueChange = (id: string, newValue: number) => {
+    const currentItem = settings.find((s) => s.id === id);
+    if (!currentItem || currentItem.value === newValue) return;
+
+    updateGeneral(
+      {
+        typeId: currentItem.notificationTypeId,
+        isEnabled: currentItem.isEnabled,
+        channels: currentItem.channels,
+        value: newValue,
       },
       {
         onSuccess: () => {
@@ -128,7 +149,11 @@ export default function NotificationsSettings() {
         </Paper>
       </Can>
 
-      <NotificationsTable settings={settings} handleToggle={handleToggle} />
+      <NotificationsTable
+        settings={settings}
+        handleToggle={handleToggle}
+        handleValueChange={handleValueChange}
+      />
     </Box>
   );
 }
