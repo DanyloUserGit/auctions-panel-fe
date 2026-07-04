@@ -18,7 +18,7 @@ import {
 import { AppBar, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import type { UserRole } from '../../features/auth/model/user-schema';
+import { type User, type UserRole } from '../../features/auth/model/user-schema';
 import { useMobile } from '../hooks/useMobile';
 import DrawerContent from './DrawerContent';
 
@@ -28,14 +28,14 @@ export interface MenuItem {
   text: string;
   icon: React.ReactNode;
   path: string;
-  roles: UserRole[]; // Тут TS буде суворим
+  roles: UserRole[];
 }
 
 export interface MenuGroup {
   group: string;
   items: MenuItem[];
 }
-export default function Sidebar() {
+export default function Sidebar({ user }: { user: User }) {
   const isMobile = useMobile();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -93,7 +93,7 @@ export default function Sidebar() {
           text: 'Аналітика',
           icon: <Insights />,
           path: '/analytics',
-          roles: ['Admin', 'SuperAdmin', 'User'],
+          roles: ['SuperAdmin'],
         },
       ],
     },
@@ -167,10 +167,11 @@ export default function Sidebar() {
       ],
     },
   ];
-
+  if (user.role === 'Admin' && !user.managedGroup) {
+    menuItems[menuItems.length - 1].items.pop();
+  }
   return (
     <>
-      {/* Мобільна шапка */}
       {isMobile && (
         <AppBar
           position="fixed"

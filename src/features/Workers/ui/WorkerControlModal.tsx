@@ -136,7 +136,7 @@ export const WorkerControlModal = ({
                         sx={{ color: 'text.secondary' }}
                       >
                         <strong>Група аукціонів:</strong>{' '}
-                        {data.profile.auctionGroup || 'Немає'}
+                        {data.profile.auctionGroup?.title || 'Немає'}
                       </Typography>
                     </Stack>
                   )}
@@ -152,7 +152,7 @@ export const WorkerControlModal = ({
                         sx={{ color: 'text.secondary' }}
                       >
                         <strong>Адмін групи:</strong>{' '}
-                        {data.profile.managedGroup || 'Не призначено'}
+                        {data.profile.managedGroup?.title || 'Не призначено'}
                       </Typography>
                     </Stack>
                   )}

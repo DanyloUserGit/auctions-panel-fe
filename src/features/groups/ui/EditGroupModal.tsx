@@ -5,7 +5,7 @@ import {
   CircularProgress,
   TextField,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
@@ -37,17 +37,27 @@ export default function EditGroupModal({
   const [Admin, setAdmin] = useState<User | null>(null);
   const [addedWorkers, setAddedWorkers] = useState<User[]>([]);
 
-  // Ініціалізація хуків
+  const fetchAdminsByQuery = useCallback(
+    (query: string) => fetchUsersByQuery(query, 1, 10, 'Admin'),
+    [],
+  );
+
+  const fetchWorkersByQuery = useCallback(
+    (query: string) => fetchUsersByQuery(query, 1, 10, 'User'),
+    [],
+  );
+
+
   const auctionsSearch = useAutoComplete<Auction>({
     fetchFn: fetchAuctionsByQuery,
   });
 
   const AdminSearch = useAutoComplete<User>({
-    fetchFn: fetchUsersByQuery,
+    fetchFn: fetchAdminsByQuery,
   });
 
   const workersSearch = useAutoComplete<User>({
-    fetchFn: fetchUsersByQuery,
+    fetchFn: fetchWorkersByQuery,
   });
 
   useEffect(() => {

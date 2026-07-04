@@ -1,10 +1,10 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 
-// export const socket = io('https://auctions-be.duckdns.org');
-// export const baseUrl = `https://auctions-be.duckdns.org/api`;
+// export const socket = io('https://api.panel.caddyluck.com.ua');
+// export const baseUrl = `https://api.panel.caddyluck.com.ua/api`;
 // export const notificationSocket = io(
-//   'https://auctions-be.duckdns.org/notifications',
+//   'https://api.panel.caddyluck.com.ua/notifications',
 //   {
 //     autoConnect: false,
 //   },

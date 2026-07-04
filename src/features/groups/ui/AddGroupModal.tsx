@@ -5,7 +5,7 @@ import {
   CircularProgress,
   TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
@@ -30,18 +30,32 @@ export default function AddGroupModal({
   const [addedAuctions, setAddedAuctions] = useState<Auction[]>([]);
   const [Admin, setAdmin] = useState<User | null>(null);
   const [addedWorkers, setAddedWorkers] = useState<User[]>([]);
+  const [isTitleTouched, setIsTitleTouched] = useState<boolean>(false);
+
+  const fetchAdminsByQuery = useCallback(
+    (query: string) => fetchUsersByQuery(query, 1, 10, 'Admin'),
+    [],
+  );
+
+  const fetchWorkersByQuery = useCallback(
+    (query: string) => fetchUsersByQuery(query, 1, 10, 'User'),
+    [],
+  );
 
   const auctionsSearch = useAutoComplete<Auction>({
     fetchFn: fetchAuctionsByQuery,
   });
   const AdminSearch = useAutoComplete<User>({
-    fetchFn: fetchUsersByQuery,
+    fetchFn: fetchAdminsByQuery,
   });
   const workersSearch = useAutoComplete<User>({
-    fetchFn: fetchUsersByQuery,
+    fetchFn: fetchWorkersByQuery,
   });
   const handleSubmit = () => {
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      setIsTitleTouched(true);
+      return;
+    }
 
     GroupCreation.mutate(
       {
@@ -55,6 +69,8 @@ export default function AddGroupModal({
           setTitle('');
           setAddedAuctions([]);
           setAdmin(null);
+          setAddedWorkers([]);
+          setIsTitleTouched(false);
           handleClose();
         },
       },
@@ -89,8 +105,19 @@ export default function AddGroupModal({
         <TextField
           label="Назва групи"
           fullWidth
+          required
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onBlur={() => setIsTitleTouched(true)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (!isTitleTouched) setIsTitleTouched(true);
+          }}
+          error={isTitleTouched && !title.trim()}
+          helperText={
+            isTitleTouched && !title.trim()
+              ? "Назва групи є обов'язковою"
+              : " "
+          }
         />
 
         <Autocomplete

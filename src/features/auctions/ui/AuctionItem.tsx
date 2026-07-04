@@ -103,11 +103,13 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
           handleClose={closeDelete}
           currentAuction={auction}
         />
-        <AuctionEditModal
-          isModalOpen={isEditOpen}
-          handleClose={closeEdit}
-          currentAuction={auction}
-        />
+        {isEditOpen && (
+          <AuctionEditModal
+            isModalOpen={isEditOpen}
+            handleClose={closeEdit}
+            currentAuction={auction}
+          />
+        )}
 
         <CardActionArea sx={{ p: 2 }} onClick={() => onClick(auction)}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

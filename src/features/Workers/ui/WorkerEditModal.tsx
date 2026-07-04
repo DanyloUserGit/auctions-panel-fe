@@ -9,10 +9,8 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
-  TextField,
-  Typography,
+  TextField
 } from '@mui/material';
 import { useEffect } from 'react';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
@@ -27,6 +25,7 @@ import {
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
+import { RIGHTS, RIGHTS_LABELS } from '../model/types';
 
 interface CreateUserModalProps {
   open: boolean;
@@ -45,7 +44,11 @@ export const WorkerEditModal = ({
 
   const GroupSearch = useAutoComplete<Group>({
     fetchFn: fetchGroupByQuery,
-    initialSelected: user.managedGroup ? [user.managedGroup] : [],
+    initialSelected: user.managedGroup
+      ? [user.managedGroup]
+      : user.auctionGroup
+        ? [user.auctionGroup]
+        : [],
   });
 
   const {
@@ -87,6 +90,17 @@ export const WorkerEditModal = ({
 
   useEffect(() => {
     if (open) {
+      const groupsToSet = [];
+      if (user.managedGroup) {
+        groupsToSet.push(user.managedGroup);
+      }
+      if (user.auctionGroup) {
+        groupsToSet.push(user.auctionGroup);
+      }
+      if (groupsToSet.length > 0) {
+        GroupSearch.setOptions(groupsToSet);
+      }
+
       reset({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
@@ -98,11 +112,9 @@ export const WorkerEditModal = ({
         auctionGroupId: user.auctionGroupId || '',
         managedGroup: user.managedGroup?.id || '',
       });
-
-      if (user.managedGroup) {
-        GroupSearch.setOptions([user.managedGroup]);
-      }
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, open, reset]);
 
   const onInvalid = (errors: FieldErrors<UpdateUser>) => {
@@ -113,7 +125,10 @@ export const WorkerEditModal = ({
   const onSubmit = (data: UpdateUser) => {
     const payload: Partial<UpdateUser> = { ...data };
 
-    if (payload.managedGroup && payload.managedGroup.trim() !== '') {
+    if (!payload.managedGroup || payload.managedGroup.trim() == '') {
+      delete payload.managedGroup;
+    }
+    if (!payload.auctionGroupId || payload.auctionGroupId.trim() == '') {
       delete payload.auctionGroupId;
     }
 
@@ -231,9 +246,8 @@ export const WorkerEditModal = ({
               <Controller
                 name="managedGroup"
                 control={control}
-                render={({ field: { onChange, value } }) => {
-                  const currentSelected =
-                    GroupSearch.options.find((g) => g.id === value) || null;
+                render={({ field: { onChange } }) => {
+                  const currentSelected = user.managedGroup || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(currentSelected)}
@@ -265,9 +279,8 @@ export const WorkerEditModal = ({
               <Controller
                 name="auctionGroupId"
                 control={control}
-                render={({ field: { onChange, value } }) => {
-                  const currentSelected =
-                    GroupSearch.options.find((g) => g.id === value) || null;
+                render={({ field: { onChange } }) => {
+                  const currentSelected = user.auctionGroup || null;
                   return (
                     <Autocomplete
                       options={GroupSearch.getFilteredOptions(currentSelected)}
@@ -294,22 +307,26 @@ export const WorkerEditModal = ({
             </Grid>
           )}
 
-          {/* 7. Інфо блок */}
           <Grid size={12}>
-            <Paper
-              variant="outlined"
-              sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
-            >
-              <Typography variant="caption" color="text.secondary">
-                Права доступу:
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 700, color: 'primary.main' }}
-              >
-                Тільки перегляд (Read Only)
-              </Typography>
-            </Paper>
+            <FormControl fullWidth error={!!errors.rights}>
+              <InputLabel>Права доступу</InputLabel>
+              <Controller
+                name="rights"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} label="Права доступу">
+                    {RIGHTS.map((right) => (
+                      <MenuItem key={right} value={right}>
+                        {RIGHTS_LABELS[right]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.rights && (
+                <FormHelperText>{errors.rights.message}</FormHelperText>
+              )}
+            </FormControl>
           </Grid>
 
           {/* 8. Кнопка */}

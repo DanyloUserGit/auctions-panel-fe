@@ -1,11 +1,10 @@
 import { Security } from '@mui/icons-material';
-import { Box, Paper, Stack, Typography } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { Alert, Box, Paper, Stack, Typography } from '@mui/material';
 import { Loader } from '../../../shared/ui/Loader';
-import { useAuth } from '../../auth/model/useAuth';
 import { Can } from '../../auth/ui/Can';
 import type { NotificationChannel } from '../../notifications/model/types';
 import {
+  useMyAdminGroups,
   useNotificationsSettings,
   useUpdateNotificationsRequirements,
   useUpdateNotificationsSettings,
@@ -14,13 +13,21 @@ import NotificationsTable from '../../notifications/ui/NotificationsTable';
 
 export default function NotificationsSettings() {
   const { data, isLoading } = useNotificationsSettings();
-  const { mutate: updateGeneral } = useUpdateNotificationsSettings();
-  const { mutate: updateRequirements } = useUpdateNotificationsRequirements();
+  const {
+    mutate: updateGeneral,
+    isError: isGeneralError,
+    error: generalError,
+  } = useUpdateNotificationsSettings();
+  const {
+    mutate: updateRequirements,
+    isError: isRequirementsError,
+  } = useUpdateNotificationsRequirements();
 
-  const { user } = useAuth();
-  const groupId = user?.auctionGroupId;
-
-  const queryClient = useQueryClient();
+  // Групи, якими керує поточний користувач (Admin/SuperAdmin керує максимум
+  // однією групою). Це НЕ те саме, що user.auctionGroupId — те поле означає
+  // групу, у якій сам користувач є учасником, а не якою він адмініструє.
+  const { data: managedGroups } = useMyAdminGroups();
+  const groupId = managedGroups?.[0]?.id;
 
   const settings = data ?? [];
 
@@ -32,25 +39,15 @@ export default function NotificationsSettings() {
     if (!currentItem) return;
 
     if (field === 'isMandatory') {
-      const newValue = !currentItem.isMandatory;
+      if (!groupId) return;
 
-      updateRequirements(
-        {
-          id: groupId || '',
-          data: {
-            typeId: currentItem.notificationTypeId,
-            isMandatory: newValue,
-          },
+      updateRequirements({
+        id: groupId,
+        data: {
+          typeId: currentItem.notificationTypeId,
+          isMandatory: !currentItem.isMandatory,
         },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: ['notifications_settings'],
-            });
-          },
-        },
-      );
-
+      });
       return;
     }
 
@@ -65,20 +62,24 @@ export default function NotificationsSettings() {
         : [...channels, field];
     }
 
-    updateGeneral(
-      {
-        typeId: updatedItem.notificationTypeId,
-        isEnabled: updatedItem.isEnabled,
-        channels: updatedItem.channels,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ['notifications_settings'],
-          });
-        },
-      },
-    );
+    updateGeneral({
+      typeId: updatedItem.notificationTypeId,
+      isEnabled: updatedItem.isEnabled,
+      channels: updatedItem.channels,
+      value: updatedItem.value!,
+    });
+  };
+
+  const handleValueChange = (id: string, newValue: number) => {
+    const currentItem = settings.find((s) => s.id === id);
+    if (!currentItem || currentItem.value === newValue) return;
+
+    updateGeneral({
+      typeId: currentItem.notificationTypeId,
+      isEnabled: currentItem.isEnabled,
+      channels: currentItem.channels,
+      value: newValue,
+    });
   };
 
   if (isLoading) return <Loader />;
@@ -125,10 +126,29 @@ export default function NotificationsSettings() {
             Позначте сповіщення як <b>обов'язкові</b>, щоб користувачі групи не
             могли їх вимкнути.
           </Typography>
+
+          {!groupId && (
+            <Alert severity="info" sx={{ mt: 1.5, borderRadius: '8px' }}>
+              Ви не є адміністратором жодної групи, тому позначки "Mandatory"
+              недоступні для зміни.
+            </Alert>
+          )}
         </Paper>
       </Can>
 
-      <NotificationsTable settings={settings} handleToggle={handleToggle} />
+      {(isGeneralError || isRequirementsError) && (
+        <Alert severity="error" sx={{ mb: 3, borderRadius: '10px' }}>
+          {(generalError as { response?: { data?: { message?: string } } })
+            ?.response?.data?.message ??
+            'Не вдалося зберегти зміни. Спробуйте ще раз.'}
+        </Alert>
+      )}
+
+      <NotificationsTable
+        settings={settings}
+        handleToggle={handleToggle}
+        handleValueChange={handleValueChange}
+      />
     </Box>
   );
 }

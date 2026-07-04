@@ -16,7 +16,8 @@ export function useSessionsData(accountId: string) {
   } = useQuery({
     queryKey: sessionsKeys.byAccount(accountId),
     queryFn: () => fetchSessions(accountId),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     enabled: !!accountId,
   });
 

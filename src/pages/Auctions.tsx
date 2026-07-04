@@ -26,11 +26,15 @@ import SessionList from '../features/sessions/ui/SessionList';
 import { useMobile } from '../shared/hooks/useMobile';
 import { useModal } from '../shared/hooks/useModal';
 import { Loader } from '../shared/ui/Loader';
+import { useAuth } from '../features/auth/model/useAuth';
+import AutoConnectSession from '../features/sessions/ui/AutoConnectSession';
 
 export default function AuctionsPage() {
   const location = useLocation();
   const { data: groups } = useGroups();
   const sessionConnect = useSession();
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'SuperAdmin';
 
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -249,7 +253,13 @@ export default function AuctionsPage() {
           />
         )}
 
-        {view === 'sessions' && <SessionList sessions={sessions} />}
+        {view === 'sessions' && (
+          isSuperAdmin ? (
+            <SessionList sessions={sessions} />
+          ) : (
+            <AutoConnectSession sessions={sessions} />
+          )
+        )}
       </Box>
 
       {/* МОДАЛЬНІ ВІКНА */}

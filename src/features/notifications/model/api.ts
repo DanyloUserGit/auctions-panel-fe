@@ -1,6 +1,8 @@
 import { api } from '../../../shared/http';
 import type {
+  AdminGroup,
   fetchNotificationsResponce,
+  GroupRequirement,
   NotificationSetting,
   UpdateNotificationSettings,
 } from './types';
@@ -36,6 +38,16 @@ export const updateNotificationsRequirements = async (
     `/notifications/group/${id}/requirements`,
     data,
   );
+  return response.data;
+};
+export const fetchGroupRequirements = async (
+  groupId: string,
+): Promise<GroupRequirement[]> => {
+  const response = await api.get(`/notifications/group/${groupId}/requirements`);
+  return response.data;
+};
+export const fetchMyAdminGroups = async (): Promise<AdminGroup[]> => {
+  const response = await api.get(`/notifications/my-groups`);
   return response.data;
 };
 export const markAsRead = async (id: string) => {

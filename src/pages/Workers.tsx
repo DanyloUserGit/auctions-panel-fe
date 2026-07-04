@@ -37,22 +37,20 @@ export default function EmployeesSection() {
   const { users } = useUsers();
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
 
-  // 1. Отримуємо дані з сервера при пошуку
   const { data: searchResults } = useSearchUsers(
     debouncedSearch,
-    page + 1, // API сторінки зазвичай починаються з 1
+    page + 1, 
     limit,
   );
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(0); // Скидаємо сторінку при новому пошуку
+      setPage(0); 
     }, 500);
     return () => clearTimeout(handler);
   }, [search]);
 
-  // 2. Фільтрація базового списку (коли пошук пустий)
   const filteredUsers = useMemo(() => {
     if (!users) return [];
 

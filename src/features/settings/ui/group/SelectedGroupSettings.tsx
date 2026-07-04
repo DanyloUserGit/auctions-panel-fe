@@ -73,7 +73,6 @@ export default function SelectedGroupSettings({ groupId }: Props) {
         Налаштування групи: {group.title}
       </Typography>
 
-      {/* 1. ЛІМІТИ СЕСІЙ */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
           Ліміти активних сесій
@@ -83,7 +82,7 @@ export default function SelectedGroupSettings({ groupId }: Props) {
         </Typography>
         <Box sx={{ px: 2 }}>
           <Slider
-            key={group.sessionLimit} // Важливо для оновлення початкового значення
+            key={group.sessionLimit} 
             defaultValue={group.sessionLimit || 1}
             onChangeCommitted={(_, value) => {
               updateGroup({
@@ -100,18 +99,15 @@ export default function SelectedGroupSettings({ groupId }: Props) {
         </Box>
       </Paper>
 
-      {/* 2. ДОСТУПНІ АУКЦІОНИ */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
           Доступні аукціони групи
         </Typography>
         <Autocomplete
           multiple
-          // ВАЖЛИВО: options повинні містити те, що є у value + те, що знайшли
           options={auctionsSearch.options || []}
           value={group?.auctions}
           loading={auctionsSearch.isLoading}
-          // НЕ передаємо group.auctions у debouncedFetch, щоб не було конфліктів фільтрації
           onInputChange={(_, val) => auctionsSearch.debouncedFetch(val, null)}
           getOptionLabel={(o) => o.title || ''}
           isOptionEqualToValue={(o, v) => o.id === v.id}
@@ -127,7 +123,6 @@ export default function SelectedGroupSettings({ groupId }: Props) {
         />
       </Paper>
 
-      {/* 3. ПРАВИЛА ТА ПРАВА */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
           Правила та права керування
@@ -183,15 +178,10 @@ export default function SelectedGroupSettings({ groupId }: Props) {
               }
               label="Відображати список акаунтів для учасників"
             />
-            {/* <FormControlLabel
-              control={<Switch defaultChecked color="error" />}
-              label="Заборонити зміну конфігурації термінала"
-            /> */}
           </Stack>
         </Stack>
       </Paper>
 
-      {/* 4. СПИСОК ДОСТУПНИХ АКАУНТІВ */}
       {showAccounts && (
         <Paper
           sx={{

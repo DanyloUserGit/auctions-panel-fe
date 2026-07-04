@@ -1,4 +1,4 @@
-// InStock.tsx
+
 import { ArrowBack } from '@mui/icons-material';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import SearchIcon from '@mui/icons-material/Search';
@@ -29,13 +29,15 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Can } from '../../features/auth/ui/Can';
 import type { Car, CarStatus } from './model/api';
 import { useCreateCar, useInStockCars, useUpdateCar } from './model/useData';
 
+
 const initialFormState: Partial<Car> = {
   brand: '', model: '', year: 2020, mileage: 0,
-  engine: '', // Додано
-  transmission: 'Automatic', // Змінено на Automatic
+  engine: '',
+  transmission: 'Automatic',
   price: 0, chassis: '',
   imageUrl: '', status: 'available', location: ''
 };
@@ -48,7 +50,6 @@ const InStockpage: React.FC = () => {
   const [editingCarId, setEditingCarId] = useState<number | null>(null);
   const [formData, setFormData] = useState<Partial<Car>>(initialFormState);
 
-  // Використовуємо наш кастомний хук react-query
   const { data: cars = [], isLoading, isError, error } = useInStockCars();
   const createCarMutation = useCreateCar();
   const updateCarMutation = useUpdateCar();
@@ -75,7 +76,23 @@ const InStockpage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Валідація форми: не дозволяємо зберегти "порожнє" авто,
+  // а нове авто не може одразу мати статус "Продано"
+  const getFormError = (): string | null => {
+    if (!formData.brand?.trim()) return 'Вкажіть марку авто';
+    if (!formData.model?.trim()) return 'Вкажіть модель авто';
+    if (!formData.price || Number(formData.price) <= 0) return 'Вкажіть коректну ціну';
+    if (!editingCarId && formData.status === 'sold') {
+      return 'Неможливо створити нове авто одразу зі статусом "Продано"';
+    }
+    return null;
+  };
+
+  const formError = getFormError();
+
   const handleSubmit = () => {
+    if (formError) return;
+
     if (editingCarId) {
       updateCarMutation.mutate({ id: editingCarId, carData: formData }, {
         onSuccess: handleCloseDialog
@@ -85,6 +102,11 @@ const InStockpage: React.FC = () => {
         onSuccess: handleCloseDialog
       });
     }
+  };
+
+  // Обробник кнопки "Продати" — переводить авто у статус "Продано"
+  const handleSellCar = (car: Car) => {
+    updateCarMutation.mutate({ id: car.id, carData: { ...car, status: 'sold' } });
   };
 
   const getStatusChip = (status: CarStatus) => {
@@ -137,13 +159,15 @@ const InStockpage: React.FC = () => {
             Каталог автомобілів, доступних для продажу
           </Typography>
         </Box>
-        <Button
-          onClick={() => handleOpenDialog()}
-          variant="contained"
-          sx={{ bgcolor: '#1e40af', '&:hover': { bgcolor: '#3b82f6' } }}
-        >
-          + Додати авто
-        </Button>
+        <Can roles={['SuperAdmin', 'Admin']}>
+          <Button
+            onClick={() => handleOpenDialog()}
+            variant="contained"
+            sx={{ bgcolor: '#1e40af', '&:hover': { bgcolor: '#3b82f6' } }}
+          >
+            + Додати авто
+          </Button>
+        </Can>
       </Stack>
 
       <Box
@@ -171,21 +195,18 @@ const InStockpage: React.FC = () => {
         />
       </Box>
 
-      {/* Обробка стану завантаження */}
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
       )}
 
-      {/* Обробка помилки запиту */}
       {isError && (
         <Alert severity="error" sx={{ mb: 4 }}>
           Помилка завантаження даних: {error?.message}
         </Alert>
       )}
 
-      {/* Відображення даних */}
       {!isLoading && !isError && (
         <Grid container spacing={3}>
           {filteredCars.map((car) => (
@@ -210,7 +231,7 @@ const InStockpage: React.FC = () => {
                     height="200"
                     image={car.imageUrl}
                     alt={`${car.brand} ${car.model}`}
-                    sx={{ objectFit: 'cover' }} // Додано для кращого відображення фото
+                    sx={{ objectFit: 'cover' }}
                   />
                   <Box sx={{ position: 'absolute', top: 12, right: 12 }}>
                     {getStatusChip(car.status)}
@@ -273,22 +294,26 @@ const InStockpage: React.FC = () => {
                 </CardContent>
 
                 <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    onClick={() => handleOpenDialog(car)}
-                    sx={{
-                      borderColor: '#dbeafe',
-                      color: '#1e40af',
-                      '&:hover': { bgcolor: '#f1f5f9' },
-                    }}
-                  >
-                    Редагувати
-                  </Button>
+                  <Can roles={['SuperAdmin', 'Admin']}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={() => handleOpenDialog(car)}
+                      sx={{
+                        borderColor: '#dbeafe',
+                        color: '#1e40af',
+                        '&:hover': { bgcolor: '#f1f5f9' },
+                      }}
+                    >
+                      Редагувати
+                    </Button>
+                  </Can>
                   <Button
                     fullWidth
                     variant="contained"
                     sx={{ bgcolor: '#3b82f6' }}
+                    onClick={() => handleSellCar(car)}
+                    disabled={car.status === 'sold' || updateCarMutation.isPending}
                   >
                     Продати
                   </Button>
@@ -344,12 +369,26 @@ const InStockpage: React.FC = () => {
               <TextField select fullWidth label="Статус" name="status" value={formData.status || 'available'} onChange={handleChange} size="small">
                 <MenuItem value="available">В наявності</MenuItem>
                 <MenuItem value="reserved">Резерв</MenuItem>
-                <MenuItem value="sold">Продано</MenuItem>
+                {/* "Продано" доступне лише при редагуванні існуючого авто,
+                    щоб не можна було одразу створити продане авто */}
+                {editingCarId && <MenuItem value="sold">Продано</MenuItem>}
               </TextField>
             </Grid>
             <Grid size={{ xs: 12 }}>
               <TextField fullWidth label="URL зображення" name="imageUrl" value={formData.imageUrl || ''} onChange={handleChange} size="small" />
             </Grid>
+            {formError && (
+              <Grid size={{ xs: 12 }}>
+                <Alert severity="warning">{formError}</Alert>
+              </Grid>
+            )}
+            {(createCarMutation.isError || updateCarMutation.isError) && (
+              <Grid size={{ xs: 12 }}>
+                <Alert severity="error">
+                  {(createCarMutation.error || updateCarMutation.error)?.message || 'Не вдалося зберегти авто'}
+                </Alert>
+              </Grid>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -357,7 +396,7 @@ const InStockpage: React.FC = () => {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            disabled={createCarMutation.isPending || updateCarMutation.isPending}
+            disabled={!!formError || createCarMutation.isPending || updateCarMutation.isPending}
           >
             {createCarMutation.isPending || updateCarMutation.isPending ? 'Збереження...' : 'Зберегти'}
           </Button>

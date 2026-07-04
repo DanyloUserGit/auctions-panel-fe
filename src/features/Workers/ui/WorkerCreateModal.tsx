@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Refresh } from '@mui/icons-material';
 import {
   Alert,
   Autocomplete,
@@ -10,10 +11,9 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -27,7 +27,7 @@ import {
 } from '../../auth/model/user-schema';
 import { fetchGroupByQuery } from '../../groups/model/api-groups';
 import type { Group } from '../../groups/model/types';
-import { Refresh } from '@mui/icons-material';
+import { RIGHTS, RIGHTS_LABELS } from '../model/types';
 interface CreateUserModalProps {
   open: boolean;
   onClose: () => void;
@@ -106,10 +106,14 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     onClose();
   };
 
+
   const onSubmit = (data: CreateUser) => {
     const payload: Partial<CreateUser> = { ...data };
 
-    if (payload.managedGroup && payload.managedGroup.trim() !== '') {
+    if (!payload.managedGroup || payload.managedGroup.trim() == '') {
+      delete payload.managedGroup;
+    }
+    if (!payload.auctionGroupId || payload.auctionGroupId.trim() == '') {
       delete payload.auctionGroupId;
     }
 
@@ -285,20 +289,27 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
           )}
 
           <Grid size={12}>
-            <Paper
-              variant="outlined"
-              sx={{ p: 2, bgcolor: 'action.hover', borderStyle: 'dashed' }}
-            >
-              <Typography variant="caption" color="text.secondary">
-                Права доступу:
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 700, color: 'primary.main' }}
-              >
-                Тільки перегляд (Read Only)
-              </Typography>
-            </Paper>
+            <FormControl fullWidth error={!!errors.rights}>
+              <InputLabel>Права доступу</InputLabel>
+              <Controller
+                name="rights"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} label="Права доступу">
+                    {RIGHTS.map((right) => (
+                      <MenuItem key={right} value={right}>
+                        {RIGHTS_LABELS[right] || right}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.rights && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                  {errors.rights.message}
+                </Typography>
+              )}
+            </FormControl>
           </Grid>
 
           <Grid size={12}>
