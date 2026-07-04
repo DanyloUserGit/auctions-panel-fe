@@ -1,16 +1,17 @@
-import type { Role } from "../../auth/model/types";
+export type NotificationChannel = 'InApp' | 'Email' | 'Telegram' | 'Viber';
 
-export type NotificationChannel = 'InApp' | 'Email';
+export interface NotificationTypeSetting {
+  min: number;
+  max: number;
+  default: number;
+}
 
-export interface NotificationTypeInfo {
+export interface NotificationType {
   id: string;
   name: string;
   description: string;
-  roles: Role[];
-  setting?: {
-    min: number;
-    max: number;
-  }
+  configType: 'Configurable' | 'System';
+  setting?: NotificationTypeSetting | null;
 }
 
 export interface NotificationSetting {
@@ -18,27 +19,44 @@ export interface NotificationSetting {
   userId: string;
   notificationTypeId: string;
   isEnabled: boolean;
-  channels: NotificationChannel[];
-  notificationType: NotificationTypeInfo;
   isMandatory: boolean;
+  value?: number | null;
+  channels: NotificationChannel[];
+  notificationType: NotificationType;
 }
+
 export interface UpdateNotificationSettings {
   typeId: string;
-  isEnabled: boolean;
-  channels: NotificationChannel[];
+  isEnabled?: boolean;
+  channels?: NotificationChannel[];
+  value?: number;
 }
-export interface Notification {
+
+export interface NotificationItem {
   id: string;
+  userId: string;
   type: string;
   message: string;
-  createdAt: string;
   isRead: boolean;
-  userId: string;
+  createdAt: string;
 }
+
 export interface fetchNotificationsResponce {
-  data: Notification[];
+  data: NotificationItem[];
   total: number;
   page: number;
   limit: number;
   unreadCount: number;
+}
+
+export interface GroupRequirement {
+  typeId: string;
+  name: string;
+  description: string;
+  isMandatory: boolean;
+}
+
+export interface AdminGroup {
+  id: string;
+  title: string;
 }

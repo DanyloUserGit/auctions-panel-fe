@@ -14,6 +14,7 @@ import NotificationsSettings from '../features/settings/ui/NotificationsSettings
 import { AuctionSettings } from '../features/settings/ui/auction/AuctionSettings';
 import { GroupSettings } from '../features/settings/ui/group/GroupSettings';
 import { useMobile } from '../shared/hooks/useMobile';
+import { Loader } from '../shared/ui/Loader';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
@@ -43,13 +44,13 @@ export default function SettingsPage() {
       {
         label: 'Налаштування групи',
         icon: <Groups />,
-        component: <GroupSettings />,
+        component: <>{user ? <GroupSettings user={user} /> : <Loader />}</>,
         roles: ['Admin', 'SuperAdmin'],
       },
       {
         label: 'Правила аукціонів',
         icon: <Gavel />,
-        component: <AuctionSettings />,
+        component: <>{user ? <AuctionSettings user={user} /> : <Loader />}</>,
         roles: ['Admin', 'SuperAdmin'],
       },
     ],

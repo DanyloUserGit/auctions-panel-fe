@@ -3,6 +3,7 @@ import type { User } from '../../auth/model/user-schema';
 
 export interface Group {
   id: string;
+  showAccounts: boolean;
   title: string;
   AdminId: string;
   auctions: Auction[];

@@ -82,7 +82,7 @@ export default function NotificationsTable({ settings, handleToggle, handleValue
                 align="center"
                 sx={{ fontWeight: 700, color: 'primary.main', width: 80 }}
               >
-                <Tooltip title="Адмін-налаштування">
+                <Tooltip title="Обов'язкове для вашої групи">
                   <Security fontSize="small" />
                 </Tooltip>
                 <Typography variant="caption" display="block">
@@ -94,7 +94,19 @@ export default function NotificationsTable({ settings, handleToggle, handleValue
         </TableHead>
 
         <TableBody>
+          {settings.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <Typography variant="body2" color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
+                  Немає доступних налаштувань сповіщень
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
+
           {settings.map((row) => {
+            // Обов'язкові сповіщення не можна вимкнути нікому, крім адміна
+            // групи, який власне і встановлює обов'язковість (колонка Mandatory).
             const isRowDisabled = row.isMandatory && !isAdmin;
             const notificationSetting = row.notificationType?.setting;
 
@@ -123,7 +135,7 @@ export default function NotificationsTable({ settings, handleToggle, handleValue
                         type="number"
                         label="Значення"
                         disabled={isRowDisabled}
-                        defaultValue={row.value ?? notificationSetting.min}
+                        defaultValue={row.value ?? notificationSetting.default}
                         onBlur={(e) => handleValueChange(row.id, Number(e.target.value))}
                         inputProps={{
                           min: notificationSetting.min,

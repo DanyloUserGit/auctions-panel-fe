@@ -7,11 +7,12 @@ export const fetchAuctions = async (groupId: string) => {
   return responce.data;
 };
 
-export const fetchAuctionsByQuery = async (q: string): Promise<Auction[]> => {
+export const fetchAuctionsByQuery = async (q: string, auctionGroupId?: string): Promise<Auction[]> => {
   if (!q) return [];
   const responce = await api.get(`/auctions/search`, {
     params: {
       query: q,
+      auctionGroupId
     },
   });
   return responce.data;

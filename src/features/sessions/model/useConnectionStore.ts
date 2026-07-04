@@ -52,8 +52,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
         // let hasJoined = false;
         const iceCandidatesQueue: RTCIceCandidateInit[] = [];
 
-        // Ця змінна тримає актуальний ключ у сторі. 
-        // Спочатку це тимчасовий ключ, але згодом він оновиться на реальний.
         let currentStoreKey = connectionKey;
         let hasRedirected = false;
         set((state) => ({
@@ -262,7 +260,8 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
             connection.peerConnection.close();
         }
 
-        if (socket.connected) {
+        // Не шлемо на бекенд pending_ ключ — реальної сесії ще могло не бути
+        if (socket.connected && !sessionId.startsWith('pending_')) {
             socket.emit('leave_auction', { sessionId });
         }
 

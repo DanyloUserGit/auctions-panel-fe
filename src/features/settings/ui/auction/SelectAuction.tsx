@@ -6,26 +6,37 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
+import { useCallback } from 'react';
 import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
 import {
-  fetchAuctionsByQuery,
   fetchAuctionsById,
+  fetchAuctionsByQuery,
 } from '../../../auctions/model/api-auctions';
 import type { Auction } from '../../../auctions/model/types';
 import { useAuction } from '../../../auctions/model/useAuctions';
+import type { User } from '../../../auth/model/user-schema';
 
 interface Props {
   selectedAuction: string;
   setSelectedAuction: (id: string) => void;
+  user: User
 }
 
 export default function SelectAuction({
   selectedAuction,
   setSelectedAuction,
+  user
 }: Props) {
+
+  const auctionGroupId = user.managedGroup?.id ?? undefined;
+
+  const auctionsQuery = useCallback(
+    (query: string) => fetchAuctionsByQuery(query, auctionGroupId),
+    [],
+  );
   const auctionsSearch = useAutoCompleteWithQuery<Auction>({
     queryKey: ['search'],
-    fetchFn: fetchAuctionsByQuery,
+    fetchFn: auctionsQuery,
   });
 
   const { data: auction } = useAuction(selectedAuction);
@@ -67,7 +78,6 @@ export default function SelectAuction({
           onInputChange={(_, val) => auctionsSearch.onInputChange(val)}
           getOptionLabel={(option) => `${option.title} (${option.url})`}
           filterOptions={(x) => x}
-          // 5. Додано перевірку на наявність об'єктів перед порівнянням id
           isOptionEqualToValue={(option, value) => option?.id === value?.id}
           renderInput={(params) => (
             <TextField

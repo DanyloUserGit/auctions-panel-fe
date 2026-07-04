@@ -125,7 +125,10 @@ export const WorkerEditModal = ({
   const onSubmit = (data: UpdateUser) => {
     const payload: Partial<UpdateUser> = { ...data };
 
-    if (payload.managedGroup && payload.managedGroup.trim() !== '') {
+    if (!payload.managedGroup || payload.managedGroup.trim() == '') {
+      delete payload.managedGroup;
+    }
+    if (!payload.auctionGroupId || payload.auctionGroupId.trim() == '') {
       delete payload.auctionGroupId;
     }
 

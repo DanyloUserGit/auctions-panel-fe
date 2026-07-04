@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  fetchGroupRequirements,
+  fetchMyAdminGroups,
   fetchNotifications,
   fetchNotificationsSettings,
   markAsRead,
@@ -41,7 +43,7 @@ export const useNotificationsSettings = () => {
 export const useUpdateNotificationsSettings = () => {
   const queryClient = useQueryClient();
 
-  const { mutate, isError, isPending } = useMutation({
+  const { mutate, mutateAsync, isError, error, isPending } = useMutation({
     mutationFn: (data: UpdateNotificationSettings) =>
       updateNotificationsSettings(data),
     mutationKey: ['notifications_settings'],
@@ -55,7 +57,9 @@ export const useUpdateNotificationsSettings = () => {
   return {
     refresh,
     mutate,
+    mutateAsync,
     isError,
+    error,
     isPending,
   };
 };
@@ -66,12 +70,15 @@ interface UpdateNotificationsRequirementsProps {
 export const useUpdateNotificationsRequirements = () => {
   const queryClient = useQueryClient();
 
-  const { mutate, isError, isPending } = useMutation({
+  const { mutate, mutateAsync, isError, error, isPending } = useMutation({
     mutationFn: (data: UpdateNotificationsRequirementsProps) =>
       updateNotificationsRequirements(data.id, data.data),
-    mutationKey: ['notifications_settings'],
-    onSuccess: () => {
+    mutationKey: ['notifications_requirements'],
+    onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['notifications_settings'] });
+      queryClient.invalidateQueries({
+        queryKey: ['group_requirements', variables.id],
+      });
     },
   });
   const refresh = () => {
@@ -80,7 +87,9 @@ export const useUpdateNotificationsRequirements = () => {
   return {
     refresh,
     mutate,
+    mutateAsync,
     isError,
+    error,
     isPending,
   };
 };
@@ -96,5 +105,20 @@ export const useMarkAsRead = () => {
     onError: (error) => {
       console.error('Помилка при позначенні як прочитане:', error);
     },
+  });
+};
+
+export const useMyAdminGroups = () => {
+  return useQuery({
+    queryKey: ['my_admin_groups'],
+    queryFn: fetchMyAdminGroups,
+  });
+};
+
+export const useGroupRequirements = (groupId?: string) => {
+  return useQuery({
+    queryKey: ['group_requirements', groupId],
+    queryFn: () => fetchGroupRequirements(groupId as string),
+    enabled: !!groupId,
   });
 };

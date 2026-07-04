@@ -110,10 +110,9 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const onSubmit = (data: CreateUser) => {
     const payload: Partial<CreateUser> = { ...data };
 
-    if (payload.managedGroup && payload.managedGroup.trim() !== '') {
-      delete payload.auctionGroupId;
+    if (!payload.managedGroup || payload.managedGroup.trim() == '') {
+      delete payload.managedGroup;
     }
-
     if (!payload.auctionGroupId || payload.auctionGroupId.trim() == '') {
       delete payload.auctionGroupId;
     }
