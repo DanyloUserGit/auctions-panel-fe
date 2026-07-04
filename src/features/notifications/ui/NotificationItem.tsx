@@ -8,13 +8,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import type { Notification } from '../model/types';
+import type { NotificationItem } from '../model/types';
 
-import { useMarkAsRead } from '../model/useNotifications';
 import dayjs from 'dayjs';
+import { useMarkAsRead } from '../model/useNotifications';
 
 interface Props {
-  item: Notification;
+  item: NotificationItem;
 }
 
 export default function NotificationItem({ item }: Props) {

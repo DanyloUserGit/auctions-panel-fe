@@ -1,7 +1,7 @@
 import type { Account } from '../../acounts/model/types';
 import type { Auction } from '../../auctions/model/types';
 import type { User } from '../../auth/model/user-schema';
-import type { Notification } from '../../notifications/model/types';
+import type { NotificationItem } from '../../notifications/model/types';
 
 export type SessionConnectData = {
   auctionId: string;
@@ -23,7 +23,7 @@ export interface AuctionSocketEvents {
 // src/features/notifications/model/types.ts
 
 export interface NotificationSocketEvents {
-  onReceived: (data: Notification) => void;
+  onReceived: (data: NotificationItem) => void;
   onError: (err: { message: string }) => void;
   onRead?: (data: { id: string }) => void;
 }
