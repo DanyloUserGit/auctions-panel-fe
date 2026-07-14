@@ -254,11 +254,11 @@ export default function AuctionsPage() {
         )}
 
         {view === 'sessions' && (
-          isSuperAdmin ? (
-            <SessionList sessions={sessions} />
-          ) : (
-            <AutoConnectSession sessions={sessions} />
-          )
+          // isSuperAdmin ? (
+          //   <SessionList sessions={sessions} />
+          // ) : (
+          <AutoConnectSession sessions={sessions} />
+          // )
         )}
       </Box>
 

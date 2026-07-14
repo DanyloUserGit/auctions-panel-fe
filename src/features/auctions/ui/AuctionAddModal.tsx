@@ -1,14 +1,11 @@
 import {
-  Autocomplete,
   Box,
   Button,
   CircularProgress,
-  TextField,
+  TextField
 } from '@mui/material';
 import { useState } from 'react';
-import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
-import { fetchUsersByQuery } from '../../auth/model/api-user';
 import type { User } from '../../auth/model/user-schema';
 import { useCreateAuction } from '../model/useAuctions';
 
@@ -36,10 +33,10 @@ export default function AuctionAddModal({
   const [url, setUrl] = useState<string>('');
   const [addedAcounts, setAddedAcounts] = useState<User[]>([]);
 
-  const { isLoading, options, setOptions, debouncedFetch } =
-    useAutoComplete<User>({
-      fetchFn: fetchUsersByQuery,
-    });
+  // const { isLoading, options, setOptions, debouncedFetch } =
+  //   useAutoComplete<User>({
+  //     fetchFn: fetchUsersByQuery,
+  //   });
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -96,7 +93,7 @@ export default function AuctionAddModal({
           onChange={(e) => setUrl(e.target.value)}
         />
 
-        <Autocomplete
+        {/* <Autocomplete
           multiple
           id="async-auctions-select"
           filterSelectedOptions
@@ -135,7 +132,7 @@ export default function AuctionAddModal({
               }}
             />
           )}
-        />
+        /> */}
       </Box>
     </BaseModal>
   );

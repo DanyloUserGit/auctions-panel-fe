@@ -25,14 +25,13 @@ interface ConnectionStore {
         isNewSession: boolean,
         onRealIdReceived?: (realId: string) => void
     ) => void;
-    disconnectFromSession: (sessionId: string) => void;
+    disconnectFromSession: (sessionId: string, userId: string) => void;
     disconnectAll: () => void;
     sendInteraction: (sessionId: string, action: object) => void;
 }
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     connections: {},
-
     connectToSession: (connectionKey, userId, sessionConnect, isNewSession, onRealIdReceived) => {
         if (!connectionKey || get().connections[connectionKey]) {
             return;
@@ -49,11 +48,11 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
             payload.sessionId = connectionKey;
         }
 
-        // let hasJoined = false;
         const iceCandidatesQueue: RTCIceCandidateInit[] = [];
 
         let currentStoreKey = connectionKey;
         let hasRedirected = false;
+
         set((state) => ({
             connections: {
                 ...state.connections,
@@ -69,16 +68,12 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
         }));
 
         const safeJoinAuction = () => {
-            // Робимо копію оригінального payload
             const activePayload = { ...payload };
 
-            // currentStoreKey спочатку містить 'pending_...', а потім реальний UUID.
-            // Якщо це вже не тимчасовий ключ, обов'язково передаємо його як sessionId!
             if (currentStoreKey && !currentStoreKey.startsWith('pending_')) {
                 activePayload.sessionId = currentStoreKey;
             }
 
-            // Відправляємо актуальні дані
             emitJoinAuction(activePayload);
         };
 
@@ -90,7 +85,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
             onSessionReady: async (data) => {
                 const realSessionId = data.sessionId;
 
-                // 1. Якщо це була нова сесія і бекенд повернув реальний ID
                 if (isNewSession && realSessionId && !hasRedirected) {
                     hasRedirected = true;
 
@@ -110,6 +104,11 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
                         onRealIdReceived(realSessionId);
                     }
                 }
+
+                if (!get().connections[currentStoreKey]) {
+                    return;
+                }
+
                 const existingConnection = get().connections[currentStoreKey];
                 if (existingConnection?.peerConnection) {
                     console.log('📍 WebRTC вже ініціалізовано, пропускаємо повторне створення.');
@@ -139,35 +138,53 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
                     const track = event.track;
                     console.log('✅ Отримано трек:', track.kind);
 
+                    // ⛔ Guard: якщо сесію вже розконектили, не записуємо стрім назад у стор
+                    if (!get().connections[currentStoreKey]) {
+                        track.stop();
+                        return;
+                    }
+
                     const stream = event.streams && event.streams[0]
                         ? event.streams[0]
                         : new MediaStream([track]);
 
-                    set((state) => ({
-                        connections: {
-                            ...state.connections,
-                            [currentStoreKey]: {
-                                ...state.connections[currentStoreKey],
-                                stream: stream,
-                            },
-                        },
-                    }));
-
-                    track.onunmute = () => {
-                        set((state) => ({
+                    set((state) => {
+                        if (!state.connections[currentStoreKey]) return state;
+                        return {
                             connections: {
                                 ...state.connections,
                                 [currentStoreKey]: {
                                     ...state.connections[currentStoreKey],
-                                    isLoading: false,
+                                    stream: stream,
                                 },
                             },
-                        }));
+                        };
+                    });
+
+                    track.onunmute = () => {
+                        set((state) => {
+                            if (!state.connections[currentStoreKey]) return state;
+                            return {
+                                connections: {
+                                    ...state.connections,
+                                    [currentStoreKey]: {
+                                        ...state.connections[currentStoreKey],
+                                        isLoading: false,
+                                    },
+                                },
+                            };
+                        });
                     };
                 };
 
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
+
+                if (!get().connections[currentStoreKey]) {
+                    pc.close();
+                    return;
+                }
+
                 sendWebRTCOffer(
                     userId,
                     currentStoreKey,
@@ -176,16 +193,19 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
                     sessionConnect.height
                 );
 
-                set((state) => ({
-                    connections: {
-                        ...state.connections,
-                        [currentStoreKey]: {
-                            ...state.connections[currentStoreKey],
-                            peerConnection: pc,
-                            dataChannel: dataChannel,
+                set((state) => {
+                    if (!state.connections[currentStoreKey]) return state;
+                    return {
+                        connections: {
+                            ...state.connections,
+                            [currentStoreKey]: {
+                                ...state.connections[currentStoreKey],
+                                peerConnection: pc,
+                                dataChannel: dataChannel,
+                            },
                         },
-                    },
-                }));
+                    };
+                });
             },
 
             onSignalFromWorker: async (signalData) => {
@@ -204,6 +224,9 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
                         if (sdp) sdp = sdp.replace(/(172|192|10)\.\d+\.\d+\.\d+/g, TARGET_IP);
 
                         await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp }));
+
+                        // ⛔ Guard: після await сесію могли розконектити
+                        if (!get().connections[targetId]) return;
 
                         while (iceCandidatesQueue.length > 0) {
                             const candidate = iceCandidatesQueue.shift();
@@ -235,47 +258,25 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
             safeJoinAuction();
         }
 
-        set((state) => ({
-            connections: {
-                ...state.connections,
-                [currentStoreKey]: {
-                    ...state.connections[currentStoreKey],
-                    unsubscribeSockets,
-                },
-            },
-        }));
-    },
-
-    disconnectFromSession: (sessionId) => {
-        const connection = get().connections[sessionId];
-        if (!connection) return;
-
-        if (connection.unsubscribeSockets) connection.unsubscribeSockets();
-        if (connection.stream) connection.stream.getTracks().forEach((track) => track.stop());
-        if (connection.dataChannel) connection.dataChannel.close();
-        if (connection.peerConnection) {
-            connection.peerConnection.getReceivers().forEach((receiver) => {
-                if (receiver.track) receiver.track.stop();
-            });
-            connection.peerConnection.close();
-        }
-
-        // Не шлемо на бекенд pending_ ключ — реальної сесії ще могло не бути
-        if (socket.connected && !sessionId.startsWith('pending_')) {
-            socket.emit('leave_auction', { sessionId });
-        }
-
         set((state) => {
-            const newConnections = { ...state.connections };
-            delete newConnections[sessionId];
-            return { connections: newConnections };
+            if (!state.connections[currentStoreKey]) return state;
+            return {
+                connections: {
+                    ...state.connections,
+                    [currentStoreKey]: {
+                        ...state.connections[currentStoreKey],
+                        unsubscribeSockets,
+                    },
+                },
+            };
         });
     },
 
-    disconnectAll: () => {
-        const allConnections = get().connections;
+    disconnectFromSession: (sessionId, userId) => {
+        try {
+            const connection = get().connections[sessionId];
+            if (!connection) return;
 
-        Object.entries(allConnections).forEach(([sessionId, connection]) => {
             if (connection.unsubscribeSockets) connection.unsubscribeSockets();
             if (connection.stream) connection.stream.getTracks().forEach((track) => track.stop());
             if (connection.dataChannel) connection.dataChannel.close();
@@ -286,13 +287,41 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
                 connection.peerConnection.close();
             }
 
-            // Не шлемо pending_ ключі на бекенд — це ще не реальний sessionId
+            // Не шлемо на бекенд pending_ ключ — реальної сесії ще могло не бути
             if (socket.connected && !sessionId.startsWith('pending_')) {
-                socket.emit('leave_auction', { sessionId });
+                socket.emit('leave_auction', { sessionId, userId });
+            }
+
+            set((state) => {
+                const newConnections = { ...state.connections };
+                delete newConnections[sessionId];
+                return { connections: newConnections };
+            });
+        } catch (e) {
+            console.error(`Помилка при закритті сесії ${sessionId}:`, e);
+        }
+    },
+
+    disconnectAll: () => {
+        const allConnections = get().connections;
+        set({ connections: {} });
+
+        Object.entries(allConnections).forEach(([sessionId, connection]) => {
+            try {
+                if (connection.unsubscribeSockets) connection.unsubscribeSockets();
+                if (connection.stream) connection.stream.getTracks().forEach((t) => t.stop());
+                if (connection.dataChannel) connection.dataChannel.close();
+                if (connection.peerConnection) {
+                    connection.peerConnection.getReceivers().forEach((r) => r.track?.stop());
+                    connection.peerConnection.close();
+                }
+                if (socket.connected && !sessionId.startsWith('pending_')) {
+                    socket.emit('leave_auction', { sessionId });
+                }
+            } catch (e) {
+                console.error(`Помилка при закритті сесії ${sessionId}:`, e);
             }
         });
-
-        set({ connections: {} });
     },
 
     sendInteraction: (sessionId, action) => {

@@ -95,7 +95,7 @@ const SessionLogCard: React.FC<SessionCardProps> = ({
               color="error"
               size="small"
               startIcon={<StopCircleIcon />}
-              onClick={() => onTerminate(id)}
+              onClick={() => onTerminate(session.id)}
             >
               Завершити
             </Button>

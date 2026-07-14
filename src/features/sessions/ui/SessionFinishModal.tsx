@@ -1,13 +1,13 @@
 import { Button, CircularProgress, Typography } from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
-import { useSession } from '../model/store';
+import type { AuctionSession } from '../../all-actions/model/types';
+import { useTerminateSession } from '../../all-actions/model/useSessionLogs';
 import type { Session } from '../model/types';
-import { useSessionsData } from '../model/useSessionData';
 
 interface SessionFinishModalProps {
   isModalOpen: boolean;
   handleClose: () => void;
-  currentSession: Session;
+  currentSession: Session | AuctionSession | null;
 }
 
 export default function SessionFinishModal({
@@ -15,15 +15,16 @@ export default function SessionFinishModal({
   handleClose,
   currentSession,
 }: SessionFinishModalProps) {
-  const { auctionAuthId } = useSession();
+  const terminateMutation = useTerminateSession();
 
-  const { DeleteSessionMutation } = useSessionsData(auctionAuthId);
-
-  const handleSubmit = async () => {
+  const handleConfirm = () => {
     if (!currentSession) return;
 
-    await DeleteSessionMutation.mutateAsync(currentSession.id);
-    handleClose();
+    terminateMutation.mutate(currentSession.id, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
   };
 
   if (!currentSession) return null;
@@ -35,17 +36,21 @@ export default function SessionFinishModal({
       title="Підтвердіть завершення"
       actions={
         <>
-          <Button onClick={handleClose} color="inherit">
+          <Button
+            onClick={handleClose}
+            color="inherit"
+            disabled={terminateMutation.isPending}
+          >
             Скасувати
           </Button>
 
           <Button
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             color="error"
             variant="contained"
-            disabled={DeleteSessionMutation.isPending}
+            disabled={terminateMutation.isPending}
           >
-            {DeleteSessionMutation.isPending ? (
+            {terminateMutation.isPending ? (
               <CircularProgress size={24} />
             ) : (
               'Завершити'
