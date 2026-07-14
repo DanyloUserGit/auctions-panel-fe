@@ -6,15 +6,18 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { LoaderSmall } from '../../../shared/ui/LoaderSmall';
 import { useAuth } from '../../auth/model/useAuth';
 import { useSession } from '../model/store';
+import { activeSessionsKeys } from '../model/useActiveSessions';
 import { useConnectionStore } from '../model/useConnectionStore';
 import SessionMenu from './SessionMenu';
 import SessionsExitModal from './SessionsExitModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const sessionConnect = useSession();
+  const queryClient = useQueryClient();
 
   // 1. Створюємо унікальний тимчасовий ключ тільки один раз при монтуванні
   const [localTempId] = useState(() => `pending_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
@@ -26,7 +29,7 @@ export const SessionContainer: FC = () => {
   const [isExitOpen, setIsExitOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const { connections, connectToSession, sendInteraction, disconnectFromSession } = useConnectionStore();
+  const { connections, connectToSession, sendInteraction, disconnectFromSession, disconnectAll } = useConnectionStore();
   const currentConnection = connections[activeConnectionKey];
 
   useEffect(() => {
@@ -128,12 +131,10 @@ export const SessionContainer: FC = () => {
   };
 
   const disconnectAndExit = () => {
-    Object.keys(connections).map((connectionKey) => {
-      disconnectFromSession(connectionKey);
-    });
+    disconnectAll();
+    queryClient.setQueryData(activeSessionsKeys.all, []);
     navigate('/');
   };
-
   const isLoading = currentConnection ? currentConnection.isLoading : true;
 
   return (
@@ -195,13 +196,12 @@ export const SessionContainer: FC = () => {
                   className={`flex items-center justify-center rounded-full p-0.5 transition-colors ${isActive ? 'hover:bg-blue-600' : 'hover:bg-gray-200'
                     }`}
                   onClick={(e) => {
-                    e.stopPropagation(); // Зупиняємо клік, щоб не спрацював onClick вкладки
-                    disconnectFromSession(connectionKey); // Вбиваємо WebRTC з'єднання
-
-                    // Якщо ми закрили ту вкладку, на якій зараз знаходимось - йдемо на головну
-                    if (isActive) {
-                      navigate('/');
-                    }
+                    e.stopPropagation();
+                    disconnectFromSession(connectionKey, user?.id!);
+                    queryClient.setQueryData(activeSessionsKeys.all, (old: any[] = []) =>
+                      old.filter((s) => s.id !== connectionKey)
+                    );
+                    if (isActive) navigate('/');
                   }}
                 >
                   <Close sx={{ width: '16px', height: '16px' }} />

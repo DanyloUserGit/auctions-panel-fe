@@ -1,14 +1,11 @@
 import {
-  Autocomplete,
   Box,
   Button,
   CircularProgress,
-  debounce,
-  TextField,
+  TextField
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
-import { fetchUsersByQuery } from '../../auth/model/api-user';
 import type { User } from '../../auth/model/user-schema';
 import type { Auction } from '../model/types';
 import { useEditAuction } from '../model/useAuctions';
@@ -31,32 +28,32 @@ export default function AuctionDeleteModal({
     currentAuction.users,
   );
 
-  const [options, setOptions] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [options, setOptions] = useState<User[]>([]);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const debouncedFetch = useMemo(
-    () =>
-      debounce(async (query: string) => {
-        if (!query) {
-          setOptions(addedAcounts);
-          return;
-        }
+  // const debouncedFetch = useMemo(
+  //   () =>
+  //     debounce(async (query: string) => {
+  //       if (!query) {
+  //         setOptions(addedAcounts);
+  //         return;
+  //       }
 
-        setIsLoading(true);
-        try {
-          const { data: results } = await fetchUsersByQuery(query);
-          const combined = [...addedAcounts, ...(results || [])];
-          const uniqueOptions = Array.from(
-            new Map(combined.map((item) => [item.id, item])).values(),
-          );
+  //       setIsLoading(true);
+  //       try {
+  //         const { data: results } = await fetchUsersByQuery(query);
+  //         const combined = [...addedAcounts, ...(results || [])];
+  //         const uniqueOptions = Array.from(
+  //           new Map(combined.map((item) => [item.id, item])).values(),
+  //         );
 
-          setOptions(uniqueOptions);
-        } finally {
-          setIsLoading(false);
-        }
-      }, 400),
-    [addedAcounts],
-  );
+  //         setOptions(uniqueOptions);
+  //       } finally {
+  //         setIsLoading(false);
+  //       }
+  //     }, 400),
+  //   [addedAcounts],
+  // );
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -116,7 +113,7 @@ export default function AuctionDeleteModal({
           onChange={(e) => setUrl(e.target.value)}
         />
 
-        <Autocomplete
+        {/* <Autocomplete
           multiple
           id="async-auctions-select"
           filterSelectedOptions
@@ -155,7 +152,7 @@ export default function AuctionDeleteModal({
               }}
             />
           )}
-        />
+        /> */}
       </Box>
     </BaseModal>
   );

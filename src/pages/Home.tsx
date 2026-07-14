@@ -11,6 +11,7 @@ import {
   disconnectNotificationSocket,
   subscribeToGlobalNotifications,
 } from '../features/sessions/model/sockets';
+import { activeSessionsKeys } from '../features/sessions/model/useActiveSessions';
 import { useConnectionStore } from '../features/sessions/model/useConnectionStore';
 import { useRestoreSessions } from '../features/sessions/model/useRestoreSessions';
 import Sidebar from '../shared/ui/Sidebar';
@@ -112,7 +113,10 @@ export default function Home() {
                     <Box
                       onClick={(e) => {
                         e.stopPropagation();
-                        disconnectFromSession(connectionKey);
+                        disconnectFromSession(connectionKey, user?.id!);
+                        queryClient.setQueryData(activeSessionsKeys.all, (old: any[] = []) =>
+                          old.filter((s) => s.id !== connectionKey)
+                        );
                       }}
                       sx={{
                         display: 'flex',

@@ -15,12 +15,12 @@ import React, { useState } from 'react';
 import { Loader } from '../../../shared/ui/Loader';
 import { RoleMap } from '../../auth/model/types';
 import { useAuth } from '../../auth/model/useAuth';
+import SessionFinishModal from '../../sessions/ui/SessionFinishModal';
 import {
   useActiveSessions,
   useClosedSessions,
   useForbiddenLogs,
-  useIncidentLogs,
-  useTerminateSession,
+  useIncidentLogs
 } from '../model/useSessionLogs';
 import type {
   AuctionSession,
@@ -33,11 +33,15 @@ import SessionLogModal from './SessionLogModal';
 const SessionLogList: React.FC = () => {
   const { user } = useAuth();
   const [tabValue, setTabValue] = useState<number>(0);
-
+  const [isFinishModalOpen, setFinishModalOpen] = useState(false);
   const [filters, setFilters] = useState<LogFilters>({ take: 50 });
 
   const [selectedSessionForLog, setSelectedSessionForLog] =
     useState<AuctionSession | null>(null);
+
+  const [sessionToTerminate, setSessionToTerminate] =
+    useState<AuctionSession | null>(null);
+
 
   const { data: activeSessions = [], isLoading: isActiveLoading } =
     useActiveSessions(filters);
@@ -47,8 +51,6 @@ const SessionLogList: React.FC = () => {
     useForbiddenLogs(filters);
   const { data: incidentLogs = [], isLoading: isIncidentLoading } =
     useIncidentLogs(filters);
-
-  const terminateMutation = useTerminateSession();
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -64,6 +66,7 @@ const SessionLogList: React.FC = () => {
   const handleViewLog = (session: AuctionSession) => {
     setSelectedSessionForLog(session);
   };
+
 
   const gotoSession = (sessionId: string) => {
     setTabValue(1);
@@ -83,15 +86,15 @@ const SessionLogList: React.FC = () => {
       }
     }, 100);
   };
-
-  const handleTerminate = (sessionId: string) => {
-    if (
-      window.confirm('Ви впевнені, що хочете примусово завершити цю сесію?')
-    ) {
-      terminateMutation.mutate(sessionId);
-    }
+  const handleTerminate = (session: AuctionSession) => {
+    setSessionToTerminate(session);
+    setFinishModalOpen(true);
   };
 
+  const handleCloseFinishModal = () => {
+    setFinishModalOpen(false);
+    setSessionToTerminate(null);
+  };
   const isLoading =
     isActiveLoading ||
     isClosedLoading ||
@@ -196,7 +199,7 @@ const SessionLogList: React.FC = () => {
                       session={session}
                       canTerminate={true}
                       onViewLog={handleViewLog}
-                      onTerminate={handleTerminate}
+                      onTerminate={() => handleTerminate(session)}
                     />
                   </Grid>
                 ))
@@ -218,7 +221,7 @@ const SessionLogList: React.FC = () => {
                       session={session}
                       canTerminate={false}
                       onViewLog={handleViewLog}
-                      onTerminate={handleTerminate}
+                      onTerminate={() => handleTerminate(session)}
                     />
                   </Grid>
                 ))
@@ -257,7 +260,13 @@ const SessionLogList: React.FC = () => {
         session={selectedSessionForLog}
         onClose={() => setSelectedSessionForLog(null)}
       />
+      <SessionFinishModal
+        isModalOpen={isFinishModalOpen}
+        handleClose={handleCloseFinishModal}
+        currentSession={sessionToTerminate}
+      />
     </Box>
+
   );
 };
 
