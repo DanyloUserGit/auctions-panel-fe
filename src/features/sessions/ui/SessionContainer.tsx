@@ -1,5 +1,6 @@
-import { Close, ExitToApp, Home } from '@mui/icons-material';
+import { ArrowBack, Close, ExitToApp, Home } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import throttle from 'lodash/throttle';
 import { useEffect, useRef, useState, type FC } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -10,7 +11,6 @@ import { activeSessionsKeys } from '../model/useActiveSessions';
 import { useConnectionStore } from '../model/useConnectionStore';
 import SessionMenu from './SessionMenu';
 import SessionsExitModal from './SessionsExitModal';
-import { useQueryClient } from '@tanstack/react-query';
 
 export const SessionContainer: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -116,6 +116,10 @@ export const SessionContainer: FC = () => {
     interact({ type: 'mouseup', ...getCoordinates(e), button: e.button });
   };
 
+  const backButton = () => {
+    interact({ type: 'navigate_back' });
+  }
+
   const handleWheel = (e: React.WheelEvent<HTMLVideoElement>) => {
     throttledWheelRef.current?.({ deltaX: e.deltaX, deltaY: e.deltaY });
   };
@@ -146,7 +150,7 @@ export const SessionContainer: FC = () => {
     >
 
       <SessionMenu>
-        <div>
+        <div className='relative'>
           <IconButton
             onClick={() => setIsExitOpen(true)}
             sx={{
@@ -159,6 +163,22 @@ export const SessionContainer: FC = () => {
             }}
           >
             <ExitToApp sx={{ width: '20px' }} />
+          </IconButton>
+          <IconButton
+            onClick={backButton}
+            sx={{
+              color: 'gray',
+              background: 'white',
+              width:"40px",
+              height: "40px",
+              padding: '5px',
+              position:"absolute",
+              left:"0",
+              top:"100%",
+              ':hover': { background: 'lightgray' },
+            }}
+          >
+            <ArrowBack />
           </IconButton>
         </div>
 

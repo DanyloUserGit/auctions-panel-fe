@@ -3,9 +3,9 @@ import {
   Box,
   Button,
   IconButton,
+  Stack,
   Tooltip,
   Typography,
-  Stack,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
@@ -22,19 +22,15 @@ import EditGroupModal from '../features/groups/ui/EditGroupModal';
 import GroupSearch from '../features/groups/ui/GroupSearch';
 import { useSession } from '../features/sessions/model/store';
 import { useSessionsData } from '../features/sessions/model/useSessionData';
-import SessionList from '../features/sessions/ui/SessionList';
+import AutoConnectSession from '../features/sessions/ui/AutoConnectSession';
 import { useMobile } from '../shared/hooks/useMobile';
 import { useModal } from '../shared/hooks/useModal';
 import { Loader } from '../shared/ui/Loader';
-import { useAuth } from '../features/auth/model/useAuth';
-import AutoConnectSession from '../features/sessions/ui/AutoConnectSession';
 
 export default function AuctionsPage() {
   const location = useLocation();
   const { data: groups } = useGroups();
   const sessionConnect = useSession();
-  const { user } = useAuth();
-  const isSuperAdmin = user?.role === 'SuperAdmin';
 
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
