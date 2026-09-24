@@ -15,12 +15,12 @@ export default function AutoConnectSession({ sessions }: Props) {
     const activeSession = sessions.find((s) => s.isActive);
 
     if (activeSession) {
-      // Якщо є активна — підключаємось до неї.
+      // Якщо є активна - підключаємось до неї.
       // Використовуємо replace: true, щоб при натисканні "Назад"
       // користувач не потрапляв знову на сторінку нескінченного редиректу.
       navigate(`/session/${activeSession.id}`, { replace: true });
     } else {
-      // Якщо активної немає — переходимо на сторінку створення нової
+      // Якщо активної немає - переходимо на сторінку створення нової
       navigate(`/session`, { replace: true });
     }
   }, [sessions, navigate]);

@@ -35,7 +35,7 @@ export default function AuctionsList({
         },
       }}
     >
-      {/* Якщо аукціони є — рендеримо їх */}
+      {/* Якщо аукціони є - рендеримо їх */}
       {!isEmpty ? (
         filteredAuctions.map((auction) => (
           <AuctionItem
@@ -45,7 +45,7 @@ export default function AuctionsList({
           />
         ))
       ) : (
-        <Can roles={['User']}>
+        <Can roles={['User', 'Admin']}>
           <Grid size={{ xs: 12 }}>
             <Box
               sx={{
@@ -78,7 +78,7 @@ export default function AuctionsList({
         </Can>
       )}
 
-      <Can roles={['Admin', 'SuperAdmin']}>
+      <Can roles={['SuperAdmin']}>
         {currentGroupId ? (
           <AddItemButton type="auction" isEmpty={isEmpty} onClick={open} />
         ) : (

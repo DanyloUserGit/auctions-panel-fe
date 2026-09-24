@@ -498,7 +498,7 @@ export default function ImportForm({ tab }: { tab: CalculationTab }) {
                             </TableRow>
                             <TableRow>
                               <TableCell>Брокер</TableCell>
-                              <TableCell>—</TableCell>
+                              <TableCell>-</TableCell>
                               <TableCell>
                                 {formatMoney(card.brokerUSD, 'USD')}
                               </TableCell>
@@ -507,7 +507,7 @@ export default function ImportForm({ tab }: { tab: CalculationTab }) {
                               <TableCell sx={{ fontWeight: 700 }}>
                                 Разом
                               </TableCell>
-                              <TableCell>—</TableCell>
+                              <TableCell>-</TableCell>
                               <TableCell sx={{ fontWeight: 700 }}>
                                 {formatMoney(card.totalUSD, 'USD')}
                               </TableCell>

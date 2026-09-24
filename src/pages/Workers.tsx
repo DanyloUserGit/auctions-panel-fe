@@ -19,6 +19,7 @@ import { ROLES } from '../features/auth/model/user-schema';
 import { WorkerControlModal } from '../features/Workers/ui/WorkerControlModal';
 import { WorkerEditModal } from '../features/Workers/ui/WorkerEditModal';
 import { WorkerCreateModal } from '../features/Workers/ui/WorkerCreateModal';
+import { UserAccessModal } from '../features/Workers/ui/UserAccessModal';
 import WorkersList from '../features/Workers/ui/WorkersList';
 import { useModal } from '../shared/hooks/useModal';
 import { useMobile } from '../shared/hooks/useMobile';
@@ -112,6 +113,11 @@ export default function EmployeesSection() {
     isOpen: isEditUserOpen,
     open: OpenEditUser,
     close: CloseEditUser,
+  } = useModal(false);
+  const {
+    isOpen: isUserAccessOpen,
+    open: OpenUserAccess,
+    close: CloseUserAccess,
   } = useModal(false);
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -231,6 +237,7 @@ export default function EmployeesSection() {
         handleChangeWorker={handleChangeWorker}
         OpenControlCard={OpenControlCard}
         OpenEditUser={OpenEditUser}
+        OpenUserAccess={OpenUserAccess}
       />
 
       <TablePagination
@@ -264,6 +271,15 @@ export default function EmployeesSection() {
           key={effectiveId}
           open={isEditUserOpen}
           onClose={CloseEditUser}
+          user={currentUser}
+        />
+      )}
+
+      {currentUser && (
+        <UserAccessModal
+          key={`access-${effectiveId}`}
+          open={isUserAccessOpen}
+          onClose={CloseUserAccess}
           user={currentUser}
         />
       )}

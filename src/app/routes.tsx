@@ -30,6 +30,7 @@ import PageNotFound from '../pages/PageNotFound';
 import { Processes } from '../pages/processes/Processes';
 import SettingsPage from '../pages/Settings';
 import TrainingPage from '../pages/Training';
+import UserGroups from '../pages/UserGroups';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
           { path: 'inventory', element: <InStock /> },
           { path: 'me', element: <Profile /> },
           { path: 'workers', element: <Workers /> },
+          { path: 'user-groups', element: <UserGroups /> },
           { path: 'notifications/list', element: <NotificationsPage /> },
           { path: 'learning', element: <TrainingPage /> },
           { path: 'info', element: <Information /> },

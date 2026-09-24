@@ -104,7 +104,7 @@ const InStockpage: React.FC = () => {
     }
   };
 
-  // Обробник кнопки "Продати" — переводить авто у статус "Продано"
+  // Обробник кнопки "Продати" - переводить авто у статус "Продано"
   const handleSellCar = (car: Car) => {
     updateCarMutation.mutate({ id: car.id, carData: { ...car, status: 'sold' } });
   };

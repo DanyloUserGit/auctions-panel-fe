@@ -34,7 +34,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!userId) return;
-    connectNotificationSocket(userId);
+    connectNotificationSocket();
     const unsubscribe = subscribeToGlobalNotifications({
       onReceived: (data) => {
         showNotification(data.message);

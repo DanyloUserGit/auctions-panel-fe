@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { useModal } from '../../../shared/hooks/useModal';
+import { Can } from '../../auth/ui/Can';
 import type { Account } from '../model/types';
 import { useAddToFavorite, useRemoveFromFavorite } from '../model/useAcounts';
 import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
@@ -88,7 +89,8 @@ export default function AccountItem({
           </Tooltip>
         </Box>
 
-        {/* Кнопка видалення */}
+        {/* Кнопка видалення - лише SuperAdmin */}
+        <Can roles={['SuperAdmin']}>
         <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
           <Tooltip title="Видалити акаунт">
             <IconButton
@@ -103,6 +105,7 @@ export default function AccountItem({
             </IconButton>
           </Tooltip>
         </Box>
+        </Can>
 
         <ConfirmDeleteAccountModal
           handleClose={handleClose}

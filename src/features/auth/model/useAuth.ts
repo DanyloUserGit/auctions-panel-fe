@@ -15,6 +15,7 @@ import {
 } from './api-user';
 import type { CreateUser, UpdateUser, User } from './user-schema';
 import { groupsKeys } from '../../groups/model/useGroups';
+import { socket } from '../../../shared/http';
 import type { LoginInput } from './login-schema';
 
 export const authKeys = {
@@ -85,6 +86,8 @@ export const useAuth = () => {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
+      // Сокет сесій автентифікований cookie попереднього користувача - закриваємо його.
+      socket.disconnect();
       queryClient.setQueryData(authKeys.me, null);
       queryClient.clear();
     }

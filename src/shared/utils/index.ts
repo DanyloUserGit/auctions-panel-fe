@@ -19,7 +19,7 @@ export function parseNumberish(value: string | number): number {
   return Number.isFinite(num) ? num : 0;
 }
 export const safeToFixed = (val?: number, digits = 2) =>
-  typeof val === 'number' ? val.toFixed(digits) : '—';
+  typeof val === 'number' ? val.toFixed(digits) : '-';
 
 export function copyText(value: string) {
   if (navigator.clipboard?.writeText) {

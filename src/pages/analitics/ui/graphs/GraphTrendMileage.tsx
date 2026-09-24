@@ -63,7 +63,7 @@ export const GraphTrendMileage: React.FC<GraphProps> = ({ data, targetCar }) => 
         const prices = bins[i].prices.sort((a, b) => a - b);
         const count = prices.length;
 
-        // X-координата — це середній пробіг авто в цьому кошику
+        // X-координата - це середній пробіг авто в цьому кошику
         const avgMileage = Math.round(
           bins[i].mileages.reduce((a, b) => a + b, 0) / count
         );
@@ -71,7 +71,7 @@ export const GraphTrendMileage: React.FC<GraphProps> = ({ data, targetCar }) => 
         let min, avg, max;
 
         if (count < 4) {
-          // Мало даних для статистики — беремо як є
+          // Мало даних для статистики - беремо як є
           min = prices[0];
           avg = Math.round(prices.reduce((a, b) => a + b, 0) / count);
           max = prices[count - 1];
@@ -243,10 +243,10 @@ export const GraphTrendMileage: React.FC<GraphProps> = ({ data, targetCar }) => 
             </li>
           )}
           <li>
-            Якщо точка перетину знаходиться ближче до <strong>зеленої лінії (Низу ринку)</strong> — це потенційно вигідна ціна.
+            Якщо точка перетину знаходиться ближче до <strong>зеленої лінії (Низу ринку)</strong> - це потенційно вигідна ціна.
           </li>
           <li>
-            Три лінії утворюють ринковий коридор. Звуження цього коридору в певних діапазонах пробігу свідчить про стабільність цін, а розширення — про сильний вплив комплектації або стану авто на ціну.
+            Три лінії утворюють ринковий коридор. Звуження цього коридору в певних діапазонах пробігу свідчить про стабільність цін, а розширення - про сильний вплив комплектації або стану авто на ціну.
           </li>
         </ul>
       </div>

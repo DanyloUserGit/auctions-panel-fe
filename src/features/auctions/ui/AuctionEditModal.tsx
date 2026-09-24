@@ -6,7 +6,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
-import type { User } from '../../auth/model/user-schema';
 import type { Auction } from '../model/types';
 import { useEditAuction } from '../model/useAuctions';
 
@@ -24,37 +23,6 @@ export default function AuctionDeleteModal({
   const { mutate, isPending } = useEditAuction();
   const [title, setTitle] = useState<string>(currentAuction.title);
   const [url, setUrl] = useState<string>(currentAuction.url);
-  const [addedAcounts, setAddedAcounts] = useState<User[]>(
-    currentAuction.users,
-  );
-
-  // const [options, setOptions] = useState<User[]>([]);
-  // const [isLoading, setIsLoading] = useState(false);
-
-  // const debouncedFetch = useMemo(
-  //   () =>
-  //     debounce(async (query: string) => {
-  //       if (!query) {
-  //         setOptions(addedAcounts);
-  //         return;
-  //       }
-
-  //       setIsLoading(true);
-  //       try {
-  //         const { data: results } = await fetchUsersByQuery(query);
-  //         const combined = [...addedAcounts, ...(results || [])];
-  //         const uniqueOptions = Array.from(
-  //           new Map(combined.map((item) => [item.id, item])).values(),
-  //         );
-
-  //         setOptions(uniqueOptions);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     }, 400),
-  //   [addedAcounts],
-  // );
-
   const handleSubmit = () => {
     if (!title.trim()) return;
 
@@ -65,14 +33,12 @@ export default function AuctionDeleteModal({
           auctionGroupId: currentAuction.auctionGroupId,
           title: title,
           url: url,
-          users: addedAcounts.map((a) => String(a.id)),
         },
       },
       {
         onSuccess: () => {
           setTitle('');
           setUrl('');
-          setAddedAcounts([]);
           handleClose();
         },
       },
@@ -113,46 +79,6 @@ export default function AuctionDeleteModal({
           onChange={(e) => setUrl(e.target.value)}
         />
 
-        {/* <Autocomplete
-          multiple
-          id="async-auctions-select"
-          filterSelectedOptions
-          value={addedAcounts}
-          options={options}
-          loading={isLoading}
-          onInputChange={(_, newInputValue) => {
-            debouncedFetch(newInputValue);
-          }}
-          onChange={(_, newValue) => {
-            setAddedAcounts(newValue);
-            setOptions((prev) => {
-              const combined = [...newValue, ...prev];
-              return Array.from(
-                new Map(combined.map((item) => [item.id, item])).values(),
-              );
-            });
-          }}
-          getOptionLabel={(option) => option.email}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Пошук користувачів"
-              placeholder="Введіть назву..."
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {isLoading ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-        /> */}
       </Box>
     </BaseModal>
   );

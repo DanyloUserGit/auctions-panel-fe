@@ -4,8 +4,8 @@ A modern web-based platform for managing vehicle auctions, including listings, b
 
 The project is split into two independent applications:
 
-- 🖥 **Frontend** — user interface for buyers, sellers, and admins
-- ⚙️ **Backend** — API, business logic, authentication, and auction engine
+- 🖥 **Frontend** - user interface for buyers, sellers, and admins
+- ⚙️ **Backend** - API, business logic, authentication, and auction engine
 
 ---
 

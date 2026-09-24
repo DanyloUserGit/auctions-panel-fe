@@ -2,11 +2,9 @@ import {
   CheckCircleOutline,
   LockOutlined,
   MouseOutlined,
-  PersonAddOutlined,
 } from '@mui/icons-material';
 import {
   Autocomplete,
-  Box,
   Chip,
   CircularProgress,
   Paper,
@@ -14,12 +12,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useAutoCompleteWithQuery } from '../../../../shared/hooks/useAutoCompleteWithQuery';
 import { Loader } from '../../../../shared/ui/Loader';
 import { useAuction } from '../../../auctions/model/useAuctions';
-import { fetchUsersByQuery } from '../../../auth/model/api-user';
-import { authKeys } from '../../../auth/model/useAuth';
-import type { User } from '../../../auth/model/user-schema';
 import type { Path, Selector } from '../../model/types';
 import {
   useAllowedPaths,
@@ -31,8 +25,6 @@ import {
   useRemoveForbiddenPath,
   useAddAuctionSelector,
   useRemoveForbiddenSelector,
-  useAddAuctionUser,
-  useRemoveAuctionUser,
 } from '../../model/useAuctionSettings';
 
 export default function SelectedAuctionSettings({
@@ -40,12 +32,6 @@ export default function SelectedAuctionSettings({
 }: {
   selectedAuction: string;
 }) {
-  const usersSearch = useAutoCompleteWithQuery<User>({
-    fetchFn: fetchUsersByQuery,
-    queryKey: authKeys.users,
-    debounceTime: 400,
-  });
-
   const { data: allowedPaths, isLoading: isLoadingPath } =
     useAllowedPaths(selectedAuction);
   const { data: forbiddenPaths } = useForbiddenPaths(selectedAuction);
@@ -58,56 +44,9 @@ export default function SelectedAuctionSettings({
   const removeForbidden = useRemoveForbiddenPath();
   const addSelector = useAddAuctionSelector();
   const removeSelector = useRemoveForbiddenSelector();
-  const addUser = useAddAuctionUser();
-  const removeUser = useRemoveAuctionUser();
   if (isLoading || !auction) return <Loader />;
   return (
     <Stack spacing={3} key={selectedAuction}>
-      <Paper sx={{ p: 3, borderRadius: '20px' }}>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-          <PersonAddOutlined color="secondary" />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Дозволені користувачі
-          </Typography>
-        </Stack>
-        <Autocomplete
-          multiple
-          value={[]}
-          options={usersSearch.getFilteredOptions(auction.users || [])}
-          loading={usersSearch.isLoading}
-          onInputChange={(_, val) => usersSearch.onInputChange(val)}
-          getOptionLabel={(o) => `${o.firstName} ${o.lastName} (${o.email})`}
-          filterOptions={(x) => x}
-          onChange={(_, newValue, reason) => {
-            if (reason === 'selectOption') {
-              const lastSelected = newValue[newValue.length - 1];
-              if (lastSelected) {
-                addUser.mutate({ id: auction.id, userId: lastSelected.id });
-              }
-            }
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Пошук користувачів"
-              placeholder="Введіть ім'я або email..."
-            />
-          )}
-        />
-        <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          {auction?.users?.map((user: User) => (
-            <Chip
-              key={user.id}
-              label={`${user.firstName} ${user.lastName}`}
-              onDelete={() =>
-                removeUser.mutate({ id: auction.id, userId: user.id })
-              }
-              color="secondary"
-              variant="outlined"
-            />
-          ))}
-        </Box>
-      </Paper>
       {/* Дозволені сторінки */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>

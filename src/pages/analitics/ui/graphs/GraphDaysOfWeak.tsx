@@ -63,14 +63,14 @@ export const GraphDaysOfWeek: React.FC<GraphProps> = ({ data }) => {
 
       if (count > 0) {
         if (count < 4) {
-          // Мало даних — беремо як є
+          // Мало даних - беремо як є
           min = sortedPrices[0];
           p25 = sortedPrices[0];
           avg = Math.round(sortedPrices.reduce((a, b) => a + b, 0) / count);
           p75 = sortedPrices[count - 1];
           max = sortedPrices[count - 1];
         } else {
-          // Багато даних — очищаємо від викидів (IQR)
+          // Багато даних - очищаємо від викидів (IQR)
           const q1 = getPercentile(sortedPrices, 25);
           const q3 = getPercentile(sortedPrices, 75);
           const iqr = q3 - q1;
@@ -309,9 +309,9 @@ export const GraphDaysOfWeek: React.FC<GraphProps> = ({ data }) => {
         <p className="font-medium mb-1">Ключові висновки на основі даних:</p>
         {summary ? (
           <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
-            <li>Найнижча середня ціна — у <strong>{summary.minAvgDay.label}</strong> (~<strong>{summary.minAvgDay.avg?.toLocaleString('uk-UA')} €</strong>).</li>
-            <li>Найнижчі мінімальні ціни — у <strong>{summary.minPriceDay.label}</strong> (від <strong>{summary.minPriceDay.min?.toLocaleString('uk-UA')} €</strong>).</li>
-            <li>Найбільший обсяг продажів — у <strong>{summary.maxVolDay.label}</strong> (<strong>{summary.maxVolDay.count} лотів</strong>).</li>
+            <li>Найнижча середня ціна - у <strong>{summary.minAvgDay.label}</strong> (~<strong>{summary.minAvgDay.avg?.toLocaleString('uk-UA')} €</strong>).</li>
+            <li>Найнижчі мінімальні ціни - у <strong>{summary.minPriceDay.label}</strong> (від <strong>{summary.minPriceDay.min?.toLocaleString('uk-UA')} €</strong>).</li>
+            <li>Найбільший обсяг продажів - у <strong>{summary.maxVolDay.label}</strong> (<strong>{summary.maxVolDay.count} лотів</strong>).</li>
           </ul>
         ) : (
           <p className="text-xs text-gray-700">Немає достатньо даних для висновків.</p>

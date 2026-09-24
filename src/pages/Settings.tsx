@@ -1,9 +1,8 @@
 import {
   Gavel,
-  Groups,
   Notifications,
   Person,
-  Public,
+  Public
 } from '@mui/icons-material';
 import { Box, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
@@ -12,7 +11,6 @@ import ProfileEdit from '../features/profile/ui/ProfileEdit';
 import GlobalSettings from '../features/settings/ui/GlobalSettings';
 import NotificationsSettings from '../features/settings/ui/NotificationsSettings';
 import { AuctionSettings } from '../features/settings/ui/auction/AuctionSettings';
-import { GroupSettings } from '../features/settings/ui/group/GroupSettings';
 import { useMobile } from '../shared/hooks/useMobile';
 import { Loader } from '../shared/ui/Loader';
 
@@ -42,16 +40,10 @@ export default function SettingsPage() {
         roles: ['Admin', 'SuperAdmin'],
       },
       {
-        label: 'Налаштування групи',
-        icon: <Groups />,
-        component: <>{user ? <GroupSettings user={user} /> : <Loader />}</>,
-        roles: ['Admin', 'SuperAdmin'],
-      },
-      {
         label: 'Правила аукціонів',
         icon: <Gavel />,
         component: <>{user ? <AuctionSettings user={user} /> : <Loader />}</>,
-        roles: ['Admin', 'SuperAdmin'],
+        roles: ['SuperAdmin'],
       },
     ],
     [],

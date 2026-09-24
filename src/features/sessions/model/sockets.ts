@@ -1,9 +1,36 @@
+import type { Socket } from 'socket.io-client';
 import { notificationSocket, socket } from '../../../shared/http';
+import { initAuth } from '../../auth/model/useAuth';
 import type {
   AuctionSocketEvents,
   NotificationSocketEvents,
   SessionConnectData,
 } from './types';
+
+// Сервер відключає сокет, якщо access_token відсутній або прострочений.
+// Один раз оновлюємо токен і перепідключаємось.
+const reconnectAfterTokenRefresh = (target: Socket) => {
+  let authRetried = false;
+  target.on('connect', () => {
+    authRetried = false;
+  });
+  target.on('disconnect', async (reason) => {
+    if (reason !== 'io server disconnect' || authRetried) return;
+    authRetried = true;
+    if (await initAuth()) {
+      target.connect();
+    }
+  });
+};
+
+reconnectAfterTokenRefresh(socket);
+reconnectAfterTokenRefresh(notificationSocket);
+
+export const ensureSocketConnected = () => {
+  if (!socket.active) {
+    socket.connect();
+  }
+};
 
 export const emitJoinAuction = (sessionConnectData: SessionConnectData) => {
   socket.emit('join_auction', sessionConnectData);
@@ -37,9 +64,9 @@ export const subscribeToAuctionEvents = (events: AuctionSocketEvents) => {
     socket.off('error', events.onError);
   };
 };
-export const connectNotificationSocket = (userId: string) => {
+// Сервер визначає користувача за cookie access_token, userId не передається.
+export const connectNotificationSocket = () => {
   if (!notificationSocket.connected) {
-    notificationSocket.io.opts.query = { userId };
     notificationSocket.connect();
   }
 };

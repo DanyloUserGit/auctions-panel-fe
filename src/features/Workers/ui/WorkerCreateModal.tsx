@@ -25,8 +25,9 @@ import {
   createUserSchema,
   ROLES,
 } from '../../auth/model/user-schema';
-import { fetchGroupByQuery } from '../../groups/model/api-groups';
-import type { Group } from '../../groups/model/types';
+
+import { fetchUserGroupsByQuery } from '../../user-groups/model/api';
+import type { UserGroup } from '../../user-groups/model/types';
 import { RIGHTS, RIGHTS_LABELS } from '../model/types';
 interface CreateUserModalProps {
   open: boolean;
@@ -49,8 +50,8 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { mutate: createUser, isPending, error } = useCreateUser();
   const isSA = currentUser?.role === 'SuperAdmin';
 
-  const GroupSearch = useAutoComplete<Group>({
-    fetchFn: fetchGroupByQuery,
+  const GroupSearch = useAutoComplete<UserGroup>({
+    fetchFn: fetchUserGroupsByQuery,
   });
 
   const {
@@ -60,6 +61,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     reset,
     watch,
     setValue,
+    setError,
     formState: { errors },
   } = useForm<CreateUser>({
     resolver: zodResolver(createUserSchema),
@@ -72,7 +74,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
       phone: '',
       email: '',
       password: '',
-      auctionGroupId: '',
+      userGroupId: '',
       managedGroup: '',
     },
   });
@@ -85,7 +87,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
 
   useEffect(() => {
     if (canManageGroup) {
-      setValue('auctionGroupId', '');
+      setValue('userGroupId', '');
     } else if (isAuctionMember) {
       setValue('managedGroup', '');
     }
@@ -108,13 +110,19 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
 
 
   const onSubmit = (data: CreateUser) => {
+    // Користувач з роллю User завжди належить до групи (для Admin бекенд ставить його групу сам).
+    if (isSA && data.role === 'User' && !data.userGroupId) {
+      setError('userGroupId', { message: 'Оберіть групу для користувача' });
+      return;
+    }
+
     const payload: Partial<CreateUser> = { ...data };
 
     if (!payload.managedGroup || payload.managedGroup.trim() == '') {
       delete payload.managedGroup;
     }
-    if (!payload.auctionGroupId || payload.auctionGroupId.trim() == '') {
-      delete payload.auctionGroupId;
+    if (!payload.userGroupId || payload.userGroupId.trim() == '') {
+      delete payload.userGroupId;
     }
 
     if (isAuctionMember) {
@@ -207,7 +215,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
+                    {ROLES.filter((r) => isSA || r === 'User').map(
                       (role) => (
                         <MenuItem key={role} value={role}>
                           {role}
@@ -220,7 +228,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
             </FormControl>
           </Grid>
 
-          {canManageGroup && (
+          {isSA && canManageGroup && (
             <Grid size={12}>
               <Controller
                 name="managedGroup"
@@ -237,7 +245,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                         GroupSearch.debouncedFetch(val, selected)
                       }
                       onChange={(_, val) => onChange(val?.id || '')}
-                      getOptionLabel={(o) => o.title || ''}
+                      getOptionLabel={(o) => o.name || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
                       renderInput={(params) => (
                         <TextField
@@ -254,10 +262,18 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
             </Grid>
           )}
 
-          {isAuctionMember && (
+          {!isSA && (
+            <Grid size={12}>
+              <Typography variant="body2" color="text.secondary">
+                Користувача буде додано до вашої групи.
+              </Typography>
+            </Grid>
+          )}
+
+          {isSA && isAuctionMember && (
             <Grid size={12}>
               <Controller
-                name="auctionGroupId"
+                name="userGroupId"
                 control={control}
                 render={({ field: { onChange, value } }) => {
                   const selected =
@@ -271,14 +287,18 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                         GroupSearch.debouncedFetch(val, selected)
                       }
                       onChange={(_, val) => onChange(val?.id || '')}
-                      getOptionLabel={(o) => o.title || ''}
+                      getOptionLabel={(o) => o.name || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Прив'язати до групи"
-                          error={!!errors.auctionGroupId}
-                          helperText={errors.auctionGroupId?.message}
+                          label={
+                            selectedRole === 'User'
+                              ? 'Група користувача *'
+                              : "Прив'язати до групи"
+                          }
+                          error={!!errors.userGroupId}
+                          helperText={errors.userGroupId?.message}
                         />
                       )}
                     />

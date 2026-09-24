@@ -62,7 +62,7 @@ export default function AuctionItem({ onClick, auction }: AuctionItemProps) {
           },
         }}
       >
-        <Can roles={['Admin', 'SuperAdmin']}>
+        <Can roles={['SuperAdmin']}>
           <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
             <IconButton
               size="small"

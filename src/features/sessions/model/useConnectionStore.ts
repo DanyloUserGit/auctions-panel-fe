@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { socket } from '../../../shared/http';
 import {
     emitJoinAuction,
+    ensureSocketConnected,
     sendWebRTCIceCandidate,
     sendWebRTCOffer,
     subscribeToAuctionEvents,
@@ -256,6 +257,9 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
 
         if (socket.connected) {
             safeJoinAuction();
+        } else {
+            // Приєднання відбудеться в onConnect після (пере)підключення.
+            ensureSocketConnected();
         }
 
         set((state) => {
@@ -287,7 +291,7 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
                 connection.peerConnection.close();
             }
 
-            // Не шлемо на бекенд pending_ ключ — реальної сесії ще могло не бути
+            // Не шлемо на бекенд pending_ ключ - реальної сесії ще могло не бути
             if (socket.connected && !sessionId.startsWith('pending_')) {
                 socket.emit('leave_auction', { sessionId, userId });
             }

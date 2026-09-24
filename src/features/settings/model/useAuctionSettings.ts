@@ -1,15 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { auctionsKeys } from '../../auctions/model/useAuctions';
 import {
   addAuctionAllowedPath,
   addAuctionForbiddenPath,
   addAuctionSelector,
-  addAuctionUser,
   fetchAllowedPaths,
   fetchForbiddenPaths,
   fetchForbiddenSelectors,
   removeAllowedPath,
-  removeAuctionUser,
   removeForbiddenPath,
   removeForbiddenSelector,
 } from './api-auctions-settings';
@@ -48,18 +45,6 @@ export const useAllowedPaths = (auctionId: string) => {
     queryFn: () => fetchAllowedPaths(auctionId),
     staleTime: 1000,
     enabled: !!auctionId,
-  });
-};
-
-export const useAddAuctionUser = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, userId }: { id: string; userId: string }) =>
-      addAuctionUser(id, { userId }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: auctionsKeys.all });
-      queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
-    },
   });
 };
 
@@ -134,24 +119,6 @@ export const useRemoveForbiddenSelector = () => {
       queryClient.invalidateQueries({
         queryKey: auctionSettingsKeys.forbiddenSelectors(variables.auctionId),
       });
-    },
-  });
-};
-
-export const useRemoveAuctionUser = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, userId }: { id: string; userId: string }) =>
-      removeAuctionUser(id, { userId }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['auctions', variables.id] });
-      queryClient.invalidateQueries({
-        queryKey: auctionSettingsKeys.all,
-      });
-      queryClient.invalidateQueries({ queryKey: auctionsKeys.all });
-    },
-    onError: (error) => {
-      console.error('Помилка при видаленні користувача:', error);
     },
   });
 };

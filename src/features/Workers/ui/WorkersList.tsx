@@ -27,12 +27,14 @@ interface Props {
   handleChangeWorker: (id: string) => void;
   OpenEditUser: () => void;
   OpenControlCard: () => void;
+  OpenUserAccess: () => void;
 }
 export default function WorkersList({
   users,
   handleChangeWorker,
   OpenControlCard,
   OpenEditUser,
+  OpenUserAccess,
 }: Props) {
   return (
     <TableContainer
@@ -106,6 +108,10 @@ export default function WorkersList({
                       openEdit={() => {
                         handleChangeWorker(String(user.id));
                         OpenEditUser();
+                      }}
+                      openAccess={() => {
+                        handleChangeWorker(String(user.id));
+                        OpenUserAccess();
                       }}
                       user={user}
                     />

@@ -5,13 +5,11 @@ import {
   CircularProgress,
   TextField,
 } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { fetchAuctionsByQuery } from '../../auctions/model/api-auctions';
 import type { Auction } from '../../auctions/model/types';
-import { fetchUsersByQuery } from '../../auth/model/api-user';
-import type { User } from '../../auth/model/user-schema';
 import { useCreateGroup } from '../model/useGroups';
 
 interface AddGroupModalProps {
@@ -27,30 +25,14 @@ export default function AddGroupModal({
 }: AddGroupModalProps) {
   const GroupCreation = useCreateGroup();
   const [title, setTitle] = useState<string>('');
+  const [sessionLimit, setSessionLimit] = useState<string>('');
   const [addedAuctions, setAddedAuctions] = useState<Auction[]>([]);
-  const [Admin, setAdmin] = useState<User | null>(null);
-  const [addedWorkers, setAddedWorkers] = useState<User[]>([]);
   const [isTitleTouched, setIsTitleTouched] = useState<boolean>(false);
-
-  const fetchAdminsByQuery = useCallback(
-    (query: string) => fetchUsersByQuery(query, 1, 10, 'Admin'),
-    [],
-  );
-
-  const fetchWorkersByQuery = useCallback(
-    (query: string) => fetchUsersByQuery(query, 1, 10, 'User'),
-    [],
-  );
 
   const auctionsSearch = useAutoComplete<Auction>({
     fetchFn: fetchAuctionsByQuery,
   });
-  const AdminSearch = useAutoComplete<User>({
-    fetchFn: fetchAdminsByQuery,
-  });
-  const workersSearch = useAutoComplete<User>({
-    fetchFn: fetchWorkersByQuery,
-  });
+
   const handleSubmit = () => {
     if (!title.trim()) {
       setIsTitleTouched(true);
@@ -59,17 +41,15 @@ export default function AddGroupModal({
 
     GroupCreation.mutate(
       {
-        title,
-        auctions: addedAuctions,
-        Admin: Admin ? Admin?.id : null,
-        users: addedWorkers,
+        title: title.trim(),
+        ...(sessionLimit !== '' && { sessionLimit: Number(sessionLimit) }),
+        auctions: addedAuctions.map((a) => a.id),
       },
       {
         onSuccess: () => {
           setTitle('');
+          setSessionLimit('');
           setAddedAuctions([]);
-          setAdmin(null);
-          setAddedWorkers([]);
           setIsTitleTouched(false);
           handleClose();
         },
@@ -116,8 +96,18 @@ export default function AddGroupModal({
           helperText={
             isTitleTouched && !title.trim()
               ? "Назва групи є обов'язковою"
-              : " "
+              : ' '
           }
+        />
+
+        <TextField
+          label="Ліміт сесій"
+          type="number"
+          fullWidth
+          value={sessionLimit}
+          onChange={(e) => setSessionLimit(e.target.value)}
+          helperText="Максимум одночасно активних сесій на всіх аукціонах групи. 0 або порожньо - без ліміту."
+          inputProps={{ min: 0 }}
         />
 
         <Autocomplete
@@ -132,32 +122,6 @@ export default function AddGroupModal({
           isOptionEqualToValue={(o, v) => o?.id === v?.id}
           renderInput={(params) => (
             <TextField {...params} label="Аукціони групи" />
-          )}
-        />
-
-        <Autocomplete
-          options={AdminSearch.getFilteredOptions(Admin)}
-          loading={AdminSearch.isLoading}
-          onInputChange={(_, val) => AdminSearch.debouncedFetch(val, Admin)}
-          onChange={(_, val) => setAdmin(val)}
-          getOptionLabel={(o) => `${o.firstName} ${o.lastName} (${o.email})`}
-          isOptionEqualToValue={(o, v) => o?.id === v?.id}
-          renderInput={(params) => (
-            <TextField {...params} label="Адмін групи" />
-          )}
-        />
-        <Autocomplete
-          multiple
-          options={workersSearch.getFilteredOptions(addedWorkers)}
-          loading={workersSearch.isLoading}
-          onInputChange={(_, val) =>
-            workersSearch.debouncedFetch(val, addedWorkers)
-          }
-          onChange={(_, val) => setAddedWorkers(val)}
-          getOptionLabel={(o) => `${o.firstName} ${o.lastName} (${o.email})`}
-          isOptionEqualToValue={(o, v) => o?.id === v?.id}
-          renderInput={(params) => (
-            <TextField {...params} label="Учасники групи" />
           )}
         />
       </Box>

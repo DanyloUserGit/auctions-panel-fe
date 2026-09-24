@@ -17,10 +17,10 @@ import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { ROLES, type UserRole } from '../../auth/model/user-schema';
 import {
-  fetchGroupByid,
-  fetchGroupByQuery,
-} from '../../groups/model/api-groups';
-import type { Group } from '../../groups/model/types';
+  fetchUserGroupById,
+  fetchUserGroupsByQuery,
+} from '../../user-groups/model/api';
+import type { UserGroup } from '../../user-groups/model/types';
 import {
   MaterialVisibility,
   type MaterialVisibilityType,
@@ -54,7 +54,7 @@ export function TrainingEditModal({
   const [allowedRoles, setAllowedRoles] = useState<UserRole[]>(
     item.allowedRoles || [],
   );
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null); // Спочатку null
+  const [selectedGroup, setSelectedGroup] = useState<UserGroup | null>(null); // Спочатку null
   const [isPublished, setIsPublished] = useState(item.isPublished || false);
 
   const [createdMaterialId, setCreatedMaterialId] = useState<string | null>(
@@ -64,15 +64,19 @@ export function TrainingEditModal({
   const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen && item.groupId) {
-      fetchGroupByid(item.groupId).then((data) => {
-        setSelectedGroup(data?.at(0) || null);
-      });
+    if (!isOpen) return;
+
+    if (item.groupId) {
+      fetchUserGroupById(item.groupId)
+        .then((data) => setSelectedGroup(data ?? null))
+        .catch(() => setSelectedGroup(null));
+    } else {
+      setSelectedGroup(null);
     }
   }, [isOpen, item.groupId]);
 
-  const groupsSearch = useAutoComplete<Group>({
-    fetchFn: fetchGroupByQuery,
+  const groupsSearch = useAutoComplete<UserGroup>({
+    fetchFn: fetchUserGroupsByQuery,
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement> | null) => {
@@ -239,12 +243,12 @@ export function TrainingEditModal({
                   groupsSearch.debouncedFetch(val, selectedGroup)
                 }
                 onChange={(_, val) => setSelectedGroup(val)}
-                getOptionLabel={(o) => o.title || ''}
+                getOptionLabel={(o) => o.name || ''}
                 isOptionEqualToValue={(o, v) => o.id === v.id}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Прив'язати до групи"
+                    label="Прив'язати до групи користувачів"
                     InputProps={{
                       ...params.InputProps,
                       endAdornment: (

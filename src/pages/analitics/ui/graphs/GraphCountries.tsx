@@ -69,14 +69,14 @@ export const GraphCountries: React.FC<GraphProps> = ({ data }) => {
 
       if (count > 0) {
         if (count < 4) {
-          // Мало даних — беремо як є
+          // Мало даних - беремо як є
           min = sortedPrices[0];
           p25 = sortedPrices[0];
           median = getPercentile(sortedPrices, 50);
           p75 = sortedPrices[count - 1];
           max = sortedPrices[count - 1];
         } else {
-          // Багато даних — очищаємо від викидів (IQR)
+          // Багато даних - очищаємо від викидів (IQR)
           const q1 = getPercentile(sortedPrices, 25);
           const q3 = getPercentile(sortedPrices, 75);
           const iqr = q3 - q1;

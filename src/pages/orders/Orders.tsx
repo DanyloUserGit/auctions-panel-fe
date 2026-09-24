@@ -241,7 +241,7 @@ export default function Orders() {
                   <TableRow key={order.id} sx={{ '&:hover': { backgroundColor: '#f1f5f9' }, transition: '0.2s' }}>
                     <TableCell>#{order.id}</TableCell>
                     <TableCell>
-                      {dayjs(order.created_at).format('YYYY-MM-DD HH:mm') || '—'}
+                      {dayjs(order.created_at).format('YYYY-MM-DD HH:mm') || '-'}
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="600">
@@ -255,7 +255,7 @@ export default function Orders() {
                       {order.first_name + ' ' + order.last_name || 'Невідомий'}
                     </TableCell>
                     <TableCell>
-                      {order.price_from && order.price_to ? `${order.price_from}-${order.price_to}` : '—'}
+                      {order.price_from && order.price_to ? `${order.price_from}-${order.price_to}` : '-'}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton size="small" onClick={(e) => handleMenuOpen(e, order)}>

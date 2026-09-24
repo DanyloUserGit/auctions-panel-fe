@@ -24,7 +24,7 @@ export default function NotificationsSettings() {
   } = useUpdateNotificationsRequirements();
 
   // Групи, якими керує поточний користувач (Admin/SuperAdmin керує максимум
-  // однією групою). Це НЕ те саме, що user.auctionGroupId — те поле означає
+  // однією групою). Це НЕ те саме, що user.auctionGroupId - те поле означає
   // групу, у якій сам користувач є учасником, а не якою він адмініструє.
   const { data: managedGroups } = useMyAdminGroups();
   const groupId = managedGroups?.[0]?.id;

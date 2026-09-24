@@ -13,7 +13,8 @@ export interface AccountUpdate {
 export interface Account {
   id: string;
   title: string;
-  email: string;
+  // Логін акаунта повертається лише SuperAdmin.
+  email?: string;
   password: string;
   auctionId: string;
 }

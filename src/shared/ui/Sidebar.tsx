@@ -4,6 +4,7 @@ import {
   Favorite,
   Gavel,
   Group,
+  Groups,
   History,
   Info,
   Insights,
@@ -156,6 +157,12 @@ export default function Sidebar({ user }: { user: User }) {
           text: 'Працівники',
           icon: <Group />,
           path: '/workers',
+          roles: ['Admin', 'SuperAdmin'],
+        },
+        {
+          text: 'Групи користувачів',
+          icon: <Groups />,
+          path: '/user-groups',
           roles: ['Admin', 'SuperAdmin'],
         },
         {

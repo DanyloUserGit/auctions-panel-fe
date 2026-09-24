@@ -48,7 +48,7 @@ export default function AccountList({
         );
       })}
       <Can
-        roles={['Admin', 'SuperAdmin']}
+        roles={['SuperAdmin']}
         // fallback={<div>Акаунтів ще немає</div>}
       >
         <AddItemButton

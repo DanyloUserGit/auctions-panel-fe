@@ -24,7 +24,7 @@ export default function AuctionsGroup({
   const handleOpenDeleteGroupModal = () => setDeleteGroupModalOpen(true);
   const handleCloseDeleteGroupModal = () => setDeleteGroupModalOpen(false);
 
-  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+  const isSuperAdmin = user?.role === 'SuperAdmin';
   const currentGroupExist = groups?.find((group) => group.id === activeGroupId);
   return (
     <Paper
@@ -70,7 +70,7 @@ export default function AuctionsGroup({
             sx={{ fontWeight: 500 }}
           >
             Список груп порожній.{' '}
-            {isAdmin && `Створіть першу групу, щоб додати аукціони.`}
+            {isSuperAdmin && `Створіть першу групу, щоб додати аукціони.`}
           </Typography>
         </Box>
       )}

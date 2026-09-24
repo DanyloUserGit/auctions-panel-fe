@@ -6,7 +6,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import BaseModal from '../../../shared/ui/Modal';
-import type { User } from '../../auth/model/user-schema';
 import { useCreateAuction } from '../model/useAuctions';
 
 // interface Auction {
@@ -31,12 +30,7 @@ export default function AuctionAddModal({
   const { mutate, isPending } = useCreateAuction();
   const [title, setTitle] = useState<string>('');
   const [url, setUrl] = useState<string>('');
-  const [addedAcounts, setAddedAcounts] = useState<User[]>([]);
 
-  // const { isLoading, options, setOptions, debouncedFetch } =
-  //   useAutoComplete<User>({
-  //     fetchFn: fetchUsersByQuery,
-  //   });
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -46,13 +40,11 @@ export default function AuctionAddModal({
         title,
         url,
         auctionGroupId: currentGroupId,
-        users: addedAcounts.map((a) => String(a.id)),
       },
       {
         onSuccess: () => {
           setTitle('');
           setUrl('');
-          setAddedAcounts([]);
           handleClose();
         },
       },
@@ -93,46 +85,6 @@ export default function AuctionAddModal({
           onChange={(e) => setUrl(e.target.value)}
         />
 
-        {/* <Autocomplete
-          multiple
-          id="async-auctions-select"
-          filterSelectedOptions
-          value={addedAcounts}
-          options={options}
-          loading={isLoading}
-          onInputChange={(_, newInputValue) => {
-            debouncedFetch(newInputValue, addedAcounts);
-          }}
-          onChange={(_, newValue) => {
-            setAddedAcounts(newValue);
-            setOptions((prev) => {
-              const combined = [...newValue, ...prev];
-              return Array.from(
-                new Map(combined.map((item) => [item.id, item])).values(),
-              );
-            });
-          }}
-          getOptionLabel={(option) => option.email}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Пошук користувачів"
-              placeholder="Введіть назву..."
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {isLoading ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-        /> */}
       </Box>
     </BaseModal>
   );

@@ -23,8 +23,9 @@ import {
   type UpdateUser,
   type User,
 } from '../../auth/model/user-schema';
-import { fetchGroupByQuery } from '../../groups/model/api-groups';
-import type { Group } from '../../groups/model/types';
+
+import { fetchUserGroupsByQuery } from '../../user-groups/model/api';
+import type { UserGroup } from '../../user-groups/model/types';
 import { RIGHTS, RIGHTS_LABELS } from '../model/types';
 
 interface CreateUserModalProps {
@@ -42,12 +43,12 @@ export const WorkerEditModal = ({
   const { mutate: updateUser, isPending, error } = useUpdateUser();
   const isSA = currentUser?.role === 'SuperAdmin';
 
-  const GroupSearch = useAutoComplete<Group>({
-    fetchFn: fetchGroupByQuery,
+  const GroupSearch = useAutoComplete<UserGroup>({
+    fetchFn: fetchUserGroupsByQuery,
     initialSelected: user.managedGroup
       ? [user.managedGroup]
-      : user.auctionGroup
-        ? [user.auctionGroup]
+      : user.userGroup
+        ? [user.userGroup]
         : [],
   });
 
@@ -58,6 +59,7 @@ export const WorkerEditModal = ({
     reset,
     watch,
     setValue,
+    setError,
     formState: { errors, dirtyFields },
   } = useForm<UpdateUser>({
     resolver: zodResolver(updateUserSchema),
@@ -70,7 +72,7 @@ export const WorkerEditModal = ({
       role: user.role,
       rights: user.rights,
       managedGroup: user.managedGroup?.id || '',
-      auctionGroupId: user.auctionGroupId || '',
+      userGroupId: user.userGroupId || '',
     },
   });
 
@@ -82,7 +84,7 @@ export const WorkerEditModal = ({
 
   useEffect(() => {
     if (canManageGroup) {
-      setValue('auctionGroupId', '');
+      setValue('userGroupId', '');
     } else if (isAuctionMember) {
       setValue('managedGroup', '');
     }
@@ -94,8 +96,8 @@ export const WorkerEditModal = ({
       if (user.managedGroup) {
         groupsToSet.push(user.managedGroup);
       }
-      if (user.auctionGroup) {
-        groupsToSet.push(user.auctionGroup);
+      if (user.userGroup) {
+        groupsToSet.push(user.userGroup);
       }
       if (groupsToSet.length > 0) {
         GroupSearch.setOptions(groupsToSet);
@@ -109,7 +111,7 @@ export const WorkerEditModal = ({
         phone: user.phone || '',
         role: user.role,
         rights: user.rights,
-        auctionGroupId: user.auctionGroupId || '',
+        userGroupId: user.userGroupId || '',
         managedGroup: user.managedGroup?.id || '',
       });
     }
@@ -123,13 +125,18 @@ export const WorkerEditModal = ({
   };
 
   const onSubmit = (data: UpdateUser) => {
+    if (isSA && data.role === 'User' && !data.userGroupId) {
+      setError('userGroupId', { message: 'Оберіть групу для користувача' });
+      return;
+    }
+
     const payload: Partial<UpdateUser> = { ...data };
 
     if (!payload.managedGroup || payload.managedGroup.trim() == '') {
       delete payload.managedGroup;
     }
-    if (!payload.auctionGroupId || payload.auctionGroupId.trim() == '') {
-      delete payload.auctionGroupId;
+    if (!payload.userGroupId || payload.userGroupId.trim() == '') {
+      delete payload.userGroupId;
     }
 
     if (isAuctionMember) {
@@ -224,7 +231,7 @@ export const WorkerEditModal = ({
                 name="role"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} label="Роль">
+                  <Select {...field} label="Роль" disabled={!isSA}>
                     {ROLES.filter((r) => r !== 'SuperAdmin' || isSA).map(
                       (role) => (
                         <MenuItem key={role} value={role}>
@@ -246,10 +253,12 @@ export const WorkerEditModal = ({
               <Controller
                 name="managedGroup"
                 control={control}
-                render={({ field: { onChange } }) => {
-                  const currentSelected = user.managedGroup || null;
+                render={({ field: { onChange, value } }) => {
+                  const currentSelected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
+                      disabled={!isSA}
                       options={GroupSearch.getFilteredOptions(currentSelected)}
                       loading={GroupSearch.isLoading}
                       value={currentSelected}
@@ -257,7 +266,7 @@ export const WorkerEditModal = ({
                         GroupSearch.debouncedFetch(val, currentSelected)
                       }
                       onChange={(_, val) => onChange(val?.id || '')}
-                      getOptionLabel={(o) => o.title || ''}
+                      getOptionLabel={(o) => o.name || ''}
                       isOptionEqualToValue={(o, v) => o?.id === v?.id}
                       renderInput={(params) => (
                         <TextField
@@ -277,12 +286,14 @@ export const WorkerEditModal = ({
           {isAuctionMember && (
             <Grid size={12}>
               <Controller
-                name="auctionGroupId"
+                name="userGroupId"
                 control={control}
-                render={({ field: { onChange } }) => {
-                  const currentSelected = user.auctionGroup || null;
+                render={({ field: { onChange, value } }) => {
+                  const currentSelected =
+                    GroupSearch.options.find((g) => g.id === value) || null;
                   return (
                     <Autocomplete
+                      disabled={!isSA}
                       options={GroupSearch.getFilteredOptions(currentSelected)}
                       loading={GroupSearch.isLoading}
                       value={currentSelected}
@@ -290,14 +301,18 @@ export const WorkerEditModal = ({
                         GroupSearch.debouncedFetch(val, currentSelected)
                       }
                       onChange={(_, val) => onChange(val?.id || '')}
-                      getOptionLabel={(o) => o.title || ''}
+                      getOptionLabel={(o) => o.name || ''}
                       isOptionEqualToValue={(o, v) => o.id === v.id}
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Прив'язати до групи  "
-                          error={!!errors.auctionGroupId}
-                          helperText={errors.auctionGroupId?.message}
+                          label={
+                            selectedRole === 'User'
+                              ? 'Група користувача *'
+                              : "Прив'язати до групи"
+                          }
+                          error={!!errors.userGroupId}
+                          helperText={errors.userGroupId?.message}
                         />
                       )}
                     />

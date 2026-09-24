@@ -69,7 +69,7 @@ export const Row = ({ record }: { record: BalanceRecord }) => {
           )}
         </TableCell>
 
-        <TableCell>{record.vin || '—'}</TableCell>
+        <TableCell>{record.vin || '-'}</TableCell>
 
         <TableCell
           align="right"

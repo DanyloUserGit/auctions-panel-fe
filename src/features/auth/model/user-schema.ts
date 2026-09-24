@@ -1,5 +1,6 @@
 import z from 'zod';
-import type { Group } from '../../groups/model/types';
+import type { UserGroup } from '../../user-groups/model/types';
+
 
 export const ROLES = ['Admin', 'User', 'SuperAdmin'] as const;
 export type UserRole = (typeof ROLES)[number];
@@ -16,7 +17,7 @@ export const userSchema = z.object({
   rights: z.enum(RIGHTS),
   phone: z.string(),
   city: z.string(),
-  auctionGroupId: z.uuid(),
+  userGroupId: z.uuid(),
   managedGroup: z.string().or(z.literal('')),
   sessionLimit: z.number(),
   sessionRights: z.enum(RIGHTS),
@@ -38,9 +39,9 @@ export interface User {
   rights: UserRights;
   phone: string;
   city: string;
-  auctionGroupId: string; // z.uuid() у TypeScript представлений як string
-  auctionGroup?: Group; // Група аукціонів до якої належить користувач
-  managedGroup?: Group; // Група якою управляє користувач (якщо Адмін)
+  userGroupId: string;
+  userGroup?: UserGroup; 
+  managedGroup?: UserGroup; 
   sessionLimit: number;
   sessionRights: UserRights;
   isActive: boolean;
@@ -74,7 +75,7 @@ export const updateUserSchema = z.object({
   city: z.string().optional(),
   role: z.enum(ROLES).optional(),
   rights: z.enum(RIGHTS).optional(),
-  auctionGroupId: z.uuid().optional().nullable().or(z.literal('')),
+  userGroupId: z.uuid().optional().nullable().or(z.literal('')),
   managedGroup: z.string().or(z.literal('')).optional(),
 
   sessionLimit: z.number().optional(),
@@ -102,7 +103,7 @@ export const createUserSchema = z.object({
   rights: z.enum(RIGHTS),
   phone: z.string().optional(),
   city: z.string().optional(),
-  auctionGroupId: z.string().uuid().or(z.literal('')).optional(),
+  userGroupId: z.string().uuid().or(z.literal('')).optional(),
   managedGroup: z.string().or(z.literal('')).optional(),
   sessionLimit: z.number().optional(),
 });
