@@ -1,33 +1,22 @@
 import { api } from '../../../shared/http';
-import type { LogFilters } from './types';
+import type { AuctionSession, LogFilters, SessionEventLog } from './types';
 
-export const fetchAllActive = async (filters: LogFilters = {}) => {
-  return api.get(`/dispatcher/sessions`, {
-    params: { ...filters, isActive: true },
-  });
-};
+const clean = (filters: LogFilters) =>
+  Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== undefined && v !== ''));
 
-export const fetchAllClosed = async (filters: LogFilters = {}) => {
-  return api.get(`/dispatcher/sessions`, {
-    params: { ...filters, isActive: false },
-  });
-};
+export const fetchSessions = async (filters: LogFilters & { isActive: boolean }) =>
+  (await api.get<{ data: AuctionSession[]; total: number }>('/dispatcher/sessions', { params: clean(filters) })).data;
 
-export const fetchSessionLogs = async (
-  sessionId: string,
-  filters: LogFilters = {},
-) => {
-  return api.get(`/dispatcher/logs`, { params: { ...filters, sessionId } });
-};
+export const fetchSessionLogs = async (sessionId: string, filters: LogFilters = {}) =>
+  (await api.get<SessionEventLog[]>('/dispatcher/logs', { params: clean({ ...filters, sessionId } as LogFilters) })).data;
 
-export const fetchAllForbidden = async (filters: LogFilters = {}) => {
-  return api.get(`/dispatcher/logs/forbidden`, { params: filters });
-};
+export const fetchForbiddenLogs = async (filters: LogFilters = {}) =>
+  (await api.get<SessionEventLog[]>('/dispatcher/logs/forbidden', { params: clean(filters) })).data;
 
-export const fetchAllIncidents = async (filters: LogFilters = {}) => {
-  return api.get(`/dispatcher/logs/incidents`, { params: filters });
-};
-export const deleteSession = async (id: string) => {
-  const responce = await api.delete(`/sessions/${id}`);
-  return responce.data;
-};
+export const fetchIncidentLogs = async (filters: LogFilters = {}) =>
+  (await api.get<SessionEventLog[]>('/dispatcher/logs/incidents', { params: clean(filters) })).data;
+
+export const fetchAllLogs = async (filters: LogFilters = {}) =>
+  (await api.get<SessionEventLog[]>('/dispatcher/logs', { params: clean(filters) })).data;
+
+export const deleteSession = async (id: string) => (await api.delete(`/sessions/${id}`)).data;

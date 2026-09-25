@@ -18,7 +18,7 @@ interface UserAccessModalProps {
   onClose: () => void;
 }
 
-// Особисті доступи користувача: власний ланцюг група аукціонів → аукціон → акаунт,
+// Особисті доступи користувача: власний ланцюг група аукціонів -> аукціон -> акаунт,
 // що доповнює доступ його групи. Змінює лише SuperAdmin, Admin бачить доступи учасників своєї групи.
 export function UserAccessModal({ user, open, onClose }: UserAccessModalProps) {
   const { user: currentUser } = useAuth();

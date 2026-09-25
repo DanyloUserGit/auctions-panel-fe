@@ -8,8 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router';
-import AccountList from '../features/acounts/ui/AccountList';
+import AccountList from '../features/accounts/ui/AccountList';
 import type { Auction } from '../features/auctions/model/types';
 import { useAuctionsData } from '../features/auctions/model/useAuctions';
 import AuctionsList from '../features/auctions/ui/AuctionsList';
@@ -20,25 +19,18 @@ import AddGroupModal from '../features/groups/ui/AddGroupModal';
 import AuctionsGroup from '../features/groups/ui/AuctionsGroup';
 import EditGroupModal from '../features/groups/ui/EditGroupModal';
 import GroupSearch from '../features/groups/ui/GroupSearch';
-import { useSession } from '../features/sessions/model/store';
-import { useSessionsData } from '../features/sessions/model/useSessionData';
-import AutoConnectSession from '../features/sessions/ui/AutoConnectSession';
 import { useMobile } from '../shared/hooks/useMobile';
 import { useModal } from '../shared/hooks/useModal';
 import { Loader } from '../shared/ui/Loader';
 
 export default function AuctionsPage() {
-  const location = useLocation();
   const { data: groups } = useGroups();
-  const sessionConnect = useSession();
 
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isAlphabetical, setisAlphabetical] = useState(false);
-  const [view, setView] = useState<'auctions' | 'accounts' | 'sessions'>(
-    location.state?.view || 'auctions',
-  );
+  const [view, setView] = useState<'auctions' | 'accounts'>('auctions');
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
   const { data: searchData } = useGroupByQuery(debouncedSearch);
   const isMobile = useMobile();
@@ -70,18 +62,13 @@ export default function AuctionsPage() {
 
   const { items: auctions, isLoading: IsLoadingAuctions } =
     useAuctionsData(activeGroupId);
-  const { items: sessions, isLoading: isLoadingSessions } = useSessionsData(
-    sessionConnect.auctionAuthId,
-  );
 
-  // Обробники подій
   const handleGroupChange = (id: string) => {
     setSelectedGroupId(id);
     setView('auctions');
   };
 
   const handleAuctionClick = (auction: Auction) => {
-    sessionConnect.setAuctionId(auction.id);
     setSelectedAuction(auction);
     setView('accounts');
   };
@@ -91,9 +78,6 @@ export default function AuctionsPage() {
     setSelectedAuction(null);
   };
 
-  const handleAuctionAuthClick = () => {
-    setView('sessions');
-  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -102,7 +86,6 @@ export default function AuctionsPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Модальні вікна
   const {
     isOpen: isEditGroupOpen,
     open: handleOpenEditGroup,
@@ -114,7 +97,7 @@ export default function AuctionsPage() {
     close: handleCloseCreateGroup,
   } = useModal(false);
 
-  if (isLoadingSessions || IsLoadingAuctions) return <Loader />;
+  if (IsLoadingAuctions) return <Loader />;
   return (
     <Box sx={{ p: { xs: 2, sm: 0 } }}>
       <Box
@@ -130,7 +113,7 @@ export default function AuctionsPage() {
         }}
       >
         <Stack spacing={1}>
-          {(view === 'accounts' || view === 'sessions') && (
+          {view === 'accounts' && (
             <Button
               onClick={handleBackToAuctions}
               startIcon={<ArrowBack />}
@@ -146,9 +129,7 @@ export default function AuctionsPage() {
             >
               {view === 'auctions'
                 ? 'Аукціони'
-                : view === 'accounts'
-                  ? `Акаунти: ${selectedAuction?.title || ''}`
-                  : 'Активні сесії'}
+                : `Акаунти: ${selectedAuction?.title || ''}`}
             </Typography>
           )}
         </Stack>
@@ -212,7 +193,6 @@ export default function AuctionsPage() {
         </Stack>
       </Box>
 
-      {/* СПИСОК ГРУП */}
       {view === 'auctions' && (
         <>
           <AuctionsGroup
@@ -231,7 +211,6 @@ export default function AuctionsPage() {
         </>
       )}
 
-      {/* ОСНОВНИЙ КОНТЕНТ (Аукціони / Акаунти / Сесії) */}
 
       <Box sx={{ mt: 2 }}>
         {view === 'auctions' && (
@@ -243,22 +222,10 @@ export default function AuctionsPage() {
         )}
 
         {view === 'accounts' && selectedAuction && (
-          <AccountList
-            changeView={handleAuctionAuthClick}
-            currentAuction={selectedAuction}
-          />
-        )}
-
-        {view === 'sessions' && (
-          // isSuperAdmin ? (
-          //   <SessionList sessions={sessions} />
-          // ) : (
-          <AutoConnectSession sessions={sessions} />
-          // )
+          <AccountList currentAuction={selectedAuction} />
         )}
       </Box>
 
-      {/* МОДАЛЬНІ ВІКНА */}
       {activeGroup && (
         <EditGroupModal
           key={activeGroupId}

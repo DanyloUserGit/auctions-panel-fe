@@ -30,7 +30,7 @@ export interface CatalogAuctionGroup extends AuctionGroupSummary {
   auctions?: AuctionSummary[];
 }
 
-// Дозволи ланцюга група аукціонів → аукціон → акаунт (групи користувачів або окремого користувача).
+// Дозволи ланцюга група аукціонів -> аукціон -> акаунт (групи користувачів або окремого користувача).
 export interface AccessGrants {
   allowedAuctionGroups: AuctionGroupSummary[];
   allowedAuctions: AuctionSummary[];
@@ -59,8 +59,10 @@ export interface UserGroup {
   isActive: boolean;
 
   canGaManageAccounts: boolean;
+  canGaManageRules?: boolean;
   showAccounts: boolean;
-  rules?: Record<string, any> | null;
+  sessionLimit: number;
+  rules?: Record<string, unknown> | null;
   allowedProfileFields: string[];
 
   lastActivity?: string | null;
@@ -81,8 +83,10 @@ export interface UserGroup {
 export interface UserGroupCreate {
   name: string;
   canGaManageAccounts?: boolean;
+  canGaManageRules?: boolean;
   showAccounts?: boolean;
-  rules?: Record<string, any>;
+  sessionLimit?: number;
+  rules?: Record<string, unknown>;
   allowedProfileFields?: string[];
   Admin?: string;
   users?: string[];

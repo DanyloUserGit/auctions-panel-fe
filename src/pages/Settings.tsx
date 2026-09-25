@@ -37,7 +37,8 @@ export default function SettingsPage() {
         label: 'Сповіщення',
         icon: <Notifications />,
         component: <NotificationsSettings />,
-        roles: ['Admin', 'SuperAdmin'],
+        // Нагадування про завершення аукціону користувач налаштовує сам (ТЗ 15).
+        roles: ['User', 'Admin', 'SuperAdmin'],
       },
       {
         label: 'Правила аукціонів',
@@ -63,7 +64,6 @@ export default function SettingsPage() {
       )}
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
-        {/* Ліва панель навігації */}
         <Paper
           sx={{
             width: { xs: '100%', md: 300 },
@@ -93,8 +93,8 @@ export default function SettingsPage() {
                 mb: 1,
                 minHeight: 44,
                 transition: '0.2s',
-                textTransform: 'none', // Прибираємо Caps Lock
-                fontSize: 14, // Компактний шрифт
+                textTransform: 'none',
+                fontSize: 14,
                 fontWeight: 500,
                 color: 'text.secondary',
                 '&.Mui-selected': {
@@ -117,10 +117,10 @@ export default function SettingsPage() {
                 icon={tab.icon}
                 iconPosition="start"
                 label={tab.label}
-                disableRipple // Прибирає ефект хвилі для більш "солідного" вигляду
+                disableRipple
                 sx={{
                   '& .MuiSvgIcon-root': {
-                    fontSize: 20, // Розмір іконки
+                    fontSize: 20,
                     mr: 1.5,
                   },
                 }}
@@ -129,7 +129,6 @@ export default function SettingsPage() {
           </Tabs>
         </Paper>
 
-        {/* Права панель контенту */}
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           {visibleTabs[activeTab] ? (
             visibleTabs[activeTab].component

@@ -257,7 +257,7 @@ export function MaterialCreateModal({
                   : 'rgba(0,0,0,0.02)',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center', // Центрування в стовпчик
+                alignItems: 'center',
                 gap: 2,
               }}
             >

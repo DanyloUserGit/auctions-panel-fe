@@ -1,7 +1,5 @@
-// api.ts
 import { api } from '../../../shared/http';
 
-// --- ТИПИ ДАНИХ ---
 export type OrderStatus =
   | 'new'
   | 'selection'
@@ -20,7 +18,7 @@ export interface OrderResponse {
   model_names: string;
   fuel_names: string;
   gearbox_names: string;
-  engine_cc: number | null; // У вашому JSON це поле дорівнює null
+  engine_cc: number | null;
   year_from_ts: number;
   year_to_ts: number;
   price_from: string;
@@ -38,31 +36,21 @@ export interface OrderResponse {
 export type CreateOrderPayload = Omit<OrderResponse, 'id' | 'created_at'>;
 export type UpdateOrderPayload = Partial<CreateOrderPayload>;
 
-// --- НАЛАШТУВАННЯ ЗАГОЛОВКІВ ---
-const CLIENT_DB_HEADER = {
-  headers: {
-    'x-client-db': 'caddylc2_caddycombca',
-  },
-};
-
-// --- API ФУНКЦІЇ ---
 export const ordersApi = {
-  // Додано параметр search
   getAll: async (search?: string): Promise<OrderResponse[]> => {
     const { data } = await api.get('/orders', {
-      ...CLIENT_DB_HEADER,
-      params: search ? { search } : {}, // Передаємо search як query-параметр, якщо він є
+      params: search ? { search } : {},
     });
     return data;
   },
 
   getById: async (id: number): Promise<OrderResponse> => {
-    const { data } = await api.get(`/orders/${id}`, CLIENT_DB_HEADER);
+    const { data } = await api.get(`/orders/${id}`);
     return data;
   },
 
   create: async (payload: CreateOrderPayload): Promise<OrderResponse> => {
-    const { data } = await api.post('/orders', payload, CLIENT_DB_HEADER);
+    const { data } = await api.post('/orders', payload);
     return data;
   },
 
@@ -70,15 +58,11 @@ export const ordersApi = {
     id: number,
     payload: UpdateOrderPayload,
   ): Promise<OrderResponse> => {
-    const { data } = await api.patch(
-      `/orders/${id}`,
-      payload,
-      CLIENT_DB_HEADER,
-    );
+    const { data } = await api.patch(`/orders/${id}`, payload);
     return data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/orders/${id}`, CLIENT_DB_HEADER);
+    await api.delete(`/orders/${id}`);
   },
 };

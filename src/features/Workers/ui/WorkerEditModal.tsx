@@ -10,9 +10,11 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField
+  Stack,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
@@ -26,7 +28,9 @@ import {
 
 import { fetchUserGroupsByQuery } from '../../user-groups/model/api';
 import type { UserGroup } from '../../user-groups/model/types';
-import { RIGHTS, RIGHTS_LABELS } from '../model/types';
+import UserStatusDialog from './UserStatusDialog';
+import { statusLabel } from '../../auth/model/user-schema';
+import { getErrorMessage } from '../../../shared/utils';
 
 interface CreateUserModalProps {
   open: boolean;
@@ -42,6 +46,7 @@ export const WorkerEditModal = ({
   const { user: currentUser } = useAuth();
   const { mutate: updateUser, isPending, error } = useUpdateUser();
   const isSA = currentUser?.role === 'SuperAdmin';
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
 
   const GroupSearch = useAutoComplete<UserGroup>({
     fetchFn: fetchUserGroupsByQuery,
@@ -60,17 +65,18 @@ export const WorkerEditModal = ({
     watch,
     setValue,
     setError,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm<UpdateUser>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       firstName: user?.firstName || '',
+      middleName: user?.middleName || '',
       lastName: user?.lastName || '',
       email: user?.email || '',
       city: user.city || '',
       phone: user.phone || '',
       role: user.role,
-      rights: user.rights,
+      sessionLimit: user.sessionLimit ?? 0,
       managedGroup: user.managedGroup?.id || '',
       userGroupId: user.userGroupId || '',
     },
@@ -105,12 +111,13 @@ export const WorkerEditModal = ({
 
       reset({
         firstName: user?.firstName || '',
+        middleName: user?.middleName || '',
         lastName: user?.lastName || '',
         email: user?.email || '',
         city: user.city || '',
         phone: user.phone || '',
         role: user.role,
-        rights: user.rights,
+        sessionLimit: user.sessionLimit ?? 0,
         userGroupId: user.userGroupId || '',
         managedGroup: user.managedGroup?.id || '',
       });
@@ -120,7 +127,6 @@ export const WorkerEditModal = ({
   }, [user, open, reset]);
 
   const onInvalid = (errors: FieldErrors<UpdateUser>) => {
-    console.log('Dirty fields:', dirtyFields);
     console.error('Помилки валідації Zod:', errors);
   };
 
@@ -169,12 +175,11 @@ export const WorkerEditModal = ({
           {error && (
             <Grid size={12}>
               <Alert severity="error" sx={{ borderRadius: '8px' }}>
-                {error.message || 'Сталася помилка при оновленні'}
+                {getErrorMessage(error, 'Сталася помилка при оновленні')}
               </Alert>
             </Grid>
           )}
 
-          {/* 1. Ім'я та Прізвище */}
           <Grid size={6}>
             <TextField
               fullWidth
@@ -193,8 +198,14 @@ export const WorkerEditModal = ({
               helperText={errors.lastName?.message}
             />
           </Grid>
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="По батькові"
+              {...register('middleName')}
+            />
+          </Grid>
 
-          {/* 2. Email */}
           <Grid size={12}>
             <TextField
               fullWidth
@@ -323,28 +334,28 @@ export const WorkerEditModal = ({
           )}
 
           <Grid size={12}>
-            <FormControl fullWidth error={!!errors.rights}>
-              <InputLabel>Права доступу</InputLabel>
-              <Controller
-                name="rights"
-                control={control}
-                render={({ field }) => (
-                  <Select {...field} label="Права доступу">
-                    {RIGHTS.map((right) => (
-                      <MenuItem key={right} value={right}>
-                        {RIGHTS_LABELS[right]}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-              {errors.rights && (
-                <FormHelperText>{errors.rights.message}</FormHelperText>
-              )}
-            </FormControl>
+            <TextField
+              fullWidth
+              type="number"
+              label="Особистий ліміт одночасних сесій"
+              {...register('sessionLimit', { valueAsNumber: true })}
+              helperText="0 - без особистого ліміту (діють ліміти групи та системи)"
+              slotProps={{ htmlInput: { min: 0 } }}
+            />
           </Grid>
 
-          {/* 8. Кнопка */}
+          {/* Статус доступу змінюється окремо, з причиною (записується в журнал). */}
+          <Grid size={12}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+              <Typography variant="body2">
+                Статус доступу: <strong>{statusLabel(user)}</strong>
+              </Typography>
+              <Button variant="outlined" size="small" onClick={() => setIsStatusOpen(true)}>
+                Змінити статус
+              </Button>
+            </Stack>
+          </Grid>
+
           <Grid size={12}>
             <Button
               fullWidth
@@ -362,6 +373,7 @@ export const WorkerEditModal = ({
           </Grid>
         </Grid>
       </form>
+      {isStatusOpen && <UserStatusDialog user={user} onClose={() => setIsStatusOpen(false)} />}
     </BaseModal>
   );
 };

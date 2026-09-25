@@ -17,6 +17,11 @@ export const SEVERITY_OPTIONS: { value: LogSeverity; label: string }[] = [
 export interface GlobalSettingsDTO {
   inactivityTimeout?: number;
   globalSessionLimit?: number;
+  sessionMaxConnections?: number;
+  sessionRetentionDays?: number;
+  streamFps?: number;
+  streamQuality?: number;
+  streamBitrateKbps?: number;
   gaCanAssignGa?: boolean;
   loggingPolicy?: LogSeverity;
 }

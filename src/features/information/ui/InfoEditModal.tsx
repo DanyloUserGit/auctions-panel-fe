@@ -1,4 +1,3 @@
-// src/features/information/ui/InfoEditModal.tsx
 import { useEffect, useState } from 'react';
 import { Stack, TextField, Button, CircularProgress } from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
@@ -25,8 +24,8 @@ export function InfoEditModal({ item, open, onClose }: InfoEditModalProps) {
         setIsLoadingContent(true);
         try {
           const response = await fetchInfoBySlug(item.slug);
-          setContent(response.content || ''); // Припускаємо, що API повертає поле content
-          setTitle(response.title || item.title); // Оновлюємо заголовок актуальними даними
+          setContent(response.content || '');
+          setTitle(response.title || item.title);
         } catch (error) {
           console.error('Помилка завантаження контенту:', error);
         } finally {
@@ -79,7 +78,7 @@ export function InfoEditModal({ item, open, onClose }: InfoEditModalProps) {
         <TextField
           label="Slug (ідентифікатор)"
           value={item.slug}
-          disabled // Slug не можна редагувати
+          disabled
           fullWidth
           helperText="Унікальний ідентифікатор не підлягає зміні"
         />

@@ -18,10 +18,8 @@ import { useNavigate } from 'react-router';
 import { sendResetLink } from '../../auth/model/api-user';
 import { useAuth } from '../../auth/model/useAuth';
 import {
-  RIGHTS,
   ROLES,
   type UpdateUser,
-  type UserRights,
   type UserRole,
 } from '../../auth/model/user-schema';
 import { Can } from '../../auth/ui/Can';
@@ -45,18 +43,12 @@ export default function ProfileEdit() {
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
     setFormData((prev) => ({ ...prev, role: e.target.value as UserRole }));
   };
-  const handleRightChange = (e: SelectChangeEvent<string>) => {
-    setFormData((prev) => ({ ...prev, rights: e.target.value as UserRights }));
-  };
   const [formData, setFormData] = useState<UpdateUser>({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     email: user?.email || '',
     role: user?.role || 'User',
     phone: user?.phone || '',
-    rights: (Array.isArray(user?.rights)
-      ? user.rights[0]
-      : user?.rights) as UserRights,
   });
   useEffect(() => {
     if (user) {
@@ -66,9 +58,6 @@ export default function ProfileEdit() {
         email: user.email || '',
         role: user.role || 'User',
         phone: user.phone,
-        rights: (Array.isArray(user.rights)
-          ? user.rights[0]
-          : user.rights) as UserRights,
       });
     }
   }, [user]);
@@ -81,7 +70,6 @@ export default function ProfileEdit() {
       await changeRoleMutation({
         id: String(user.id),
         role: formData.role as UserRole,
-        rights: formData.rights as UserRights,
       });
   };
 
@@ -210,29 +198,6 @@ export default function ProfileEdit() {
               </FormControl>
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel id="rights-label">Додаткові права</InputLabel>
-                <Select
-                  label="Роль в системі"
-                  labelId="rights-label"
-                  value={formData.rights}
-                  disabled={isPendingProfile || isPendingRole}
-                  onChange={handleRightChange}
-                  startAdornment={
-                    <AdminPanelSettings
-                      sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }}
-                    />
-                  }
-                >
-                  {RIGHTS.map((role) => (
-                    <MenuItem key={role} value={role}>
-                      {role}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
           </Can>
         </Grid>
 

@@ -6,6 +6,8 @@ export interface Auction {
   url: string;
   auctionGroupId: string;
   auctionGroup: Group;
+  // Проксі без логіна/пароля (лише для відображення).
+  proxyHost?: string | null;
 }
 export interface AuctionCreate {
   title: string;
@@ -16,5 +18,7 @@ export interface AuctionCreate {
 export interface AuctionEdit {
   title?: string;
   url?: string;
+  // Новий проксі (http(s)://логін:пароль@хост:порт); '' - прибрати; не передано - без змін.
+  proxyUrl?: string;
   auctionGroupId?: string;
 }

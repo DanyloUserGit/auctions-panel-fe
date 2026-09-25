@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { User } from '../../auth/model/user-schema';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { Block, Edit, Key, MoreVert } from '@mui/icons-material';
-import { useAuth, useBlockUser } from '../../auth/model/useAuth';
+import { useAuth } from '../../auth/model/useAuth';
+import UserStatusDialog from './UserStatusDialog';
 
 export function UserActionsMenu({
   user,
@@ -15,7 +16,7 @@ export function UserActionsMenu({
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { mutate: block } = useBlockUser();
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
   const { user: currentUser } = useAuth();
 
   // Ті самі правила, що й на бекенді: SuperAdmin - будь-кого,
@@ -31,9 +32,6 @@ export function UserActionsMenu({
 
   if (!canManage) return null;
 
-  const handleBlock = async () => {
-    block(user);
-  };
   return (
     <>
       <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
@@ -67,14 +65,15 @@ export function UserActionsMenu({
         <MenuItem
           onClick={() => {
             setAnchorEl(null);
-            handleBlock();
+            setIsStatusOpen(true);
           }}
-          sx={{ color: 'error.main' }}
+          sx={{ color: user.isBlocked ? 'success.main' : 'error.main' }}
         >
           <Block fontSize="small" sx={{ mr: 1 }} />
-          {user.isBlocked ? 'Розблокувати' : 'Заблокувати'}
+          Статус / {user.isBlocked ? 'розблокувати' : 'заблокувати'}
         </MenuItem>
       </Menu>
+      {isStatusOpen && <UserStatusDialog user={user} onClose={() => setIsStatusOpen(false)} />}
     </>
   );
 }

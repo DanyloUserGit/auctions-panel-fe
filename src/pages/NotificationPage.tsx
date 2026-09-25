@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useNotifications } from '../features/notifications/model/useNotifications';
 import NotificationItem from '../features/notifications/ui/NotificationItem';
+import RemindersPanel from '../features/notifications/ui/RemindersPanel';
 import { Loader } from '../shared/ui/Loader';
 
 export default function NotificationsPage() {
@@ -53,6 +54,8 @@ export default function NotificationsPage() {
           Сповіщення
         </Typography>
       </Stack>
+
+      <RemindersPanel />
 
       <Paper
         sx={{

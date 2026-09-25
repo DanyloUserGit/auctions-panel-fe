@@ -87,7 +87,6 @@ export default function UserGroupsSection() {
     const effectiveId = selectedGroupId || allGroups?.[0]?.id || '';
 
     const handleChangeGroup = (id: string) => {
-        console.log(id)
         setSelectedGroupId(id);
     };
 

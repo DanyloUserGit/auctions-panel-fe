@@ -14,8 +14,7 @@ import {
   ReceiptLong,
   School,
   Settings,
-  ShoppingCart,
-} from '@mui/icons-material';
+  ShoppingCart, Contacts } from '@mui/icons-material';
 import { AppBar, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -36,6 +35,9 @@ export interface MenuGroup {
   group: string;
   items: MenuItem[];
 }
+// Сторінки, доступні лише адміністраторам (Admin/SA); ті самі обмеження в маршрутах (RoleRoute).
+const ADMIN_ONLY_PATHS = ['/workers', '/user-groups', '/logs'];
+
 export default function Sidebar({ user }: { user: User }) {
   const isMobile = useMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -79,6 +81,12 @@ export default function Sidebar({ user }: { user: User }) {
           roles: ['Admin', 'SuperAdmin', 'User'],
         },
         {
+          text: 'Клієнти',
+          icon: <Contacts />,
+          path: '/clients',
+          roles: ['Admin', 'SuperAdmin', 'User'],
+        },
+        {
           text: 'Покупки',
           icon: <ReceiptLong />,
           path: '/purchases',
@@ -94,7 +102,7 @@ export default function Sidebar({ user }: { user: User }) {
           text: 'Аналітика',
           icon: <Insights />,
           path: '/analytics',
-          roles: ['SuperAdmin'],
+          roles: ['Admin', 'SuperAdmin', 'User'],
         },
       ],
     },
@@ -174,8 +182,10 @@ export default function Sidebar({ user }: { user: User }) {
       ],
     },
   ];
+  // GA без керованої групи не має ні учасників, ні сесій - прибираємо розділи адміністрування.
   if (user.role === 'Admin' && !user.managedGroup) {
-    menuItems[menuItems.length - 1].items.pop();
+    const adminGroup = menuItems[menuItems.length - 1];
+    adminGroup.items = adminGroup.items.filter((item) => !ADMIN_ONLY_PATHS.includes(item.path));
   }
   return (
     <>
@@ -207,7 +217,6 @@ export default function Sidebar({ user }: { user: User }) {
         </AppBar>
       )}
 
-      {/* Сайдбар */}
       <Drawer
         variant={isMobile ? 'temporary' : 'permanent'}
         onMouseEnter={handleMouseEnter}

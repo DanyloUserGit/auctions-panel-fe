@@ -26,6 +26,16 @@ import {
 } from '../model/useGlobalSettings';
 import { Loader } from '../../../shared/ui/Loader';
 
+const NUMERIC_FIELDS: (keyof GlobalSettingsDTO)[] = [
+  'inactivityTimeout',
+  'globalSessionLimit',
+  'sessionMaxConnections',
+  'sessionRetentionDays',
+  'streamFps',
+  'streamQuality',
+  'streamBitrateKbps',
+];
+
 export default function GlobalSettings() {
   const isMobile = useMobile();
   const { data, isLoading } = useGlobalSettings();
@@ -46,7 +56,7 @@ export default function GlobalSettings() {
     setLocalSettings({
       ...settings,
       [field]:
-        field === 'inactivityTimeout' || field === 'globalSessionLimit'
+        NUMERIC_FIELDS.includes(field)
           ? value === ''
             ? ''
             : Number(value)
@@ -61,7 +71,7 @@ export default function GlobalSettings() {
   };
 
   const handleCancel = () => {
-    setLocalSettings(data || null); // Скидаємо до версії з сервера
+    setLocalSettings(data || null);
   };
   // Показуємо завантаження, щоб уникнути помилок доступу до undefined
   if (isLoading) return <Loader />;
@@ -88,7 +98,6 @@ export default function GlobalSettings() {
         }}
       >
         <Stack spacing={4}>
-          {/* Секція Тайм-ауту */}
           <Box>
             <Stack
               direction="row"
@@ -115,13 +124,12 @@ export default function GlobalSettings() {
                   <InputAdornment position="end">хв</InputAdornment>
                 ),
               }}
-              helperText="Автоматичне розлогування користувача після періоду бездіяльності."
+              helperText="Сесія завершується автоматично, якщо стільки хвилин у ній не було жодної дії користувачів."
             />
           </Box>
 
           <Divider />
 
-          {/* Секція Ліміту сесій */}
           <Box>
             <Stack
               direction="row"
@@ -142,13 +150,72 @@ export default function GlobalSettings() {
               onChange={(e) =>
                 handleChange('globalSessionLimit', e.target.value)
               }
-              helperText="Обмеження загальної кількості активних підключень до системи."
+              helperText="Скільки сесій (браузерів) може працювати на сервері одночасно. 0 - без ліміту."
+            />
+            <TextField
+              fullWidth
+              type="number"
+              sx={{ mt: 2 }}
+              label="Користувачів в одній сесії"
+              value={settings?.sessionMaxConnections ?? ''}
+              onChange={(e) =>
+                handleChange('sessionMaxConnections', e.target.value)
+              }
+              helperText="Коли сесію акаунта заповнено, наступний користувач автоматично отримує нову сесію."
+            />
+            <TextField
+              fullWidth
+              type="number"
+              sx={{ mt: 2 }}
+              label="Зберігати історію сесій і журнали, днів"
+              value={settings?.sessionRetentionDays ?? ''}
+              onChange={(e) =>
+                handleChange('sessionRetentionDays', e.target.value)
+              }
+              helperText="Завершені сесії, їхні журнали, заборонені дії та інциденти старші за цей термін видаляються. 0 - зберігати завжди."
             />
           </Box>
 
           <Divider />
 
-          {/* Секція Прав доступу */}
+          {/* Якість трансляції (ТЗ 7.6): діє для нових сесій */}
+          <Box>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+              Якість трансляції
+            </Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Кадрів за секунду"
+                value={settings?.streamFps ?? ''}
+                onChange={(e) => handleChange('streamFps', e.target.value)}
+                helperText="5-30; погоджено 15"
+              />
+              <TextField
+                fullWidth
+                type="number"
+                label="Якість кадру, %"
+                value={settings?.streamQuality ?? ''}
+                onChange={(e) => handleChange('streamQuality', e.target.value)}
+                helperText="30-100; вища - чіткіше фото авто"
+              />
+              <TextField
+                fullWidth
+                type="number"
+                label="Бітрейт, кбіт/с"
+                value={settings?.streamBitrateKbps ?? ''}
+                onChange={(e) => handleChange('streamBitrateKbps', e.target.value)}
+                helperText="500-20000; вищий - чіткіше, але більше навантаження"
+              />
+            </Stack>
+            <Typography variant="caption" color="text.secondary">
+              Нові значення застосовуються до сесій, запущених після збереження.
+            </Typography>
+          </Box>
+
+          <Divider />
+
           <Box>
             <Stack
               direction="row"
@@ -186,7 +253,6 @@ export default function GlobalSettings() {
 
           <Divider />
 
-          {/* Секція Логування */}
           <Box>
             <Stack
               direction="row"
@@ -205,6 +271,7 @@ export default function GlobalSettings() {
               label="Рівень деталізації логів"
               value={settings?.loggingPolicy ?? 'Info'}
               onChange={(e) => handleChange('loggingPolicy', e.target.value)}
+              helperText="Мінімальна важливість службових подій сесій, які записуються в журнал. Дії користувачів (переходи, натискання, введення) і заборонені дії записуються завжди."
             >
               {SEVERITY_OPTIONS.map((option) => (
                 <MenuItem key={option.value} value={option.value}>

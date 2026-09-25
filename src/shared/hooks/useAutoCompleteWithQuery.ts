@@ -15,7 +15,6 @@ export function useAutoCompleteWithQuery<T extends { id: string }>({
 }: UseAutocompleteProps<T>) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. React Query для завантаження даних
   const { data, isLoading } = useQuery({
     queryKey: [...queryKey, searchQuery],
     queryFn: () => fetchFn(searchQuery),
@@ -23,7 +22,7 @@ export function useAutoCompleteWithQuery<T extends { id: string }>({
     staleTime: 5 * 60 * 1000,
   });
 
-  // 2. Обчислюємо options безпосередньо з data (без додаткового useState та useEffect)
+  // Обчислюємо options безпосередньо з data (без додаткового useState та useEffect)
   const options = useMemo(() => {
     if (!data) return [];
 
@@ -40,14 +39,13 @@ export function useAutoCompleteWithQuery<T extends { id: string }>({
     return [];
   }, [data]);
 
-  // 3. Створюємо дебаунс-функцію для зміни пошукового запиту
   // Використовуємо useMemo, щоб функція не перестворювалася при кожному рендері
   const debouncedSetQuery = useMemo(
     () => debounce((val: string) => setSearchQuery(val), debounceTime),
     [debounceTime],
   );
 
-  // 4. Фільтрація вже обраних елементів (щоб не пропонувати їх у списку)
+  // Фільтрація вже обраних елементів (щоб не пропонувати їх у списку)
   const getFilteredOptions = (currentSelected: T | T[] | null) => {
     const selectedIds = new Set(
       Array.isArray(currentSelected)
@@ -63,7 +61,6 @@ export function useAutoCompleteWithQuery<T extends { id: string }>({
     options,
     getFilteredOptions,
     isLoading,
-    // Передаємо значення у дебаунс-функцію
     onInputChange: (val: string) => debouncedSetQuery(val),
   };
 }

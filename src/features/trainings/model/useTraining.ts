@@ -57,7 +57,6 @@ export function useUpdateTraining() {
     },
   });
 }
-// Зміна статусу публікації (Published/Draft)
 export function usePublishTraining() {
   const queryClient = useQueryClient();
   return useMutation({

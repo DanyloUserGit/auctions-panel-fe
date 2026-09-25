@@ -1,3 +1,4 @@
+import { baseUrl } from '../http';
 export const formatMoney = (
   val: number | undefined | null | string,
   currency: 'EUR' | 'USD',
@@ -32,4 +33,19 @@ export function copyText(value: string) {
   document.execCommand('copy');
   document.body.removeChild(textarea);
   return Promise.resolve();
+}
+
+// Файли, завантажені на сервер платформи, зберігаються як шлях /api/uploads/...;
+// зовнішні посилання (старі фото авто) повертаються без змін.
+export function resolveFileUrl(path?: string | null) {
+  if (!path) return '';
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${new URL(baseUrl).origin}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+// Текст помилки з відповіді API (message може бути рядком або масивом рядків валідації).
+export function getErrorMessage(error: unknown, fallback = 'Сталася помилка') {
+  const message = (error as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+  if (Array.isArray(message)) return message.join('; ');
+  return message || (error instanceof Error ? error.message : fallback);
 }

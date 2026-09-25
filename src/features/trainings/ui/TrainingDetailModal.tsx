@@ -2,6 +2,7 @@ import { Box, Button, Chip, Divider, Stack, Typography } from '@mui/material';
 import BaseModal from '../../../shared/ui/Modal';
 import { getVisibilityIcon } from '../model/helper';
 import type { Training } from '../model/types';
+import { resolveFileUrl } from '../../../shared/utils';
 
 interface Props {
   item: Training;
@@ -29,7 +30,7 @@ export default function TrainingDetailModal({ item, isOpen, close }: Props) {
         {item.imageUrl && (
           <Box
             component="img"
-            src={item.imageUrl}
+            src={resolveFileUrl(item.imageUrl)}
             alt={item.title}
             sx={{
               width: '100%',

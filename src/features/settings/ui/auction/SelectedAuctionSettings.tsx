@@ -4,6 +4,7 @@ import {
   MouseOutlined,
 } from '@mui/icons-material';
 import {
+  Alert,
   Autocomplete,
   Chip,
   CircularProgress,
@@ -13,6 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Loader } from '../../../../shared/ui/Loader';
+import { getErrorMessage } from '../../../../shared/utils';
 import { useAuction } from '../../../auctions/model/useAuctions';
 import type { Path, Selector } from '../../model/types';
 import {
@@ -47,7 +49,6 @@ export default function SelectedAuctionSettings({
   if (isLoading || !auction) return <Loader />;
   return (
     <Stack spacing={3} key={selectedAuction}>
-      {/* Дозволені сторінки */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
           <CheckCircleOutline color="success" />
@@ -108,7 +109,6 @@ export default function SelectedAuctionSettings({
         />
       </Paper>
 
-      {/* Заборонені переходи */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
           <LockOutlined color="error" />
@@ -134,13 +134,12 @@ export default function SelectedAuctionSettings({
           }}
           renderTags={(value, getTagProps) =>
             value.map((path: string, index: number) => {
-              // Витягуємо key окремо від інших пропсів
               const { key, ...tagProps } = getTagProps({ index });
               const item = forbiddenPaths?.find((p: Path) => p.path === path);
 
               return (
                 <Chip
-                  key={key} // Передаємо key явно
+                  key={key}
                   label={path}
                   {...tagProps}
                   onDelete={() =>
@@ -158,12 +157,20 @@ export default function SelectedAuctionSettings({
             })
           }
           renderInput={(params) => (
-            <TextField {...params} label="URL для блокування" />
+            <TextField
+              {...params}
+              label="Адреса, шлях або шаблон для блокування"
+              helperText="Повна адреса (https://site.com/orders/ - сторінка й усе нижче), шлях (/orders/ - на будь-якій сторінці сайту) або шаблон з * (*/orders/*). Enter - додати."
+            />
           )}
         />
+        {addForbidden.isError && (
+          <Alert severity="error" sx={{ mt: 1 }}>
+            {getErrorMessage(addForbidden.error, 'Не вдалося додати правило')}
+          </Alert>
+        )}
       </Paper>
 
-      {/* Заборонені дії */}
       <Paper sx={{ p: 3, borderRadius: '20px' }}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
           <MouseOutlined color="primary" />
@@ -189,7 +196,6 @@ export default function SelectedAuctionSettings({
           }}
           renderTags={(value, getTagProps) =>
             value.map((selector: string, index: number) => {
-              // Витягуємо key окремо
               const { key, ...tagProps } = getTagProps({ index });
               const item = selectors?.find(
                 (s: Selector) => s.selector === selector,

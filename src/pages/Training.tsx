@@ -29,14 +29,13 @@ export default function TrainingPage() {
 
   const { items: training } = useTraining(debouncedSearch);
 
-  // Виносимо кнопку в окрему змінну для зручності
   const CreateButton = (
     <Can roles={['Admin', 'SuperAdmin']}>
       <Button
         variant="contained"
         startIcon={<Add />}
         onClick={() => setIsEditorOpen(true)}
-        fullWidth={isMobile} // На мобільних розтягуємо
+        fullWidth={isMobile}
         sx={{
           borderRadius: '12px',
           height: 48,
@@ -52,7 +51,6 @@ export default function TrainingPage() {
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* HEADER: На мобільних тільки заголовок (якщо не прихований) */}
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -74,7 +72,6 @@ export default function TrainingPage() {
         {!isMobile && CreateButton}
       </Stack>
 
-      {/* SEARCH SECTION */}
       <TextField
         fullWidth
         value={search}

@@ -15,20 +15,24 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { api } from '../../../shared/http';
 import { Controller, useForm } from 'react-hook-form';
 import { useAutoComplete } from '../../../shared/hooks/useAutoComplete';
 import BaseModal from '../../../shared/ui/Modal';
 import { useAuth, useCreateUser } from '../../auth/model/useAuth';
 import {
+  ACCESS_STATUSES,
+  ACCESS_STATUS_LABELS,
   type CreateUser,
   createUserSchema,
   ROLES,
 } from '../../auth/model/user-schema';
+import { getErrorMessage } from '../../../shared/utils';
 
 import { fetchUserGroupsByQuery } from '../../user-groups/model/api';
 import type { UserGroup } from '../../user-groups/model/types';
-import { RIGHTS, RIGHTS_LABELS } from '../model/types';
 interface CreateUserModalProps {
   open: boolean;
   onClose: () => void;
@@ -49,6 +53,12 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   const { user: currentUser } = useAuth();
   const { mutate: createUser, isPending, error } = useCreateUser();
   const isSA = currentUser?.role === 'SuperAdmin';
+  // Чи дозволив Super Admin адміністраторам груп призначати інших GA своєї групи.
+  const { data: features } = useQuery({
+    queryKey: ['global-settings', 'features'],
+    queryFn: async () => (await api.get<{ gaCanAssignGa: boolean }>('/global-settings/features')).data,
+    enabled: currentUser?.role === 'Admin',
+  });
 
   const GroupSearch = useAutoComplete<UserGroup>({
     fetchFn: fetchUserGroupsByQuery,
@@ -66,7 +76,9 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
   } = useForm<CreateUser>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
-      rights: 'Read',
+      accessStatus: 'ReadOnly',
+      statusReason: '',
+      sessionLimit: 0,
       role: 'User',
       firstName: '',
       lastName: '',
@@ -128,6 +140,9 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
     if (isAuctionMember) {
       delete payload.managedGroup;
     }
+    if (!payload.statusReason?.trim()) {
+      delete payload.statusReason;
+    }
 
     createUser(payload as CreateUser, {
       onSuccess: () => handleClose(),
@@ -146,7 +161,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
           {error && (
             <Grid size={12}>
               <Alert severity="error" sx={{ borderRadius: '8px' }}>
-                Помилка: {error.message}
+                Помилка: {getErrorMessage(error)}
               </Alert>
             </Grid>
           )}
@@ -167,6 +182,13 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
               {...register('lastName')}
               error={!!errors.lastName}
               helperText={errors.lastName?.message}
+            />
+          </Grid>
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="По батькові"
+              {...register('middleName')}
             />
           </Grid>
 
@@ -215,7 +237,7 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} label="Роль">
-                    {ROLES.filter((r) => isSA || r === 'User').map(
+                    {ROLES.filter((r) => isSA || r === 'User' || (r === 'Admin' && features?.gaCanAssignGa)).map(
                       (role) => (
                         <MenuItem key={role} value={role}>
                           {role}
@@ -309,29 +331,43 @@ export const WorkerCreateModal = ({ open, onClose }: CreateUserModalProps) => {
           )}
 
           <Grid size={12}>
-            <FormControl fullWidth error={!!errors.rights}>
-              <InputLabel>Права доступу</InputLabel>
+            <FormControl fullWidth error={!!errors.accessStatus}>
+              <InputLabel>Статус доступу</InputLabel>
               <Controller
-                name="rights"
+                name="accessStatus"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} label="Права доступу">
-                    {RIGHTS.map((right) => (
-                      <MenuItem key={right} value={right}>
-                        {RIGHTS_LABELS[right] || right}
+                  <Select {...field} label="Статус доступу">
+                    {ACCESS_STATUSES.map((status) => (
+                      <MenuItem key={status} value={status}>
+                        {ACCESS_STATUS_LABELS[status]}
                       </MenuItem>
                     ))}
                   </Select>
                 )}
               />
-              {errors.rights && (
-                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                  {errors.rights.message}
-                </Typography>
-              )}
             </FormControl>
           </Grid>
-
+          {watch('accessStatus') !== 'ReadOnly' && (
+            <Grid size={12}>
+              <TextField
+                fullWidth
+                label="Причина статусу (необов'язково)"
+                {...register('statusReason')}
+                helperText="Записується в журнал змін"
+              />
+            </Grid>
+          )}
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Особистий ліміт одночасних сесій"
+              {...register('sessionLimit', { valueAsNumber: true })}
+              helperText="0 - без особистого ліміту (діють ліміти групи та системи)"
+              slotProps={{ htmlInput: { min: 0 } }}
+            />
+          </Grid>
           <Grid size={12}>
             <Button
               fullWidth

@@ -12,20 +12,20 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { Account } from '../features/acounts/model/types';
+import type { Account } from '../features/accounts/model/types';
 import {
   useFavoriteAccounts,
   useRemoveFromFavorite,
-} from '../features/acounts/model/useAcounts';
-import FavoriteItem from '../features/acounts/ui/FavoriteItem';
-import { useSession } from '../features/sessions/model/store';
+} from '../features/accounts/model/useAccounts';
+import FavoriteItem from '../features/accounts/ui/FavoriteItem';
+import { useTabsStore } from '../features/sessions/model/tabs';
 import { useMobile } from '../shared/hooks/useMobile';
 import { Loader } from '../shared/ui/Loader';
 
 export default function FavoriteAccounts() {
   const { items: accounts, isLoading } = useFavoriteAccounts();
   const { mutate: RemoveFromFavorite } = useRemoveFromFavorite();
-  const sessionConnect = useSession();
+  const openTab = useTabsStore((s) => s.openTab);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
@@ -36,13 +36,10 @@ export default function FavoriteAccounts() {
     setActiveAccountId(null);
   };
 
-  const handleSelectAccount = (account: Account) => {
-    sessionConnect.setAuctionAuthId(account.id);
-    navigate(`/auctions/`, {
-      state: {
-        view: 'sessions',
-      },
-    });
+  // «Обране» - кнопки швидкого доступу: одразу відкривають вкладку з акаунтом (ТЗ 6.4).
+  const handleSelectAccount = (account: Account, auctionTitle?: string) => {
+    openTab({ auctionId: account.auctionId, auctionAuthId: account.id, auctionTitle, accountTitle: account.title });
+    navigate(`/session/${account.id}`);
   };
 
   const toggleFavorite = (id: string) => {
@@ -54,7 +51,6 @@ export default function FavoriteAccounts() {
   if (isLoading) return <Loader />;
   return (
     <Box sx={{ py: 4 }}>
-      {/* Заголовок */}
       {!isMobile && (
         <>
           <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
@@ -106,7 +102,6 @@ export default function FavoriteAccounts() {
         </Box>
       )}
 
-      {/* Меню дій */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

@@ -1,4 +1,4 @@
-import { Gavel } from '@mui/icons-material'; // Іконка для гарного вигляду
+import { Gavel } from '@mui/icons-material';
 import { Box, Grid, Typography } from '@mui/material';
 import { useModal } from '../../../shared/hooks/useModal';
 import AddItemButton from '../../../shared/ui/AddItemButton';
@@ -35,7 +35,6 @@ export default function AuctionsList({
         },
       }}
     >
-      {/* Якщо аукціони є - рендеримо їх */}
       {!isEmpty ? (
         filteredAuctions.map((auction) => (
           <AuctionItem
@@ -102,7 +101,6 @@ export default function AuctionsList({
           </Grid>
         )}
 
-        {/* Модалка */}
         <AuctionAddModal
           currentGroupId={currentGroupId}
           isModalOpen={isOpen}

@@ -1,4 +1,6 @@
-import { Assessment } from '@mui/icons-material';
+import { Assessment, History } from '@mui/icons-material';
+import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Chip,
@@ -15,8 +17,12 @@ import {
   Typography,
   type ChipProps,
 } from '@mui/material';
-import type { User, UserRole } from '../../auth/model/user-schema';
+import { statusLabel, type User, type UserRole } from '../../auth/model/user-schema';
 import { UserActionsMenu } from './UserActionsMenu';
+const time = (value?: string | Date | null) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
+
+const SESSION_STATUS = { active: 'активна', ended: 'завершена', error: 'помилка' } as const;
+
 const roleColors: Record<UserRole, ChipProps['color']> = {
   SuperAdmin: 'error',
   Admin: 'primary',
@@ -36,6 +42,7 @@ export default function WorkersList({
   OpenEditUser,
   OpenUserAccess,
 }: Props) {
+  const navigate = useNavigate();
   return (
     <TableContainer
       component={Paper}
@@ -53,6 +60,8 @@ export default function WorkersList({
             <TableCell sx={{ fontWeight: 700 }}>Користувач</TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Роль</TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Статус</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Останній вхід / активність</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Остання сесія</TableCell>
             <TableCell align="right" sx={{ fontWeight: 700 }}>
               Дії
             </TableCell>
@@ -83,13 +92,31 @@ export default function WorkersList({
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={user.isBlocked ? 'Заблокований' : 'Активний'}
+                    label={statusLabel(user)}
                     size="small"
                     sx={{
-                      bgcolor: user.isActive ? '#e1f5fe' : '#ffebee',
-                      color: user.isActive ? '#01579b' : '#b71c1c',
+                      bgcolor: user.isBlocked ? '#ffebee' : '#e1f5fe',
+                      color: user.isBlocked ? '#b71c1c' : '#01579b',
                     }}
                   />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">{time(user.lastLogin)}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    активність: {time(user.lastActivity)}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  {user.lastSession ? (
+                    <>
+                      <Typography variant="body2">{user.lastSession.auction}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {time(user.lastSession.startedAt)} · {SESSION_STATUS[user.lastSession.status]}
+                      </Typography>
+                    </>
+                  ) : (
+                    '-'
+                  )}
                 </TableCell>
                 <TableCell align="right">
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
@@ -102,6 +129,11 @@ export default function WorkersList({
                     >
                       <IconButton size="small" color="primary">
                         <Assessment />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Перейти в лог">
+                      <IconButton size="small" onClick={() => navigate(`/logs?userId=${user.id}`)}>
+                        <History />
                       </IconButton>
                     </Tooltip>
                     <UserActionsMenu
@@ -121,7 +153,7 @@ export default function WorkersList({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+              <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                 <Typography color="text.secondary">
                   Працівників ще немає
                 </Typography>

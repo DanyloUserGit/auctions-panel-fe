@@ -427,7 +427,7 @@ export default function ImportForm({ tab }: { tab: CalculationTab }) {
                     <Typography variant="body2" color="text.secondary">
                       Курс
                     </Typography>
-                    <Typography variant="h6">{safeToFixed(1.17, 4)}</Typography>
+                    <Typography variant="h6">{safeToFixed(parseNumberish(rozForm.fx), 4)}</Typography>
                   </Grid>
                 </Grid>
               </Paper>

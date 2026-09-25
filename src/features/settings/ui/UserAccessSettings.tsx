@@ -106,7 +106,6 @@ export default function UserAccessSettings() {
           />
         </Tabs>
 
-        {/* 1. Дані клієнта */}
         <CustomTabPanel value={tabValue} index={0}>
           <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
             Прив’язка до замовників
@@ -133,7 +132,6 @@ export default function UserAccessSettings() {
           />
         </CustomTabPanel>
 
-        {/* 2. Дані для авторизації */}
         <CustomTabPanel value={tabValue} index={1}>
           <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
             Дозволені акаунти та винятки
@@ -155,7 +153,6 @@ export default function UserAccessSettings() {
           </Stack>
         </CustomTabPanel>
 
-        {/* 3. Список дозволених дій */}
         <CustomTabPanel value={tabValue} index={2}>
           <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
             Функціональні дозволи
@@ -176,7 +173,6 @@ export default function UserAccessSettings() {
           </FormGroup>
         </CustomTabPanel>
 
-        {/* 4. Список заборонених дій */}
         <CustomTabPanel value={tabValue} index={3}>
           <Typography
             variant="subtitle1"

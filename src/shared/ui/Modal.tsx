@@ -35,7 +35,6 @@ export default function BaseModal({
       maxWidth={maxWidth}
       sx={{ '& .MuiPaper-root': { borderRadius: '16px' } }}
     >
-      {/* Шапка модалки */}
       <DialogTitle
         sx={{
           m: 0,

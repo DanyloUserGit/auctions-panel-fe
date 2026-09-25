@@ -130,19 +130,20 @@ export default function NotificationsTable({ settings, handleToggle, handleValue
 
                   {notificationSetting && (
                     <Box sx={{ mt: 1.5 }}>
+                      {/* Значення зберігається в секундах, користувач задає хвилини. */}
                       <TextField
                         size="small"
                         type="number"
-                        label="Значення"
+                        label="Нагадати за, хв"
                         disabled={isRowDisabled}
-                        defaultValue={row.value ?? notificationSetting.default}
-                        onBlur={(e) => handleValueChange(row.id, Number(e.target.value))}
+                        defaultValue={Math.round((row.value ?? notificationSetting.default) / 60)}
+                        onBlur={(e) => handleValueChange(row.id, Math.round(Number(e.target.value) * 60))}
                         inputProps={{
-                          min: notificationSetting.min,
-                          max: notificationSetting.max,
+                          min: Math.ceil(notificationSetting.min / 60),
+                          max: Math.floor(notificationSetting.max / 60),
                         }}
-                        sx={{ width: 120 }}
-                        helperText={`Від ${notificationSetting.min} до ${notificationSetting.max}`}
+                        sx={{ width: 160 }}
+                        helperText={`Від ${Math.ceil(notificationSetting.min / 60)} до ${Math.floor(notificationSetting.max / 60)} хв до завершення`}
                         FormHelperTextProps={{ sx: { mx: 0 } }}
                       />
                     </Box>

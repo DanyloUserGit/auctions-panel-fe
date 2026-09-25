@@ -30,6 +30,7 @@ import {
   useUpdateTraining,
   useUploadMaterialImage,
 } from '../model/useTraining';
+import { resolveFileUrl } from '../../../shared/utils';
 
 interface MaterialEditorModalProps {
   isOpen: boolean;
@@ -54,7 +55,7 @@ export function TrainingEditModal({
   const [allowedRoles, setAllowedRoles] = useState<UserRole[]>(
     item.allowedRoles || [],
   );
-  const [selectedGroup, setSelectedGroup] = useState<UserGroup | null>(null); // Спочатку null
+  const [selectedGroup, setSelectedGroup] = useState<UserGroup | null>(null);
   const [isPublished, setIsPublished] = useState(item.isPublished || false);
 
   const [createdMaterialId, setCreatedMaterialId] = useState<string | null>(
@@ -91,7 +92,6 @@ export function TrainingEditModal({
     setSelectedFile(file);
 
     if (file) {
-      // Створюємо новий URL для прев'ю
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
     } else {
@@ -105,7 +105,6 @@ export function TrainingEditModal({
       allowedRoles,
       visibility,
       isPublished,
-      // ВАЖЛИВО: додаємо groupId у запит
       groupId: visibility === 'Group' ? selectedGroup?.id : undefined,
     };
 
@@ -233,12 +232,11 @@ export function TrainingEditModal({
               />
             </Stack>
 
-            {/* ВИПРАВЛЕНО: 'Groups' замість 'Group' */}
             {visibility === 'Group' && (
               <Autocomplete
                 options={groupsSearch.getFilteredOptions(selectedGroup)}
                 loading={groupsSearch.isLoading}
-                value={selectedGroup} // Робимо компонент контрольованим
+                value={selectedGroup}
                 onInputChange={(_, val) =>
                   groupsSearch.debouncedFetch(val, selectedGroup)
                 }
@@ -290,7 +288,6 @@ export function TrainingEditModal({
           </Divider>
         )}
 
-        {/* Секція 2: Завантаження зображення з центруванням */}
 
         {createdMaterialId && (
           <Box
@@ -311,7 +308,7 @@ export function TrainingEditModal({
 
               flexDirection: 'column',
 
-              alignItems: 'center', // Центрування по горизонталі
+              alignItems: 'center',
 
               textAlign: 'center',
             }}
@@ -327,8 +324,8 @@ export function TrainingEditModal({
                 component="img"
                 src={
                   preview ||
-                  item.imageUrl ||
-                  'https://placehold.co/400x200?text=No+Image'
+                  resolveFileUrl(item.imageUrl) ||
+                  '/images/no-photo.jpg'
                 }
                 sx={{
                   width: '100%',

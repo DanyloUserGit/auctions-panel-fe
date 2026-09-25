@@ -28,6 +28,7 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
+import omit from 'lodash/omit';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { CreateOrderPayload, OrderResponse } from './model/api';
@@ -60,19 +61,16 @@ const initialFormState: CreateOrderPayload = {
 export default function Orders() {
   const [search, setSearch] = useState('');
 
-  // Стани модальних вікон
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // <--- Новий стан для модалки видалення
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState<CreateOrderPayload>(initialFormState);
   const navigate = useNavigate();
 
-  // Стан для роботи з меню дій
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Хуки запитів
   const { data: orders = [], isLoading, isError, error } = useOrdersList();
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
@@ -91,7 +89,6 @@ export default function Orders() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- ЛОГІКА МЕНЮ ДІЙ ---
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, order: OrderResponse) => {
     setAnchorEl(event.currentTarget);
     setSelectedOrder(order);
@@ -110,9 +107,8 @@ export default function Orders() {
   const handleEditClick = () => {
     if (selectedOrder) {
       setIsEditMode(true);
-      const { id, created_at, ...rest } = selectedOrder;
       setFormData({
-        ...rest,
+        ...omit(selectedOrder, ['id', 'created_at']),
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
       });
       setIsDialogOpen(true);
@@ -120,13 +116,11 @@ export default function Orders() {
     handleMenuClose();
   };
 
-  // Відкриваємо модалку видалення замість window.confirm
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
     handleMenuClose();
   };
 
-  // --- ЛОГІКА ВИДАЛЕННЯ ---
   const confirmDelete = () => {
     if (selectedOrder) {
       deleteOrderMutation.mutate(selectedOrder.id, {
@@ -138,7 +132,6 @@ export default function Orders() {
     }
   };
 
-  // --- ЛОГІКА ЗБЕРЕЖЕННЯ ---
   const handleSaveOrder = () => {
     if (isEditMode && selectedOrder) {
       updateOrderMutation.mutate(
@@ -184,7 +177,6 @@ export default function Orders() {
         </Button>
       </Stack>
 
-      {/* Пошук */}
       <Card sx={{ p: 2, mb: 3, boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)', borderRadius: 2 }}>
         <TextField
           fullWidth
@@ -203,7 +195,6 @@ export default function Orders() {
         />
       </Card>
 
-      {/* Завантаження та помилки */}
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
           <CircularProgress />
@@ -215,7 +206,6 @@ export default function Orders() {
         </Alert>
       )}
 
-      {/* Таблиця */}
       {!isLoading && !isError && (
         <TableContainer component={Paper} sx={{ boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)', borderRadius: 2 }}>
           <Table>
@@ -270,7 +260,6 @@ export default function Orders() {
         </TableContainer>
       )}
 
-      {/* МЕНЮ ДІЙ */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -285,7 +274,6 @@ export default function Orders() {
         </MenuItem>
       </Menu>
 
-      {/* --- МОДАЛКА ПІДТВЕРДЖЕННЯ ВИДАЛЕННЯ --- */}
       <Dialog
         open={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
@@ -319,7 +307,6 @@ export default function Orders() {
         </DialogActions>
       </Dialog>
 
-      {/* Спільне модальне вікно для створення та редагування замовлення */}
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{isEditMode ? 'Редагувати замовлення' : 'Створити нове замовлення'}</DialogTitle>
         <DialogContent dividers>

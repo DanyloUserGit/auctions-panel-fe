@@ -8,7 +8,8 @@ import {
   fetchUserById,
   fetchUsers,
   fetchUsersByQuery,
-  handleBlockUser,
+  changeUserStatus,
+  type ChangeUserStatus,
   login,
   refreshUser,
   updateUser,
@@ -16,6 +17,7 @@ import {
 import type { CreateUser, UpdateUser, User } from './user-schema';
 import { groupsKeys } from '../../groups/model/useGroups';
 import { socket } from '../../../shared/http';
+import { useTabsStore } from '../../sessions/model/tabs';
 import type { LoginInput } from './login-schema';
 
 export const authKeys = {
@@ -33,7 +35,6 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // Чітко вказуємо функцію мутації
     mutationFn: ({ data, token }: LoginPayload) => login(data, token),
     mutationKey: authKeys.login,
 
@@ -43,7 +44,6 @@ export const useLogin = () => {
     },
 
     onError: (error) => {
-      // Тут можна додати глобальне сповіщення (Toast), якщо потрібно
       console.error('Login failed:', error);
     },
   });
@@ -86,7 +86,9 @@ export const useAuth = () => {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
-      // Сокет сесій автентифікований cookie попереднього користувача - закриваємо його.
+      // Від'єднуємось від сесій (лічильники підключень зменшуються), список вкладок лишається
+      // для наступного входу. Сокет сесій автентифікований cookie попереднього користувача - закриваємо його.
+      useTabsStore.getState().leaveAllOnLogout();
       socket.disconnect();
       queryClient.setQueryData(authKeys.me, null);
       queryClient.clear();
@@ -151,17 +153,13 @@ export const useCreateUser = () => {
     },
   });
 };
-export const useBlockUser = () => {
+export const useChangeUserStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: User) => handleBlockUser(data),
+    mutationFn: ({ id, data }: { id: string; data: ChangeUserStatus }) => changeUserStatus(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: authKeys.users,
-      });
-    },
-    onError: (error) => {
-      console.error('Помилка при створенні користувача:', error);
+      queryClient.invalidateQueries({ queryKey: authKeys.users });
+      queryClient.invalidateQueries({ queryKey: ['auth', 'users'] });
     },
   });
 };
@@ -174,6 +172,7 @@ export const useUpdateUser = () => {
       queryClient.invalidateQueries({
         queryKey: authKeys.users,
       });
+      queryClient.invalidateQueries({ queryKey: ['auth', 'users'] });
       queryClient.invalidateQueries({ queryKey: groupsKeys.all });
     },
     onError: (error) => {

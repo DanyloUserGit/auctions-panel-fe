@@ -18,6 +18,7 @@ import { getVisibilityIcon } from '../model/helper';
 import { Can } from '../../auth/ui/Can';
 import { Edit } from '@mui/icons-material';
 import { TrainingEditModal } from './TrainingEditModal';
+import { resolveFileUrl } from '../../../shared/utils';
 
 const TrainingItem = memo(({ item }: { item: Training }) => {
   const { isOpen: isInfoOpen, open, close } = useModal(false);
@@ -32,10 +33,8 @@ const TrainingItem = memo(({ item }: { item: Training }) => {
     openEdit();
   };
 
-  // Використовуємо плейсхолдер, якщо зображення немає
   const displayImage =
-    item.imageUrl ||
-    `https://placehold.co/600x400/f0f7ff/1e40af?text=${encodeURIComponent(item.title)}`;
+    resolveFileUrl(item.imageUrl) || '/images/no-photo.jpg';
 
   return (
     <>
@@ -79,8 +78,8 @@ const TrainingItem = memo(({ item }: { item: Training }) => {
           <CardMedia
             component="img"
             sx={{
-              height: 180, // Фіксована висота зображення
-              objectFit: 'cover', // Зображення заповнює область без деформації
+              height: 180,
+              objectFit: 'cover',
             }}
             image={displayImage}
             alt={item.title}
@@ -125,7 +124,6 @@ const TrainingItem = memo(({ item }: { item: Training }) => {
                 fontWeight: 700,
                 mb: 1,
                 lineHeight: 1.3,
-                // Обмеження заголовка до 2 рядків
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: 'vertical',
@@ -143,7 +141,6 @@ const TrainingItem = memo(({ item }: { item: Training }) => {
               sx={{
                 mb: 2,
                 flexGrow: 1,
-                // Обмеження основного тексту до 3 рядків
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',

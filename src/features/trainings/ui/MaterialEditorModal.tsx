@@ -48,7 +48,7 @@ export function MaterialEditorModal({
       title,
       content,
       allowedRoles,
-      visibility, // Тепер використовується стейт з типом MaterialVisibilityType
+      visibility,
       groupId: selectedGroup?.id || '',
       isPublished,
     };
@@ -92,7 +92,6 @@ export function MaterialEditorModal({
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        {/* Заглушка під Rich Text Editor */}
         <Box
           sx={{
             height: 250,
@@ -118,7 +117,6 @@ export function MaterialEditorModal({
         </Box>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          {/* Вибір видимості */}
           <Autocomplete
             sx={{ flex: 1 }}
             options={MaterialVisibility}
@@ -131,7 +129,6 @@ export function MaterialEditorModal({
             )}
           />
 
-          {/* Вибір ролей через ваш ROLES масив */}
           <Autocomplete
             multiple
             sx={{ flex: 1 }}
@@ -144,7 +141,6 @@ export function MaterialEditorModal({
           />
         </Stack>
 
-        {/* Вибір групи через ваш useAutoComplete */}
         {visibility === 'Group' && (
           <Autocomplete
             options={groupsSearch.getFilteredOptions(selectedGroup)}

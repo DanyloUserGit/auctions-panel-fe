@@ -1,16 +1,10 @@
 import { api } from '../../../shared/http';
+import type { TabInfo } from './tabs';
 
-export const fetchSessions = async (accountId: string) => {
-  if (!accountId) return [];
-  const responce = await api.get(`/sessions/${accountId}`);
-  return responce.data;
-};
-export const deleteSession = async (id: string) => {
-  const responce = await api.delete(`/sessions/${id}`);
-  return responce.data;
-};
+type ActiveSession = { id: string; auctionId: string; auctionAuthId: string; auctionTitle: string; accountTitle: string };
 
-export const fetchActiveSessions = async () => {
-  const responce = await api.get(`/sessions/active/mine`);
-  return responce.data;
+// Сесії, до яких користувач зараз підключений (для відновлення вкладок після входу/оновлення сторінки).
+export const fetchMyTabs = async (): Promise<TabInfo[]> => {
+  const { data } = await api.get<ActiveSession[]>('/sessions/active/mine');
+  return data.map(({ auctionId, auctionAuthId, auctionTitle, accountTitle }) => ({ auctionId, auctionAuthId, auctionTitle, accountTitle }));
 };

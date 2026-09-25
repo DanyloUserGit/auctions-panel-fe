@@ -56,9 +56,7 @@ export default function PageNotFound() {
           </Button>
         </div>
 
-        {/* Декоративний елемент (опціонально) */}
         <Box className="mt-16 opacity-10">
-          {/* Тут можна додати іконку або SVG-ілюстрацію */}
         </Box>
       </Box>
     </Container>

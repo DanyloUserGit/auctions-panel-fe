@@ -256,7 +256,6 @@ export default function EmployeesSection() {
         }}
       />
 
-      {/* Модалки */}
       <WorkerControlModal
         id={String(effectiveId)}
         open={isControlCardOpen}

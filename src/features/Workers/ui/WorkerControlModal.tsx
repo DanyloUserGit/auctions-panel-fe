@@ -1,30 +1,27 @@
+import { History } from '@mui/icons-material';
 import {
-  AccessTime,
-  Block,
-  CheckCircle,
-  Email,
-  History,
-  Security,
-  Smartphone,
-  Groups as GroupsIcon,
-  SettingsApplications,
-} from '@mui/icons-material';
-import {
-  Avatar,
+  Alert,
   Box,
+  Button,
+  Checkbox,
   Chip,
+  Divider,
+  FormControlLabel,
   Grid,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Skeleton,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
+import { useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BaseModal from '../../../shared/ui/Modal';
-import { useControlCard } from '../../auth/model/useAuth';
+import { getErrorMessage } from '../../../shared/utils';
+import { useControlCard, useUpdateUser } from '../../auth/model/useAuth';
+import { statusLabel, type AccessStatus } from '../../auth/model/user-schema';
+import UserStatusDialog from './UserStatusDialog';
 
 interface WorkerControlModalProps {
   open: boolean;
@@ -33,249 +30,242 @@ interface WorkerControlModalProps {
   isLoading: boolean;
 }
 
-export const WorkerControlModal = ({
-  open,
-  onClose,
-  id,
-  isLoading,
-}: WorkerControlModalProps) => {
-  if (!id && open) onClose();
+type AdminFields = {
+  hasContract: boolean;
+  contractNumber: string | null;
+  depositAmount: number | null;
+  depositMethod: string | null;
+  adminComment: string | null;
+  adminExtra: string | null;
+};
 
-  const { userData: data } = useControlCard(String(id));
+type ControlCard = {
+  profile: {
+    id: string;
+    firstName: string;
+    middleName: string | null;
+    lastName: string;
+    fullName: string;
+    email: string;
+    phone: string | null;
+    city: string | null;
+    role: string;
+    userGroup: { name: string } | null;
+    managedGroup: { name: string } | null;
+  };
+  admin: AdminFields | null;
+  status: { isActive: boolean; isBlocked: boolean; accessStatus: AccessStatus };
+  activity: {
+    lastLogin: string | null;
+    lastActivity: string | null;
+    lastSession: { id: string; auction: string; startedAt: string; endedAt?: string | null; status: 'active' | 'ended' | 'error' } | null;
+  };
+  limits: { sessionLimit: number; groupSessionLimit: number; globalSessionLimit: number };
+  recentIncidents: { id: string; createdAt: string; message: string; session?: { auction: { title: string } } }[];
+};
 
-  const role = data?.profile?.role;
-  const isSA = role === 'SuperAdmin';
-  const isAdmin = role === 'Admin';
-  const isUser = role === 'User';
+const time = (value?: string | null) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
+const limit = (value: number) => (value > 0 ? String(value) : 'без ліміту');
+const SESSION_STATUS = { active: 'активна', ended: 'завершена', error: 'помилка' } as const;
 
-  const showAuctionGroup = isUser || isSA;
-  const showManagedGroup = isAdmin;
+const Section = ({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) => (
+  <Paper variant="outlined" sx={{ p: 2, borderRadius: '12px', height: '100%' }}>
+    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+        {title}
+      </Typography>
+      {action}
+    </Stack>
+    {children}
+  </Paper>
+);
 
-  const renderSkeleton = () => (
-    <Grid container spacing={3}>
-      <Grid size={{ xs: 12, md: 5 }}>
-        <Skeleton
-          variant="rounded"
-          height={280}
-          sx={{ borderRadius: '15px' }}
-        />
-      </Grid>
-      <Grid size={{ xs: 12, md: 7 }}>
-        <Skeleton
-          variant="rounded"
-          height={280}
-          sx={{ borderRadius: '15px' }}
-        />
-      </Grid>
-    </Grid>
-  );
+const Row = ({ label, value }: { label: string; value: ReactNode }) => (
+  <Typography variant="body2" sx={{ mb: 0.5 }}>
+    <Box component="span" sx={{ color: 'text.secondary' }}>
+      {label}:
+    </Box>{' '}
+    {value || '-'}
+  </Typography>
+);
+
+
+// Адмін-поля картки (договір, депозит, коментар): редагують SA і GA своєї групи.
+function AdminFieldsSection({ userId, initial }: { userId: string; initial: AdminFields }) {
+  const updateUser = useUpdateUser();
+  const [admin, setAdmin] = useState<AdminFields>(initial);
+
+  const saveAdmin = () =>
+    updateUser.mutate({
+      id: userId,
+      data: { ...admin, depositAmount: admin.depositAmount === null ? null : Number(admin.depositAmount) },
+    });
 
   return (
-    <BaseModal
-      open={open}
-      onClose={onClose}
-      title="Картка контролю працівника"
-      maxWidth="md"
-    >
-      {isLoading ? (
-        renderSkeleton()
-      ) : data ? (
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 3,
-                borderRadius: '15px',
-                textAlign: 'center',
-                height: '100%',
-                bgcolor: '#fafafa',
-              }}
-            >
-              <Avatar
-                sx={{
-                  width: 80,
-                  height: 80,
-                  mx: 'auto',
-                  mb: 2,
-                  bgcolor: isSA ? 'secondary.main' : 'primary.main',
-                  fontSize: '2rem',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                }}
-              >
-                {data.profile.fullName?.[0] || '?'}
-              </Avatar>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                {data.profile.fullName}
-              </Typography>
-              <Chip
-                label={role}
-                size="small"
-                color={isSA ? 'secondary' : 'primary'}
-                variant="filled"
-                sx={{ mt: 1, fontWeight: 600 }}
-              />
-
-              <Box sx={{ mt: 4, textAlign: 'left' }}>
-                <Stack spacing={2}>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Email color="action" sx={{ fontSize: 18 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      {data.profile.email}
-                    </Typography>
-                  </Stack>
-
-                  {showAuctionGroup && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <GroupsIcon color="action" sx={{ fontSize: 18 }} />
-                      <Typography
-                        variant="body2"
-                        sx={{ color: 'text.secondary' }}
-                      >
-                        <strong>Група аукціонів:</strong>{' '}
-                        {data.profile.auctionGroup?.title || 'Немає'}
-                      </Typography>
-                    </Stack>
-                  )}
-
-                  {showManagedGroup && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <SettingsApplications
-                        color="action"
-                        sx={{ fontSize: 18 }}
-                      />
-                      <Typography
-                        variant="body2"
-                        sx={{ color: 'text.secondary' }}
-                      >
-                        <strong>Адмін групи:</strong>{' '}
-                        {data.profile.managedGroup?.title || 'Не призначено'}
-                      </Typography>
-                    </Stack>
-                  )}
-
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Smartphone color="action" sx={{ fontSize: 18 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      {data.profile.phone || 'Не вказано'}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 7 }}>
-            <Stack spacing={2} sx={{ height: '100%' }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2.5,
-                  borderRadius: '15px',
-                  borderLeft: '4px solid',
-                  borderLeftColor: data.status.isActive
-                    ? 'success.main'
-                    : 'error.main',
-                }}
-              >
-                <Typography
-                  variant="overline"
-                  color="text.secondary"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    fontWeight: 700,
-                  }}
-                >
-                  <Security sx={{ fontSize: 16 }} /> Безпека та статус
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, my: 1.5 }}>
-                  <Chip
-                    icon={data.status.isActive ? <CheckCircle /> : <Block />}
-                    label={data.status.isActive ? 'Активний' : 'Деактивований'}
-                    color={data.status.isActive ? 'success' : 'default'}
-                    size="small"
-                  />
-                  {data.status.isBlocked && (
-                    <Chip label="Заблокований" color="error" size="small" />
-                  )}
-                </Box>
-                <Typography variant="body2">
-                  <strong>Права:</strong> {data.status.rights}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Максимально сесій:</strong> {data.limits.sessionLimit}
-                </Typography>
-              </Paper>
-
-              <Paper
-                variant="outlined"
-                sx={{ p: 2.5, borderRadius: '15px', flexGrow: 1 }}
-              >
-                <Typography
-                  variant="overline"
-                  color="text.secondary"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    fontWeight: 700,
-                    mb: 1,
-                  }}
-                >
-                  <History sx={{ fontSize: 16 }} /> Останні події
-                </Typography>
-                <List dense disablePadding>
-                  {data.recentEvents?.length > 0 ? (
-                    data.recentEvents
-                      .slice(0, 4)
-                      .map(
-                        (event: {
-                          id: string;
-                          action: string;
-                          createdAt: string;
-                        }) => (
-                          <ListItem key={event.id} sx={{ px: 0, py: 0.5 }}>
-                            <ListItemIcon sx={{ minWidth: 30 }}>
-                              <AccessTime sx={{ fontSize: 14 }} />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={
-                                event.action || `ID: ${event.id.slice(0, 8)}`
-                              }
-                              secondary={new Date(
-                                event.createdAt,
-                              ).toLocaleString('uk-UA')}
-                              primaryTypographyProps={{
-                                variant: 'caption',
-                                fontWeight: 700,
-                              }}
-                              secondaryTypographyProps={{ variant: 'caption' }}
-                            />
-                          </ListItem>
-                        ),
-                      )
-                  ) : (
-                    <Typography variant="caption" color="text.secondary">
-                      Події відсутні
-                    </Typography>
-                  )}
-                </List>
-              </Paper>
-            </Stack>
-          </Grid>
+    <Section title="Адміністративні поля">
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <FormControlLabel
+            control={<Checkbox checked={admin.hasContract} onChange={(e) => setAdmin({ ...admin, hasContract: e.target.checked })} />}
+            label="Договір укладено"
+          />
         </Grid>
+        <Grid size={{ xs: 12, sm: 8 }}>
+          <TextField fullWidth size="small" label="Номер договору" value={admin.contractNumber ?? ''} onChange={(e) => setAdmin({ ...admin, contractNumber: e.target.value })} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <TextField
+            fullWidth
+            size="small"
+            type="number"
+            label="Сума депозиту"
+            value={admin.depositAmount ?? ''}
+            onChange={(e) => setAdmin({ ...admin, depositAmount: e.target.value === '' ? null : Number(e.target.value) })}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 8 }}>
+          <TextField fullWidth size="small" label="Спосіб внесення депозиту" value={admin.depositMethod ?? ''} onChange={(e) => setAdmin({ ...admin, depositMethod: e.target.value })} />
+        </Grid>
+        <Grid size={12}>
+          <TextField fullWidth multiline minRows={2} size="small" label="Коментар" value={admin.adminComment ?? ''} onChange={(e) => setAdmin({ ...admin, adminComment: e.target.value })} />
+        </Grid>
+        <Grid size={12}>
+          <TextField fullWidth multiline minRows={2} size="small" label="Додаткове поле" value={admin.adminExtra ?? ''} onChange={(e) => setAdmin({ ...admin, adminExtra: e.target.value })} />
+        </Grid>
+        {updateUser.isError && (
+          <Grid size={12}>
+            <Alert severity="error">{getErrorMessage(updateUser.error)}</Alert>
+          </Grid>
+        )}
+        {updateUser.isSuccess && (
+          <Grid size={12}>
+            <Alert severity="success">Збережено</Alert>
+          </Grid>
+        )}
+        <Grid size={12}>
+          <Button variant="contained" onClick={saveAdmin} disabled={updateUser.isPending}>
+            Зберегти адмін-поля
+          </Button>
+        </Grid>
+      </Grid>
+    </Section>
+  );
+}
+
+// Картка контролю користувача (ТЗ 11).
+export const WorkerControlModal = ({ open, onClose, id }: WorkerControlModalProps) => {
+  const navigate = useNavigate();
+  const { userData, isLoading } = useControlCard(String(id));
+  const data = userData as ControlCard | undefined;
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
+
+  if (!id && open) onClose();
+
+  const goToLog = () => {
+    onClose();
+    navigate(`/logs?userId=${id}`);
+  };
+
+
+  return (
+    <BaseModal open={open} onClose={onClose} title="Картка контролю працівника" maxWidth="md">
+      {isLoading || !data ? (
+        <Skeleton variant="rounded" height={320} />
       ) : (
-        <Box sx={{ py: 5, textAlign: 'center' }}>
-          <Typography color="text.secondary">Інформація недоступна</Typography>
-        </Box>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Section title="Дані">
+              <Row label="ПІБ" value={data.profile.fullName} />
+              <Row label="Email" value={data.profile.email} />
+              <Row label="Місто" value={data.profile.city} />
+              <Row label="Телефон" value={data.profile.phone} />
+              <Row label="Роль" value={data.profile.role} />
+              <Row label="Група" value={data.profile.managedGroup?.name ?? data.profile.userGroup?.name} />
+            </Section>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Section
+              title="Активність"
+              action={
+                <Button size="small" startIcon={<History />} onClick={goToLog}>
+                  Перейти в лог
+                </Button>
+              }
+            >
+              <Row label="Останній вхід" value={time(data.activity.lastLogin)} />
+              <Row label="Остання активність" value={time(data.activity.lastActivity)} />
+              <Row
+                label="Остання сесія"
+                value={
+                  data.activity.lastSession
+                    ? `${data.activity.lastSession.auction}, ${time(data.activity.lastSession.startedAt)}, ${SESSION_STATUS[data.activity.lastSession.status]}`
+                    : null
+                }
+              />
+            </Section>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Section
+              title="Статус і ліміти"
+              action={
+                data.admin && (
+                  <Button size="small" variant="outlined" onClick={() => setIsStatusOpen(true)}>
+                    Змінити статус
+                  </Button>
+                )
+              }
+            >
+              <Stack direction="row" spacing={1} mb={1}>
+                <Chip size="small" color={data.status.isBlocked ? 'error' : 'success'} label={statusLabel(data.status)} />
+              </Stack>
+              <Row label="Особистий ліміт сесій" value={limit(data.limits.sessionLimit)} />
+              <Row label="Ліміт групи" value={limit(data.limits.groupSessionLimit)} />
+              <Row label="Загальний ліміт системи" value={limit(data.limits.globalSessionLimit)} />
+            </Section>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Section title="Останні 10 інцидентів">
+              {data.recentIncidents.length ? (
+                <Stack spacing={1} divider={<Divider flexItem />}>
+                  {data.recentIncidents.map((incident) => (
+                    <Box key={incident.id}>
+                      <Typography variant="caption" color="text.secondary">
+                        {time(incident.createdAt)} · {incident.session?.auction.title}
+                      </Typography>
+                      <Typography variant="body2">{incident.message}</Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  Інцидентів немає
+                </Typography>
+              )}
+            </Section>
+          </Grid>
+
+          {data.admin && (
+            <Grid size={12}>
+              <AdminFieldsSection key={JSON.stringify(data.admin)} userId={id} initial={data.admin} />
+            </Grid>
+          )}
+        </Grid>
+      )}
+
+      {isStatusOpen && data && (
+        <UserStatusDialog
+          user={{
+            id: data.profile.id,
+            firstName: data.profile.firstName,
+            lastName: data.profile.lastName,
+            accessStatus: data.status.accessStatus,
+            isBlocked: data.status.isBlocked,
+          }}
+          onClose={() => setIsStatusOpen(false)}
+        />
       )}
     </BaseModal>
   );

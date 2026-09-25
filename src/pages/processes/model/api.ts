@@ -17,9 +17,6 @@ export const fetchProcesses = async (
       asof: params.asof || '',
       open: params.open !== undefined ? params.open : true,
     },
-    headers: {
-      'x-db-name': 'table_extourcars1',
-    },
   });
 
   return response.data;

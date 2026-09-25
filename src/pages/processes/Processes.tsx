@@ -29,6 +29,11 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { useNavigate } from 'react-router';
+import { Can } from '../../features/auth/ui/Can';
+import CrmClientsDialog from '../../features/crm-clients/CrmClientsDialog';
+import { useAuth } from '../../features/auth/model/useAuth';
+import { copyText } from '../../shared/utils';
+import StageDialog, { type StageTarget } from './ui/StageDialog';
 
 export const Processes = () => {
   const [filterActive, setFilterActive] = useState('all');
@@ -36,9 +41,12 @@ export const Processes = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [asOfDate, setAsOfDate] = useState('');
   const [showOpenOnly, setShowOpenOnly] = useState(false);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const [stageTarget, setStageTarget] = useState<StageTarget | null>(null);
+  const { user } = useAuth();
+  const canEditStages = user?.role === 'SuperAdmin' || user?.role === 'Admin';
   const navigate = useNavigate();
 
-  // Затримка пошуку (дебаунс)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -49,7 +57,6 @@ export const Processes = () => {
     };
   }, [searchQuery]);
 
-  // Викликаємо хук. Додали isFetching для відображення фонового завантаження
   const { data, isLoading, isError, error, isFetching } = useProcessesData({
     search: debouncedSearch,
     asof: asOfDate,
@@ -118,22 +125,31 @@ export const Processes = () => {
     { label: 'Закриті', value: 'realized', count: data?.stats?.realized || 0 },
   ];
 
+  // GA і SA змінюють етап кліком по клітинці.
+  const editable = (stage?: StageTarget) =>
+    canEditStages && stage
+      ? { onClick: () => setStageTarget(stage), sx: { cursor: 'pointer', '&:hover': { outline: '1px solid #90caf9' } } }
+      : {};
+
   const renderStatusCell = (
     isDone: boolean,
     isWaiting: boolean,
     dateString?: string | null,
+    stage?: StageTarget,
   ) => {
+    const edit = editable(stage);
     if (isWaiting) {
       return (
         <TableCell
-          sx={{ backgroundColor: '#ffebee', borderRight: '1px solid #f0f0f0' }}
+          {...edit}
+          sx={{ backgroundColor: '#ffebee', borderRight: '1px solid #f0f0f0', ...edit.sx }}
           align="center"
         />
       );
     }
     if (isDone) {
       return (
-        <TableCell align="center" sx={{ borderRight: '1px solid #f0f0f0' }}>
+        <TableCell align="center" {...edit} sx={{ borderRight: '1px solid #f0f0f0', ...edit.sx }}>
           {dateString ? (
             <Chip
               label={dateString.split('T')[0]}
@@ -147,10 +163,9 @@ export const Processes = () => {
         </TableCell>
       );
     }
-    return <TableCell sx={{ borderRight: '1px solid #f0f0f0' }} />;
+    return <TableCell {...edit} sx={{ borderRight: '1px solid #f0f0f0', ...edit.sx }} />;
   };
 
-  // ПРИБРАЛИ звідси жорсткий return для isLoading/isError
 
   return (
     <Box
@@ -167,7 +182,6 @@ export const Processes = () => {
         },
       }}
     >
-      {/* --- ВЕРХНЯ ПАНЕЛЬ (Приховуємо при друку) --- */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -185,7 +199,14 @@ export const Processes = () => {
         </Box>
 
         <Box display="flex" alignItems="center" gap={3}>
-          {/* Додано обробник window.print() */}
+          <Can roles={['SuperAdmin']}>
+            <Button variant="outlined" onClick={() => setIsAssignOpen(true)}>
+              Відповідальні за клієнтів
+            </Button>
+          </Can>
+          <Button variant="text" color="inherit" sx={{ fontWeight: 'bold' }} onClick={() => copyText(window.location.href)}>
+            Скопіювати посилання
+          </Button>
           <Button
             startIcon={<PrintIcon />}
             variant="text"
@@ -217,7 +238,6 @@ export const Processes = () => {
         </Box>
       </Box>
 
-      {/* --- ФІЛЬТРИ ТА ПОШУК (Приховуємо при друку) --- */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -273,7 +293,6 @@ export const Processes = () => {
         />
       </Box>
 
-      {/* --- ТАБЛИЦЯ АБО ЛОАДЕР --- */}
       {isLoading ? (
         <Box p={4} display="flex" justifyContent="center">
           <CircularProgress />
@@ -415,36 +434,43 @@ export const Processes = () => {
                       st.doneOplata,
                       isWaitingPay,
                       car.data_oplaty,
+                      { carId: car.id, field: 'data_oplaty', label: 'Оплата', date: car.data_oplaty },
                     )}
                     {renderStatusCell(
                       st.doneZez,
                       isWaitingZez,
                       car.data_zezwolenia,
+                      { carId: car.id, field: 'data_zezwolenia', label: 'Згода', date: car.data_zezwolenia },
                     )}
                     {renderStatusCell(
                       st.doneTrsp,
                       isWaitingTrsp,
                       car.data_zamowienia_transportu,
+                      { carId: car.id, field: 'data_zamowienia_transportu', label: 'Замовлення транспорту', date: car.data_zamowienia_transportu },
                     )}
                     {renderStatusCell(
                       st.doneDauto,
                       isWaitingDauto,
                       car.data_dostarczenia_auta,
+                      { carId: car.id, field: 'data_dostarczenia_auta', label: 'Доставка авто', date: car.data_dostarczenia_auta },
                     )}
                     {renderStatusCell(
                       st.doneCmr,
                       isWaitingCmr,
                       car.data_wysylki_cmr,
+                      { carId: car.id, field: 'data_wysylki_cmr', label: 'Відправка CMR', date: car.data_wysylki_cmr },
                     )}
                     {renderStatusCell(
                       st.doneDocs,
                       isWaitingDocs,
                       car.data_dostarczenia_dokumentow,
+                      { carId: car.id, field: 'data_dostarczenia_dokumentow', label: 'Доставка документів', date: car.data_dostarczenia_dokumentow },
                     )}
                     {renderStatusCell(
                       st.doneSale,
                       isWaitingSale,
                       car.data_faktury_sprzedaz,
+                      { carId: car.id, field: 'data_faktury_sprzedaz', label: 'Фактура (продаж)', date: car.data_faktury_sprzedaz },
                     )}
                   </TableRow>
                 );
@@ -465,6 +491,8 @@ export const Processes = () => {
           </Table>
         </TableContainer>
       )}
+      {isAssignOpen && <CrmClientsDialog onClose={() => setIsAssignOpen(false)} />}
+      {stageTarget && <StageDialog target={stageTarget} onClose={() => setStageTarget(null)} />}
     </Box>
   );
 };

@@ -1,6 +1,6 @@
 import { api } from '../../../shared/http';
 import type { LoginInput } from './login-schema';
-import type { ChangeRole, CreateUser, UpdateUser, User } from './user-schema';
+import type { AccessStatus, ChangeRole, CreateUser, UpdateUser, User } from './user-schema';
 
 export const login = async (data: LoginInput, token: string) => {
   const response = await api.post(
@@ -76,10 +76,6 @@ export const fetchControlCard = async (id: string) => {
   const responce = await api.get(`/users/${id}/control-card`);
   return responce.data;
 };
-export const updateStatus = async (id: string) => {
-  const responce = await api.get(`/users/${id}/status`);
-  return responce.data;
-};
 export const createUser = async (data: CreateUser): Promise<User> => {
   const responce = await api.post(`/users`, data);
   return responce.data;
@@ -88,10 +84,10 @@ export const updateUser = async (id: string, data: UpdateUser) => {
   const responce = await api.patch(`users/${id}`, data);
   return responce.data;
 };
-export const handleBlockUser = async (user: User) => {
-  const responce = await api.patch(`/users/${user.id}/status`, {
-    isActive: !user.isActive,
-    isBlocked: !user.isBlocked,
-  });
+// Зміна статусу доступу / блокування - лише з причиною, яка потрапляє в журнал (ТЗ 12).
+export type ChangeUserStatus = { accessStatus?: AccessStatus; isBlocked?: boolean; reason: string };
+
+export const changeUserStatus = async (id: string, data: ChangeUserStatus): Promise<User> => {
+  const responce = await api.patch(`/users/${id}/status`, data);
   return responce.data;
 };

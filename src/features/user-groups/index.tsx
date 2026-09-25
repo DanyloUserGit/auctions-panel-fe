@@ -22,7 +22,7 @@ export function UserGroupsFeature() {
   );
 }
 
-export * from './ui/UserGroupAccessPanel';
-export * from './ui/UserGroupDetailPage';
-export * from './ui/UserGroupFormDialog';
-export * from './ui/UserGroupsListPage';
+export { UserGroupAccessPanel } from './ui/UserGroupAccessPanel';
+export { UserGroupDetailPage } from './ui/UserGroupDetailPage';
+export { UserGroupFormDialog } from './ui/UserGroupFormDialog';
+export { UserGroupsListPage } from './ui/UserGroupsListPage';

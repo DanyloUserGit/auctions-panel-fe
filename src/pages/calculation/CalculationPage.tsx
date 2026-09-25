@@ -44,6 +44,7 @@ import type {
   ITableRow,
 } from './model/types';
 import FullForm from './ui/FullForm';
+import SoldImport from './ui/SoldImport';
 import ImportForm from './ui/ImportForm';
 
 const CalculationPage: React.FC = () => {
@@ -361,6 +362,8 @@ const CalculationPage: React.FC = () => {
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
               Продані авто
             </Typography>
+
+            <SoldImport onImported={() => loadSoldMetaAndRows(true)} />
 
             <Grid container spacing={2} alignItems="center">
               <Grid size={{ xs: 12, md: 6 }}>

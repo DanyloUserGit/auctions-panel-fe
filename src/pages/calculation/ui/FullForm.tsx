@@ -8,7 +8,6 @@ import { TabPanel } from '../../../shared/ui/TabPanel';
 import { copyText } from '../../../shared/utils';
 import type { CalculationTab, ISimpleCalcForm } from '../model/types';
 
-// Колір з вашого дизайну
 const MAIN_COLOR = '#009688';
 
 export default function FullForm({ tab }: { tab: CalculationTab }) {
@@ -16,14 +15,13 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
     useState<ISimpleCalcForm>(defaultSimpleForm);
   const [copied, setCopied] = useState(false);
 
-  // Вся логіка розрахунку тут (відбувається миттєво при зміні будь-якого поля)
   const simpleResult = useMemo(() => {
     const carName =
       `${simpleForm.carYear || ''} ${simpleForm.carBrand || ''} ${simpleForm.carModel || ''}`
         .replace(/\s+/g, ' ')
         .trim();
 
-    // 1. Рахуємо суму в Євро
+    // Рахуємо суму в Євро
     const sumEUR =
       (simpleForm.stavka || 0) +
       (simpleForm.aukcion || 0) +
@@ -31,14 +29,14 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
       (simpleForm.dodatkovi || 0) +
       (simpleForm.nashi || 0);
 
-    // 2. Додаємо 0.5%
+    // Додаємо 0.5%
     const eur05 = sumEUR * 1.005;
 
-    // 3. Конвертуємо в Долари
+    // Конвертуємо в Долари
     const kurs = simpleForm.kurs || 1; // Захист від ділення/множення на 0
     const usd = eur05 * kurs;
 
-    // 4. Рахуємо фінальну суму в Україні (в Доларах)
+    // Рахуємо фінальну суму в Україні (в Доларах)
     const uaTotal =
       usd +
       (simpleForm.rozmitn || 0) +
@@ -47,7 +45,7 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
       (simpleForm.kordon || 0) +
       (simpleForm.laveta || 0);
 
-    // 5. Формуємо текст для копіювання
+    // Формуємо текст для копіювання
     const summaryText = [
       `Автомобіль: ${carName || 'Не вказано'}`,
       `Ставка: ${Math.round(simpleForm.stavka || 0)} EUR`,
@@ -77,8 +75,7 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
     return { carName, sumEUR, eur05, usd, uaTotal, summaryText };
   }, [simpleForm]);
 
-  // ВИПРАВЛЕННЯ: Тепер це звичайна функція, яка повертає JSX, а не окремий React-компонент.
-  // Це зберігає фокус при введенні!
+  // Звичайна функція, що повертає JSX, а не окремий компонент: інакше поле втрачає фокус при введенні.
   const renderInputRow = (
     label: string,
     field: keyof ISimpleCalcForm,
@@ -126,7 +123,6 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
           Форма розрахунку автомобіля
         </Typography>
 
-        {/* --- Верхній блок: Рік, Марка, Модель --- */}
         <Grid container spacing={2} sx={{ mb: 4 }}>
           {[
             ['carYear', 'Рік', 2],
@@ -156,9 +152,7 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
           ))}
         </Grid>
 
-        {/* --- Основний блок: 2 колонки --- */}
         <Grid container spacing={4}>
-          {/* ЛІВА КОЛОНКА (Інпути витрат) */}
           <Grid size={{ xs: 12, md: 6 }}>
             <Box
               sx={{
@@ -179,7 +173,6 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
               </Typography>
             </Box>
             <Box sx={{ px: 1 }}>
-              {/* ВИПРАВЛЕННЯ: Викликаємо як звичайну функцію */}
               {renderInputRow('Ставка', 'stavka', 'EUR')}
               {renderInputRow('Комісія аукціону', 'aukcion', 'EUR')}
               {renderInputRow('Доставка', 'dostavka', 'EUR')}
@@ -216,7 +209,6 @@ export default function FullForm({ tab }: { tab: CalculationTab }) {
             </Box>
           </Grid>
 
-          {/* ПРАВА КОЛОНКА (Посилання та Підсумок) */}
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0.5} sx={{ mb: 3 }}>
               <Typography variant="body2" color="text.secondary">

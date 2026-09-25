@@ -1,34 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createInStockCar, fetchInStockCars, updateInStockCar, type Car } from './api';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createInStockCar,
+  fetchInStockCars,
+  sellInStockCar,
+  updateInStockCar,
+  type CarFilters,
+  type CarsResponse,
+} from './api';
 
-export const useInStockCars = () => {
-  return useQuery<Car[], Error>({
-    queryKey: ['in-stock-cars'],
-    queryFn: fetchInStockCars,
-    staleTime: 1000 * 60 * 5,
+const inStockKey = ['in-stock-cars'] as const;
+
+export const useInStockCars = (filters: CarFilters) => {
+  return useQuery<CarsResponse, Error>({
+    queryKey: [...inStockKey, filters],
+    queryFn: () => fetchInStockCars(filters),
+    placeholderData: keepPreviousData,
   });
 };
 
-// Хук для створення
-export const useCreateCar = () => {
+const useInvalidatingMutation = <TArgs, TResult>(mutationFn: (args: TArgs) => Promise<TResult>) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createInStockCar,
-    onSuccess: () => {
-      // Автоматичне оновлення списку після успішного створення
-      queryClient.invalidateQueries({ queryKey: ['in-stock-cars'] });
-    },
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: inStockKey }),
   });
 };
 
-// Хук для оновлення
-export const useUpdateCar = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: updateInStockCar,
-    onSuccess: () => {
-      // Автоматичне оновлення списку після успішного редагування
-      queryClient.invalidateQueries({ queryKey: ['in-stock-cars'] });
-    },
-  });
-};
+export const useCreateCar = () => useInvalidatingMutation(createInStockCar);
+export const useUpdateCar = () => useInvalidatingMutation(updateInStockCar);
+export const useSellCar = () => useInvalidatingMutation(sellInStockCar);

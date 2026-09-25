@@ -13,10 +13,11 @@ import { useModal } from '../../../shared/hooks/useModal';
 import { Can } from '../../auth/ui/Can';
 import type { Info } from '../model/schemas';
 import { InfoEditModal } from './InfoEditModal';
+import DOMPurify from 'dompurify';
 interface Props {
   page: Info;
-  loadingSlugs: Record<string, boolean>; // Змінено на об'єкт для відстеження по slug
-  loadedContent: Record<string, string>; // Змінено на об'єкт для збереження тексту по slug
+  loadingSlugs: Record<string, boolean>;
+  loadedContent: Record<string, string>;
   handleAccordionChange: (
     slug: string,
   ) => (event: SyntheticEvent, isExpanded: boolean) => Promise<void>;
@@ -33,7 +34,6 @@ export default function InfoItem({
     <Fragment key={page.slug}>
       <Accordion
         elevation={0}
-        // Викликаємо фетчінг при зміні стану акордеона
         onChange={handleAccordionChange(page.slug)}
         sx={{
           border: '1px solid',
@@ -69,8 +69,8 @@ export default function InfoItem({
                 alignItems: 'center',
                 justifyContent: 'center',
                 p: 0.5,
-                ml: 'auto', // Притискаємо до правого краю
-                mr: 1, // Відступ від стрілки ExpandMore
+                ml: 'auto',
+                mr: 1,
                 borderRadius: '50%',
                 cursor: 'pointer',
                 color: 'text.secondary',
@@ -100,7 +100,8 @@ export default function InfoItem({
               sx={{ lineHeight: 1.6 }}
               component="div"
               dangerouslySetInnerHTML={{
-                __html: loadedContent[page.slug] || page.content,
+                // Вміст редагують адміністратори; санітизація прибирає скрипти й обробники подій.
+                __html: DOMPurify.sanitize(loadedContent[page.slug] || page.content),
               }}
             />
           )}

@@ -41,7 +41,6 @@ export default function GroupItem({
         '&:hover': { borderColor: isActive ? 'primary.main' : 'primary.light' },
       }}
     >
-      {/* Меню дій */}
       <Can roles={['SuperAdmin']}>
         <Box
           sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}

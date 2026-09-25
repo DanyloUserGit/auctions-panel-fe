@@ -31,7 +31,9 @@ export function UserGroupFormDialog({ open, group, onClose }: UserGroupFormDialo
     const isSuperAdmin = user?.role === 'SuperAdmin';
     const [name, setName] = useState('');
     const [canGaManageAccounts, setCanGaManageAccounts] = useState(false);
+    const [canGaManageRules, setCanGaManageRules] = useState(false);
     const [showAccounts, setShowAccounts] = useState(true);
+    const [sessionLimit, setSessionLimit] = useState('0');
     const [allowedProfileFields, setAllowedProfileFields] = useState<string[]>(PROFILE_FIELD_OPTIONS);
     const [adminQuery, setAdminQuery] = useState('');
     const [selectedAdmin, setSelectedAdmin] = useState<UserSummary | null>(null);
@@ -44,7 +46,9 @@ export function UserGroupFormDialog({ open, group, onClose }: UserGroupFormDialo
         if (!open) return;
         setName(group?.name ?? '');
         setCanGaManageAccounts(group?.canGaManageAccounts ?? false);
+        setCanGaManageRules(group?.canGaManageRules ?? false);
         setShowAccounts(group?.showAccounts ?? true);
+        setSessionLimit(String(group?.sessionLimit ?? 0));
         setAllowedProfileFields(group?.allowedProfileFields ?? PROFILE_FIELD_OPTIONS);
         setSelectedAdmin(group?.Admin ?? null);
     }, [open, group]);
@@ -53,7 +57,9 @@ export function UserGroupFormDialog({ open, group, onClose }: UserGroupFormDialo
         const payload = {
             name,
             canGaManageAccounts,
+            canGaManageRules,
             showAccounts,
+            sessionLimit: Math.max(0, Number(sessionLimit) || 0),
             allowedProfileFields,
             Admin: selectedAdmin?.id,
         };
@@ -125,6 +131,16 @@ export function UserGroupFormDialog({ open, group, onClose }: UserGroupFormDialo
                     {/* Ці дозволи для групи встановлює лише SuperAdmin. */}
                     {isSuperAdmin && (
                         <>
+                            <TextField
+                                type="number"
+                                label="Ліміт одночасних сесій групи"
+                                value={sessionLimit}
+                                onChange={(e) => setSessionLimit(e.target.value)}
+                                slotProps={{ htmlInput: { min: 0 } }}
+                                helperText="Скільки сесій одночасно можуть мати відкритими учасники групи. 0 - без ліміту."
+                                fullWidth
+                            />
+
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -143,6 +159,16 @@ export function UserGroupFormDialog({ open, group, onClose }: UserGroupFormDialo
                                     />
                                 }
                                 label="GA групи можуть забороняти окремим учасникам акаунти групи"
+                            />
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={canGaManageRules}
+                                        onChange={(e) => setCanGaManageRules(e.target.checked)}
+                                    />
+                                }
+                                label="GA групи можуть задавати правила заборон для своєї групи"
                             />
                         </>
                     )}

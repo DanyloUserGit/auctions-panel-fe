@@ -4,7 +4,6 @@ function TransitionUp(props: SlideProps) {
   return <Slide {...props} direction="up" />;
 }
 
-// У головному компоненті:
 interface Props {
   isOpen: boolean;
   close: () => void;
@@ -14,10 +13,10 @@ export function Notification({ isOpen, close, message }: Props) {
   return (
     <Snackbar
       open={isOpen}
-      autoHideDuration={4000} // 4 секунди (ваш запит 3-5 сек)
+      autoHideDuration={4000}
       onClose={close}
       TransitionComponent={TransitionUp}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} // Як у ТГ
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
       <Alert
         onClose={close}

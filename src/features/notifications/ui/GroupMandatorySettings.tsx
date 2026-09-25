@@ -10,7 +10,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     useGroupRequirements,
     useMyAdminGroups,
@@ -19,13 +19,8 @@ import {
 
 export default function GroupMandatorySettings() {
     const { data: groups, isLoading: groupsLoading } = useMyAdminGroups();
-    const [groupId, setGroupId] = useState<string>('');
-
-    useEffect(() => {
-        if (!groupId && groups && groups.length > 0) {
-            setGroupId(groups[0].id);
-        }
-    }, [groups, groupId]);
+    const [selectedGroupId, setGroupId] = useState<string>('');
+    const groupId = selectedGroupId || groups?.[0]?.id || '';
 
     const { data: requirements, isLoading: requirementsLoading } =
         useGroupRequirements(groupId);

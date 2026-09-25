@@ -60,7 +60,6 @@ export default function DrawerContent({
         bgcolor: '#f8fafc',
       }}
     >
-      {/* Header: Профіль */}
       <Box
         onClick={() => navigate('/me')}
         sx={{
@@ -108,7 +107,6 @@ export default function DrawerContent({
 
       <Divider />
 
-      {/* Меню */}
       <Box
         sx={{
           flexGrow: 1,

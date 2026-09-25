@@ -28,7 +28,6 @@ export function useGroups() {
   });
 }
 
-// Отримання детальної інформації про одну групу
 export function useGroupById(groupId?: string) {
   return useQuery({
     queryKey: groupsKeys.detail(groupId || ''),
@@ -38,7 +37,6 @@ export function useGroupById(groupId?: string) {
   });
 }
 
-// Пошук груп
 export function useGroupByQuery(searchTerm: string = '') {
   return useQuery({
     queryKey: groupsKeys.list(searchTerm),
@@ -48,7 +46,6 @@ export function useGroupByQuery(searchTerm: string = '') {
   });
 }
 
-// Створення групи
 export function useCreateGroup() {
   const queryClient = useQueryClient();
 
@@ -60,7 +57,6 @@ export function useCreateGroup() {
   });
 }
 
-// Редагування групи
 export function useEditGroup() {
   const queryClient = useQueryClient();
 
@@ -76,7 +72,6 @@ export function useEditGroup() {
   });
 }
 
-// Видалення групи
 export function useDeleteGroup() {
   const queryClient = useQueryClient();
 

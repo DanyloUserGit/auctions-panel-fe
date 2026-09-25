@@ -1,6 +1,6 @@
 import LinkIcon from '@mui/icons-material/Link';
 import PrintIcon from '@mui/icons-material/Print';
-import PublicIcon from '@mui/icons-material/Public'; // Замінив Earth на Public
+import PublicIcon from '@mui/icons-material/Public';
 import {
   Autocomplete,
   Box,
@@ -26,6 +26,8 @@ import type { BalanceRecord } from './model/types';
 import { useBalanceClients, useBalanceData } from './model/useBalances';
 import { Row } from './ui/BalanceRow';
 import { ArrowBack } from '@mui/icons-material';
+import { Can } from '../../features/auth/ui/Can';
+import CrmClientsDialog from '../../features/crm-clients/CrmClientsDialog';
 
 const theme = createTheme({
   palette: {
@@ -40,10 +42,9 @@ export default function BalanceSheet() {
   const selectedClient = searchParams.get('client') || '';
   const navigate = useNavigate();
 
-  const [db] = useState<string>('table_extourcars1');
-
-  const { clients } = useBalanceClients(db);
-  const { balances } = useBalanceData(db, selectedClient);
+  const { clients } = useBalanceClients();
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const { balances } = useBalanceData(selectedClient);
 
   // Стан для дати (формат YYYY-MM-DD з інпуту type="date")
   const [date, setDate] = useState('');
@@ -68,29 +69,24 @@ export default function BalanceSheet() {
   const handlePrint = () => {
     window.print();
   };
-  // Функція для повернення на сайт
   const handleReturnToSite = () => {
-    // Вкажіть тут потрібний URL вашого сайту
     navigate("/")
   };
 
-  // 1. Отримуємо всі записи
   const rawRecords = balances?.at(0)?.records || [];
 
-  // 2. Фільтруємо записи за датою (якщо дата обрана)
   const filteredRecords = rawRecords.filter((record: BalanceRecord) => {
-    if (!date) return true; // Якщо дата не обрана, показуємо все
+    if (!date) return true;
 
-    // Припускаємо, що в record є поле date.
     // Встановлюємо час на кінець обраного дня, щоб включити всі записи за цей день
-    const recordDate = new Date(record.date); // Змініть record.date на ваше поле, якщо воно інше
+    const recordDate = new Date(record.date);
     const selectedDate = new Date(date);
     selectedDate.setHours(23, 59, 59, 999);
 
     return recordDate <= selectedDate;
   });
 
-  // 3. Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів для ВСІХ валют
+  // Рахуємо баланс вже з ВІДФІЛЬТРОВАНИХ записів для ВСІХ валют
   const currentBalances = filteredRecords.reduce(
     (acc, curr) => {
       const eur = Math.abs(curr.effectEur || 0);
@@ -105,7 +101,7 @@ export default function BalanceSheet() {
         uah: curr.isPlus ? acc.uah + uah : acc.uah - uah,
       };
     },
-    { eur: 0, usd: 0, pln: 0, uah: 0 } // Початковий стан для всіх валют
+    { eur: 0, usd: 0, pln: 0, uah: 0 }
   );
 
   return (
@@ -120,7 +116,6 @@ export default function BalanceSheet() {
             Баланси
           </Typography>
         </Box>
-        {/* Header */}
         <Stack
           direction={{ xs: 'column', md: 'row' }}
           justifyContent="space-between"
@@ -148,7 +143,6 @@ export default function BalanceSheet() {
           </Box>
         </Stack>
 
-        {/* Toolbar */}
         <Stack
           direction="row"
           spacing={2}
@@ -175,13 +169,18 @@ export default function BalanceSheet() {
             label="Станом на"
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)} // Додано обробник зміни дати
+            onChange={(e) => setDate(e.target.value)}
             size="small"
             InputLabelProps={{ shrink: true }}
           />
 
           <Box sx={{ flexGrow: 1 }} />
 
+          <Can roles={['SuperAdmin']}>
+            <Button variant="outlined" onClick={() => setIsAssignOpen(true)}>
+              Відповідальні за клієнтів
+            </Button>
+          </Can>
           <Button
             startIcon={<PrintIcon />}
             variant="outlined"
@@ -197,15 +196,14 @@ export default function BalanceSheet() {
             Копіювати лінк
           </Button>
           <Button
-            startIcon={<PublicIcon />} // Використано PublicIcon
+            startIcon={<PublicIcon />}
             variant="outlined"
-            onClick={handleReturnToSite} // Змінено обробник
+            onClick={handleReturnToSite}
           >
             Повернутися на сайт
           </Button>
         </Stack>
 
-        {/* Table */}
         <TableContainer
           component={Paper}
           sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
@@ -241,7 +239,6 @@ export default function BalanceSheet() {
           </Table>
         </TableContainer>
 
-        {/* Total */}
         {selectedClient && (
           <Box
             sx={{
@@ -265,6 +262,7 @@ export default function BalanceSheet() {
           </Box>
         )}
       </Container>
+      {isAssignOpen && <CrmClientsDialog onClose={() => setIsAssignOpen(false)} />}
     </ThemeProvider>
   );
 }

@@ -3,33 +3,26 @@ import { fetchBalanceClients, fetchBalanceData } from './api';
 
 export const balancesKeys = {
   all: ['balances'] as const,
-  clients: (db: string) => [...balancesKeys.all, 'clients', db] as const,
-  data: (db: string, client: string) =>
-    [...balancesKeys.all, 'data', db, client] as const,
+  clients: () => [...balancesKeys.all, 'clients'] as const,
+  data: (client: string) => [...balancesKeys.all, 'data', client] as const,
 };
 
-export function useBalanceClients(db: string) {
-  const {
-    data = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: balancesKeys.clients(db),
-    queryFn: () => fetchBalanceClients(db),
+export function useBalanceClients() {
+  const { data = [], isLoading, isError, error } = useQuery({
+    queryKey: balancesKeys.clients(),
+    queryFn: fetchBalanceClients,
     staleTime: 5 * 60 * 1000,
-    enabled: !!db,
   });
 
   return { clients: data, isLoading, isError, error: error ?? null };
 }
 
-export function useBalanceData(db: string, selectedClient: string) {
+export function useBalanceData(selectedClient: string) {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: balancesKeys.data(db, selectedClient),
-    queryFn: () => fetchBalanceData(db, selectedClient),
+    queryKey: balancesKeys.data(selectedClient),
+    queryFn: () => fetchBalanceData(selectedClient),
     staleTime: 5 * 60 * 1000,
-    enabled: !!db && !!selectedClient,
+    enabled: !!selectedClient,
   });
 
   return {

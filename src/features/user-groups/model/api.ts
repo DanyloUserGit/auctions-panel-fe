@@ -128,7 +128,7 @@ export const fetchUsersByQuery = async (q: string): Promise<UserSummary[]> => {
 };
 
 
-// --- Особисті дозволи окремого користувача ---
+// Особисті дозволи окремого користувача
 
 const PERSONAL_ACCESS_ROUTE: Record<AccessKind, { segment: string; field: string }> = {
   auctionGroup: { segment: 'auction-group', field: 'auctionGroupId' },

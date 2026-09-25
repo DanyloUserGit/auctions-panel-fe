@@ -31,24 +31,16 @@ export interface PurchasesResponse {
 export interface UpdateStatusParams {
     carId: number;
     status: number;
-    dbName: string;
 }
 
 export const purchasesApi = {
-    // Отримання списку
-    getPurchases: async (dbName: string): Promise<PurchasesResponse> => {
-        const { data } = await api.get<PurchasesResponse>('/api/purchases', {
-            params: { dbName },
-        });
+    getPurchases: async (): Promise<PurchasesResponse> => {
+        const { data } = await api.get<PurchasesResponse>('/purchases');
         return data;
     },
 
-    // Оновлення статусу
-    updateStatus: async ({ carId, status, dbName }: UpdateStatusParams): Promise<void> => {
-        const { data } = await api.patch(`/api/purchases/${carId}/status`, {
-            status,
-            dbName,
-        });
+    updateStatus: async ({ carId, status }: UpdateStatusParams): Promise<void> => {
+        const { data } = await api.patch(`/purchases/${carId}/status`, { status });
         return data;
     },
 };
